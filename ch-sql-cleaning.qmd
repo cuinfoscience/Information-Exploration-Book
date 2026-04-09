@@ -45,7 +45,7 @@ This chapter works with three Colorado government datasets that will be joined t
 
 ## Part 1: CDC Mortality Data
 
-### 1.1 Inspect
+### Inspect
 
 Load the raw file in pandas and run each diagnostic.
 
@@ -83,7 +83,7 @@ print('Year range:', deaths_raw['Year'].min(), '–', deaths_raw['Year'].max())
 print('Deaths range:', deaths_raw['Deaths'].min(), '–', deaths_raw['Deaths'].max())
 ```
 
-### 1.2 Clean
+### Clean
 
 Apply cleaning operations in pandas based on what the diagnostics revealed. Strip whitespace from text columns, standardize county names, and handle any sentinel values (CDC WONDER uses "Suppressed" and "Unreliable" as data quality flags).
 
@@ -95,7 +95,7 @@ for col in deaths_clean.select_dtypes(include='object').columns:
     deaths_clean[col] = deaths_clean[col].str.strip()
 ```
 
-### 1.3 Design Schema
+### Design Schema
 
 ```sql
 CREATE TABLE IF NOT EXISTS deaths (
@@ -107,13 +107,13 @@ CREATE TABLE IF NOT EXISTS deaths (
 );
 ```
 
-### 1.4 Load
+### Load
 
 ```{python}
 deaths_clean.to_csv('deaths_clean.csv', index=False)
 ```
 
-### 1.5 Validate
+### Validate
 
 After loading into SQLite, run diagnostic queries to confirm the import matches the pandas source:
 

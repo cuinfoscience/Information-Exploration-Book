@@ -389,7 +389,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The central discipline of this chapter is <em>validation</em>: after every transformation, you check that the data changed in the way you intended and that nothing was silently lost or corrupted.</p>
 <section id="setup" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="setup"><span class="header-section-number">7.1</span> Setup</h2>
-<div id="bc82ca0e" class="cell" data-execution_count="1">
+<div id="e819778d" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -400,7 +400,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="loading-the-data" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="loading-the-data"><span class="header-section-number">7.2</span> Loading the Data</h2>
 <p>We will work with Boulder County voter registration data, which arrives as a pipe-delimited text file with a mix of data types, inconsistent categories, and the kinds of quality issues that appear in virtually every real-world dataset.</p>
-<div id="ac33bbe3" class="cell" data-execution_count="2">
+<div id="44ce2334" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'boco_voter_data.txt'</span>, sep<span class="op">=</span><span class="st">'|'</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -412,7 +412,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="forcing-types-at-load-time" class="level3" data-number="7.3.1">
 <h3 data-number="7.3.1" class="anchored" data-anchor-id="forcing-types-at-load-time"><span class="header-section-number">7.3.1</span> Forcing types at load time</h3>
 <p>The safest approach is to declare column types when you load the file, before pandas has a chance to guess:</p>
-<div id="49c2e5f8" class="cell" data-execution_count="3">
+<div id="d1d2bf43" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dtype_d <span class="op">=</span> {</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'RES_ZIP_CODE'</span>: <span class="bu">str</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'BALLOT_ZIP'</span>: <span class="bu">str</span>,</span>
@@ -426,12 +426,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="converting-after-loading" class="level3" data-number="7.3.2">
 <h3 data-number="7.3.2" class="anchored" data-anchor-id="converting-after-loading"><span class="header-section-number">7.3.2</span> Converting after loading</h3>
 <p>If you need to convert a column from string to numeric after loading, use <code>pd.to_numeric()</code> with the <code>errors</code> parameter to control how conversion failures are handled:</p>
-<div id="44308074" class="cell" data-execution_count="4">
+<div id="a0888329" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'YOB'</span>] <span class="op">=</span> pd.to_numeric(df[<span class="st">'YOB'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The three options for <code>errors</code> each serve a different purpose. Using <code>'coerce'</code> converts unparseable values to <code>NaN</code>, which is safe but loses information about what the original values were. Using <code>'ignore'</code> leaves the column unchanged if any conversion fails, preserving data but keeping the column as strings. Using <code>'raise'</code> throws an error on the first bad value, which is useful for debugging because it tells you exactly which value caused the problem.</p>
 <p><strong>Always check what you lost</strong> after coercing:</p>
-<div id="9b57e434" class="cell" data-execution_count="5">
+<div id="a5715075" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>nulls_before <span class="op">=</span> df[<span class="st">'VOTER_ID'</span>].isna().<span class="bu">sum</span>()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'VOTER_ID_CLEAN'</span>] <span class="op">=</span> pd.to_numeric(df[<span class="st">'VOTER_ID'</span>], errors<span class="op">=</span><span class="st">'coerce'</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>nulls_after <span class="op">=</span> df[<span class="st">'VOTER_ID_CLEAN'</span>].isna().<span class="bu">sum</span>()</span>
@@ -444,7 +444,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Text fields in real data are messy in predictable ways: inconsistent capitalization, extra whitespace, non-printing characters, and encoding artifacts. Pandas provides the <code>.str</code> accessor for vectorized string operations — the same operations you would apply with <code>TRIM()</code>, <code>UPPER()</code>, and <code>CLEAN()</code> in a spreadsheet, but applied to an entire column at once.</p>
 <section id="trimming-and-case-standardization" class="level3" data-number="7.4.1">
 <h3 data-number="7.4.1" class="anchored" data-anchor-id="trimming-and-case-standardization"><span class="header-section-number">7.4.1</span> Trimming and case standardization</h3>
-<div id="fbfd304e" class="cell" data-execution_count="6">
+<div id="70264e9f" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Chain operations for readability</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'STREET_NAME'</span>] <span class="op">=</span> (</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'STREET_NAME'</span>]</span>
@@ -457,7 +457,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="the-validation-pattern" class="level3" data-number="7.4.2">
 <h3 data-number="7.4.2" class="anchored" data-anchor-id="the-validation-pattern"><span class="header-section-number">7.4.2</span> The validation pattern</h3>
 <p>Always compare <code>value_counts()</code> before and after cleaning to verify the transformation did what you intended:</p>
-<div id="cb683432" class="cell" data-execution_count="7">
+<div id="e9ad079c" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Before cleaning</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df[<span class="st">'RES_CITY'</span>].value_counts())</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -472,7 +472,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="common-string-artifacts" class="level3" data-number="7.4.3">
 <h3 data-number="7.4.3" class="anchored" data-anchor-id="common-string-artifacts"><span class="header-section-number">7.4.3</span> Common string artifacts</h3>
 <p>Real-world data contains predictable string problems that survive import and need active cleaning. Extra whitespace includes not just leading and trailing spaces but also non-breaking spaces (Unicode U+00A0), which are common in web-scraped data, and tabs or newlines embedded in fields. Inconsistent punctuation appears as variations like <code>"Boulder, CO"</code> vs.&nbsp;<code>"Boulder CO"</code> vs.&nbsp;<code>"Boulder,CO"</code>, or <code>"St. Louis"</code> vs.&nbsp;<code>"St Louis"</code> vs.&nbsp;<code>"Saint Louis"</code>. Encoding artifacts show up as garbled characters like <code>"resumÃ©"</code> (UTF-8 decoded as Latin-1) or <code>"caf\xc3\xa9"</code>.</p>
-<div id="968774a2" class="cell" data-execution_count="8">
+<div id="a7480e23" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove specific characters</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'VOTER_NAME'</span>] <span class="op">=</span> df[<span class="st">'VOTER_NAME'</span>].<span class="bu">str</span>.replace(<span class="st">','</span>, <span class="st">''</span>, regex<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -487,10 +487,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="dictionary-based-recoding-with-.replace" class="level3" data-number="7.5.1">
 <h3 data-number="7.5.1" class="anchored" data-anchor-id="dictionary-based-recoding-with-.replace"><span class="header-section-number">7.5.1</span> Dictionary-based recoding with <code>.replace()</code></h3>
 <p>The <code>.replace()</code> method takes a dictionary that maps old values to new values. Unmapped values are left unchanged:</p>
-<div id="45b6329e" class="cell" data-execution_count="9">
+<div id="661dc18b" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'PARTY'</span>].value_counts()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="e45c1aaf" class="cell" data-execution_count="10">
+<div id="7852ebad" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>party_map <span class="op">=</span> {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'DEM'</span>: <span class="st">'DEM'</span>,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'REP'</span>: <span class="st">'REP'</span>,</span>
@@ -510,7 +510,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="map-vs.-.replace" class="level3" data-number="7.5.2">
 <h3 data-number="7.5.2" class="anchored" data-anchor-id="map-vs.-.replace"><span class="header-section-number">7.5.2</span> <code>.map()</code> vs.&nbsp;<code>.replace()</code></h3>
 <p>The <code>.map()</code> method is stricter: it replaces <em>everything</em>, and unmapped values become <code>NaN</code>. Use <code>.map()</code> when you have a controlled vocabulary and anything outside it is an error:</p>
-<div id="c4a5730d" class="cell" data-execution_count="11">
+<div id="faace258" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>valid_parties <span class="op">=</span> {</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'DEM'</span>: <span class="st">'Democrat'</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'REP'</span>: <span class="st">'Republican'</span>,</span>
@@ -531,11 +531,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="7.6" class="anchored" data-anchor-id="sentinel-values"><span class="header-section-number">7.6</span> Sentinel Values</h2>
 <p>Sentinel values are fake entries that masquerade as real data. They are placeholders inserted to represent missing information without leaving a cell blank. Common examples include <code>-999</code>, <code>9999</code>, or <code>-1</code> in numeric fields, and <code>"N/A"</code>, <code>"."</code>, <code>"-"</code>, or <code>"unknown"</code> in text fields. Dates like <code>01/01/1900</code> or <code>12/31/9999</code> are date sentinels.</p>
 <p>You can declare sentinel values at load time:</p>
-<div id="9388759f" class="cell" data-execution_count="12">
+<div id="578c178b" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># df = pd.read_csv('data.csv', na_values=['-999', '9999', '-1', 'N/A', '.', '-', 'unknown'])</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Or replace them after loading:</p>
-<div id="1e0d73b7" class="cell" data-execution_count="13">
+<div id="f31d51bf" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sentinel_to_null <span class="op">=</span> {<span class="op">-</span><span class="dv">999</span>: np.nan, <span class="dv">9999</span>: np.nan, <span class="op">-</span><span class="dv">1</span>: np.nan}</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df = df.replace(sentinel_to_null)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -545,7 +545,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Duplicate records are rows that share the same values on one or more key columns. They arise from data entry errors, overlapping date ranges in source files, or deliberate denormalization. The critical question is always: <em>are these duplicates errors, or do they represent legitimately repeated observations?</em></p>
 <section id="identifying-duplicates" class="level3" data-number="7.7.1">
 <h3 data-number="7.7.1" class="anchored" data-anchor-id="identifying-duplicates"><span class="header-section-number">7.7.1</span> Identifying duplicates</h3>
-<div id="e501dbde" class="cell" data-execution_count="14">
+<div id="b0b6d140" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fully identical rows</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>full_dupes <span class="op">=</span> df.duplicated()</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Fully identical rows: </span><span class="sc">{</span>full_dupes<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss">"</span>)</span>
@@ -558,7 +558,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="understanding-the-pattern" class="level3" data-number="7.7.2">
 <h3 data-number="7.7.2" class="anchored" data-anchor-id="understanding-the-pattern"><span class="header-section-number">7.7.2</span> Understanding the pattern</h3>
 <p>Before removing duplicates, examine what varies across the repeated rows:</p>
-<div id="2023f7e0" class="cell" data-execution_count="15">
+<div id="18bfd241" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>key_counts <span class="op">=</span> df[<span class="st">'VOTER_ID'</span>].value_counts()</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>example_id <span class="op">=</span> key_counts[key_counts <span class="op">&gt;</span> <span class="dv">1</span>].index[<span class="dv">0</span>]</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>example_rows <span class="op">=</span> df[df[<span class="st">'VOTER_ID'</span>] <span class="op">==</span> example_id]</span>
@@ -571,15 +571,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="three-strategies-for-deduplication" class="level3" data-number="7.7.3">
 <h3 data-number="7.7.3" class="anchored" data-anchor-id="three-strategies-for-deduplication"><span class="header-section-number">7.7.3</span> Three strategies for deduplication</h3>
 <p><strong>Keep first or last</strong> when a more recent record supersedes an earlier one:</p>
-<div id="40386bf4" class="cell" data-execution_count="16">
+<div id="adcbc5d9" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># df_deduped = df.sort_values('SALE_DATE').drop_duplicates(subset=['ACCOUNTNO'], keep='last')</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><strong>Aggregate</strong> when duplicates represent multiple measurements:</p>
-<div id="0e501a19" class="cell" data-execution_count="17">
+<div id="b3517ba7" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># df_agg = df.groupby('ACCOUNTNO', as_index=False).agg({'SALE_PRICE': 'last', 'SALE_DATE': 'max'})</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><strong>Flag for review</strong> when you are not sure what is right:</p>
-<div id="2f0f1d47" class="cell" data-execution_count="18">
+<div id="983ac976" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'is_duplicate'</span>] <span class="op">=</span> df.duplicated(subset<span class="op">=</span>[<span class="st">'VOTER_ID'</span>], keep<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>df_clean <span class="op">=</span> df[<span class="op">~</span>df[<span class="st">'is_duplicate'</span>]]</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>df_review <span class="op">=</span> df[df[<span class="st">'is_duplicate'</span>]].sort_values(<span class="st">'VOTER_ID'</span>)</span>
@@ -593,7 +593,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A common problem is multiple pieces of information crammed into one field — an address field containing street, city, state, and zip code, or a name field containing first and last names.</p>
 <section id="splitting-on-a-delimiter" class="level3" data-number="7.8.1">
 <h3 data-number="7.8.1" class="anchored" data-anchor-id="splitting-on-a-delimiter"><span class="header-section-number">7.8.1</span> Splitting on a delimiter</h3>
-<div id="cb1fee62" class="cell" data-execution_count="19">
+<div id="88db6df7" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split a name column into parts</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'VOTER_NAME'</span>].<span class="bu">str</span>.split(<span class="st">' '</span>, expand<span class="op">=</span><span class="va">True</span>).head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -602,7 +602,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="regular-expression-extraction" class="level3" data-number="7.8.2">
 <h3 data-number="7.8.2" class="anchored" data-anchor-id="regular-expression-extraction"><span class="header-section-number">7.8.2</span> Regular expression extraction</h3>
 <p>For more complex patterns, use <code>.str.extract()</code> with a named capture group regex:</p>
-<div id="1fe90215" class="cell" data-execution_count="20">
+<div id="2fda4fba" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: extract components from a structured address</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pattern = r'^(?P&lt;street&gt;.*?),?\s*(?P&lt;city&gt;[A-Za-z\s]+),?\s*(?P&lt;state&gt;[A-Z]{2})\s*(?P&lt;zip&gt;\d{5})$'</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># extracted = df['full_address'].str.extract(pattern)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -613,7 +613,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="building-reusable-cleaning-functions" class="level2" data-number="7.9">
 <h2 data-number="7.9" class="anchored" data-anchor-id="building-reusable-cleaning-functions"><span class="header-section-number">7.9</span> Building Reusable Cleaning Functions</h2>
 <p>When you find yourself repeating the same cleaning logic across multiple columns or datasets, wrap it in a function. Functions reduce copy-paste errors, make the cleaning logic self-documenting, and enable systematic testing.</p>
-<div id="fc3cc7a2" class="cell" data-execution_count="21">
+<div id="7fed34c4" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> clean_currency_column(df, col_name, new_col_name<span class="op">=</span><span class="va">None</span>):</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Remove currency symbols and commas, convert to numeric.</span></span>
@@ -685,7 +685,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="f1d7296e" class="cell" data-execution_count="22">
+<div id="07114793" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>arc_df <span class="op">=</span> pd.read_excel(<span class="st">'ar-rec-2025-residential.xlsx'</span>)</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Shape:'</span>, arc_df.shape)</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">Dtypes:'</span>)</span>
@@ -732,7 +732,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="bce5d0d4" class="cell" data-execution_count="23">
+<div id="e09dc892" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> standardize_categorical(df, col_name, mapping_dict, new_col_name<span class="op">=</span><span class="va">None</span>):</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> new_col_name <span class="kw">is</span> <span class="va">None</span>:</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        new_col_name <span class="op">=</span> col_name <span class="op">+</span> <span class="st">'_std'</span></span>

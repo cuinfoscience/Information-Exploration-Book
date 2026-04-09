@@ -391,7 +391,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Joining tables is where the most consequential mistakes in data analysis happen — silently. A join that inflates row counts because of unexpected duplicates. A join that drops records because key formats do not match. A left join that introduces hundreds of NULL values you did not anticipate. The only defense is a systematic audit performed at every stage.</p>
 <section id="setup" class="level2" data-number="13.1">
 <h2 data-number="13.1" class="anchored" data-anchor-id="setup"><span class="header-section-number">13.1</span> Setup</h2>
-<div id="20e9ed84" class="cell" data-execution_count="1">
+<div id="93f47ad6" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -448,7 +448,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="toy-example" class="level3" data-number="13.2.1">
 <h3 data-number="13.2.1" class="anchored" data-anchor-id="toy-example"><span class="header-section-number">13.2.1</span> Toy example</h3>
 <p>To build intuition, consider two tiny tables:</p>
-<div id="5fd89e53" class="cell" data-execution_count="2">
+<div id="7b81ddce" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH left_t AS (</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Adams' AS county, 100 AS deaths UNION ALL</span></span>
@@ -473,7 +473,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Before joining, you must understand the <strong>grain</strong> of each table — what combination of columns uniquely identifies a row — and verify that each table has exactly one row per key value. Joining tables with unexpected duplicates causes <strong>fan-out</strong>: row counts explode silently.</p>
 <section id="grain-of-each-table" class="level3" data-number="13.3.1">
 <h3 data-number="13.3.1" class="anchored" data-anchor-id="grain-of-each-table"><span class="header-section-number">13.3.1</span> Grain of each table</h3>
-<div id="a080b36e" class="cell" data-execution_count="3">
+<div id="5eaf58d6" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># What combination of columns is the key for each table?</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT 'deaths' AS tbl,</span></span>
@@ -496,7 +496,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="demonstrating-fan-out" class="level3" data-number="13.3.2">
 <h3 data-number="13.3.2" class="anchored" data-anchor-id="demonstrating-fan-out"><span class="header-section-number">13.3.2</span> Demonstrating fan-out</h3>
-<div id="ff7d4a8d" class="cell" data-execution_count="4">
+<div id="f666f0c5" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># If deaths has multiple rows per county-year (e.g., one per age group),</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># joining directly to population creates duplicates</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
@@ -516,7 +516,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="anti-join-counties-in-one-table-but-not-another" class="level3" data-number="13.4.1">
 <h3 data-number="13.4.1" class="anchored" data-anchor-id="anti-join-counties-in-one-table-but-not-another"><span class="header-section-number">13.4.1</span> Anti-join: counties in one table but not another</h3>
 <p>An anti-join finds records in one table that have no match in the other. SQL does not have a dedicated anti-join keyword, but you can achieve it with <code>LEFT JOIN ... WHERE right.key IS NULL</code> or with <code>NOT IN</code>:</p>
-<div id="b1c4353b" class="cell" data-execution_count="5">
+<div id="a8fafa2b" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Counties in deaths that are NOT in population</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT DISTINCT d.county</span></span>
@@ -531,7 +531,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="full-cross-table-mismatch-audit" class="level3" data-number="13.4.2">
 <h3 data-number="13.4.2" class="anchored" data-anchor-id="full-cross-table-mismatch-audit"><span class="header-section-number">13.4.2</span> Full cross-table mismatch audit</h3>
-<div id="3b1a6686" class="cell" data-execution_count="6">
+<div id="c9fc6a3e" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH death_counties AS (SELECT DISTINCT county FROM deaths),</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">         crime_counties AS (SELECT DISTINCT county FROM crime),</span></span>
@@ -567,7 +567,7 @@ Note
 <p>Each table may have a finer grain than county-year. Before joining, aggregate each table to the target grain — one row per (county, year).</p>
 <section id="aggregate-deaths-to-county-year" class="level3" data-number="13.5.1">
 <h3 data-number="13.5.1" class="anchored" data-anchor-id="aggregate-deaths-to-county-year"><span class="header-section-number">13.5.1</span> Aggregate deaths to county-year</h3>
-<div id="99c2f1e0" class="cell" data-execution_count="7">
+<div id="55fc9edc" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, SUM(deaths) AS total_deaths, COUNT(*) AS n_detail_rows</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths</span></span>
@@ -578,7 +578,7 @@ Note
 </section>
 <section id="aggregate-crime-to-county-year" class="level3" data-number="13.5.2">
 <h3 data-number="13.5.2" class="anchored" data-anchor-id="aggregate-crime-to-county-year"><span class="header-section-number">13.5.2</span> Aggregate crime to county-year</h3>
-<div id="65df5cdb" class="cell" data-execution_count="8">
+<div id="754b2b15" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, COUNT(*) AS total_offenses</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM crime</span></span>
@@ -589,7 +589,7 @@ Note
 </section>
 <section id="aggregate-population-to-county-year" class="level3" data-number="13.5.3">
 <h3 data-number="13.5.3" class="anchored" data-anchor-id="aggregate-population-to-county-year"><span class="header-section-number">13.5.3</span> Aggregate population to county-year</h3>
-<div id="9fdd25b3" class="cell" data-execution_count="9">
+<div id="17413dfe" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM population</span></span>
@@ -600,7 +600,7 @@ Note
 </section>
 <section id="verify-uniqueness-after-aggregation" class="level3" data-number="13.5.4">
 <h3 data-number="13.5.4" class="anchored" data-anchor-id="verify-uniqueness-after-aggregation"><span class="header-section-number">13.5.4</span> Verify uniqueness after aggregation</h3>
-<div id="1ec4a11b" class="cell" data-execution_count="10">
+<div id="dc7b2f0b" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_deaths AS (</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
@@ -617,7 +617,7 @@ Note
 <section id="part-5-building-the-analysis-ready-dataset" class="level2" data-number="13.6">
 <h2 data-number="13.6" class="anchored" data-anchor-id="part-5-building-the-analysis-ready-dataset"><span class="header-section-number">13.6</span> Part 5: Building the Analysis-Ready Dataset</h2>
 <p>With each table aggregated to county-year and cardinality verified, we can now join them.</p>
-<div id="72decf56" class="cell" data-execution_count="11">
+<div id="9031c981" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_deaths AS (</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
@@ -656,7 +656,7 @@ Note
 <p>After building the joined dataset, run a systematic audit.</p>
 <section id="row-count-audit" class="level3" data-number="13.7.1">
 <h3 data-number="13.7.1" class="anchored" data-anchor-id="row-count-audit"><span class="header-section-number">13.7.1</span> Row count audit</h3>
-<div id="e25f5634" class="cell" data-execution_count="12">
+<div id="d18a9db8" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_pop AS (</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
@@ -687,7 +687,7 @@ Note
 </section>
 <section id="totals-audit" class="level3" data-number="13.7.2">
 <h3 data-number="13.7.2" class="anchored" data-anchor-id="totals-audit"><span class="header-section-number">13.7.2</span> Totals audit</h3>
-<div id="a7260130" class="cell" data-execution_count="13">
+<div id="3bc7fa09" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify that aggregated totals in the joined result match the source tables</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH joined AS (</span></span>
@@ -709,7 +709,7 @@ Note
 </section>
 <section id="null-audit" class="level3" data-number="13.7.3">
 <h3 data-number="13.7.3" class="anchored" data-anchor-id="null-audit"><span class="header-section-number">13.7.3</span> NULL audit</h3>
-<div id="0d226be7" class="cell" data-execution_count="14">
+<div id="f3e2427f" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH joined AS (</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year,</span></span>
@@ -747,7 +747,7 @@ Note
 <section id="pandas-cross-check" class="level2" data-number="13.9">
 <h2 data-number="13.9" class="anchored" data-anchor-id="pandas-cross-check"><span class="header-section-number">13.9</span> Pandas Cross-Check</h2>
 <p>A valuable validation practice is to replicate the SQL join in pandas and compare results:</p>
-<div id="ee7c8903" class="cell" data-execution_count="15">
+<div id="6bba1eb0" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the joined result from SQL</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>sql_result <span class="op">=</span> pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT p.county, p.year,</span></span>
@@ -762,7 +762,7 @@ Note
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>sql_result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="32ac06be" class="cell" data-execution_count="16">
+<div id="540b6b2e" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replicate in pandas</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># deaths_df = pd.read_sql_query("SELECT * FROM deaths", conn)</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># pop_df = pd.read_sql_query("SELECT * FROM population", conn)</span></span>
@@ -879,7 +879,7 @@ Note
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="accef3ee" class="cell" data-execution_count="17">
+<div id="326c79c7" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg AS (</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year, SUM(d.deaths) AS total_deaths, SUM(p.totalpopulation) AS total_pop</span></span>

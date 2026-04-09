@@ -380,7 +380,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The framework is deliberately simple. You will learn to ask three questions: <em>Is there a difference between these groups? How strong is the relationship between these variables? Could what I’m seeing be due to random variation?</em> The tools that answer these questions — t-tests, chi-square tests, and correlation coefficients — cover a large proportion of the exploratory comparisons you will encounter with tabular data.</p>
 <section id="setup" class="level2" data-number="17.1">
 <h2 data-number="17.1" class="anchored" data-anchor-id="setup"><span class="header-section-number">17.1</span> Setup</h2>
-<div id="46fde250" class="cell" data-execution_count="1">
+<div id="5fac703a" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -394,7 +394,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="datasets" class="level2" data-number="17.2">
 <h2 data-number="17.2" class="anchored" data-anchor-id="datasets"><span class="header-section-number">17.2</span> Datasets</h2>
-<div id="981ce716" class="cell" data-execution_count="2">
+<div id="7bd2fd96" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lahman batting — qualified player-seasons with salary</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> pd.read_csv(<span class="st">'Batting.csv'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'BA'</span>] <span class="op">=</span> batting[<span class="st">'H'</span>] <span class="op">/</span> batting[<span class="st">'AB'</span>].replace(<span class="dv">0</span>, <span class="bu">float</span>(<span class="st">'nan'</span>))</span>
@@ -416,7 +416,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    on<span class="op">=</span>[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>], how<span class="op">=</span><span class="st">'inner'</span></span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="f4e0eccc" class="cell" data-execution_count="3">
+<div id="a4b8a558" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cannabis sales</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>cannabis <span class="op">=</span> pd.read_csv(</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'colorado_cannabis_sales_by_county.csv'</span>,</span>
@@ -463,7 +463,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="example-batting-average-before-and-after-the-steroid-era" class="level3" data-number="17.4.1">
 <h3 data-number="17.4.1" class="anchored" data-anchor-id="example-batting-average-before-and-after-the-steroid-era"><span class="header-section-number">17.4.1</span> Example: Batting average before and after the steroid era</h3>
 <p>The late 1990s through early 2000s are sometimes called baseball’s “steroid era.” Did batting averages differ between the pre-steroid period (1980–1993) and the steroid era (1994–2004)?</p>
-<div id="5304fa4c" class="cell" data-execution_count="4">
+<div id="2dd8f3a2" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pre_steroid <span class="op">=</span> qualified[</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    (qualified[<span class="st">'yearID'</span>] <span class="op">&gt;=</span> <span class="dv">1980</span>) <span class="op">&amp;</span> (qualified[<span class="st">'yearID'</span>] <span class="op">&lt;=</span> <span class="dv">1993</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>][<span class="st">'BA'</span>].dropna()</span>
@@ -476,7 +476,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Steroid era: n=</span><span class="sc">{</span><span class="bu">len</span>(steroid_era)<span class="sc">}</span><span class="ss">, mean=</span><span class="sc">{</span>steroid_era<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss">, std=</span><span class="sc">{</span>steroid_era<span class="sc">.</span>std()<span class="sc">:.4f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Visualize the distributions before testing:</p>
-<div id="5748f24f" class="cell" data-execution_count="5">
+<div id="eecdd834" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sns.kdeplot(pre_steroid, label<span class="op">=</span><span class="st">'Pre-steroid (1980–93)'</span>, fill<span class="op">=</span><span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, ax<span class="op">=</span>ax)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>sns.kdeplot(steroid_era, label<span class="op">=</span><span class="st">'Steroid era (1994–2004)'</span>, fill<span class="op">=</span><span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, ax<span class="op">=</span>ax)</span>
@@ -487,7 +487,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now run the t-test:</p>
-<div id="fb4f0f7a" class="cell" data-execution_count="6">
+<div id="3c7a0f92" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t_stat, p_value <span class="op">=</span> stats.ttest_ind(pre_steroid, steroid_era)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f't-statistic: </span><span class="sc">{</span>t_stat<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
@@ -497,7 +497,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="interpreting-the-result" class="level3" data-number="17.4.2">
 <h3 data-number="17.4.2" class="anchored" data-anchor-id="interpreting-the-result"><span class="header-section-number">17.4.2</span> Interpreting the result</h3>
 <p>The mean difference between the two eras can be computed directly:</p>
-<div id="08e59f75" class="cell" data-execution_count="7">
+<div id="68a90822" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>diff <span class="op">=</span> steroid_era.mean() <span class="op">-</span> pre_steroid.mean()</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean difference: </span><span class="sc">{</span>diff<span class="sc">:.4f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -507,7 +507,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="effect-size-cohens-d" class="level3" data-number="17.4.3">
 <h3 data-number="17.4.3" class="anchored" data-anchor-id="effect-size-cohens-d"><span class="header-section-number">17.4.3</span> Effect size: Cohen’s d</h3>
 <p>Cohen’s d measures the difference in means in terms of standard deviations. It provides a standardized measure of effect size that is comparable across different variables and studies.</p>
-<div id="1dc4841f" class="cell" data-execution_count="8">
+<div id="51db4017" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pooled_std <span class="op">=</span> np.sqrt((pre_steroid.std()<span class="op">**</span><span class="dv">2</span> <span class="op">+</span> steroid_era.std()<span class="op">**</span><span class="dv">2</span>) <span class="op">/</span> <span class="dv">2</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>cohens_d <span class="op">=</span> (steroid_era.mean() <span class="op">-</span> pre_steroid.mean()) <span class="op">/</span> pooled_std</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -519,7 +519,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="comparing-two-related-measurements-the-paired-t-test" class="level2" data-number="17.5">
 <h2 data-number="17.5" class="anchored" data-anchor-id="comparing-two-related-measurements-the-paired-t-test"><span class="header-section-number">17.5</span> Comparing Two Related Measurements: The Paired t-Test</h2>
 <p>A paired t-test is appropriate when you have two measurements from the same entity — for example, medical and retail cannabis sales from the same county in the same month. The question is: <em>Is there a systematic difference between the two measurements?</em></p>
-<div id="f1ca5d7a" class="cell" data-execution_count="9">
+<div id="01bf26ed" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare medical vs retail sales for county-months where both exist</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>paired <span class="op">=</span> cannabis[cannabis[<span class="st">'medical'</span>].notna() <span class="op">&amp;</span> cannabis[<span class="st">'retail'</span>].notna()].copy()</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -540,7 +540,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The chi-square test of independence asks: <em>Are two categorical variables associated, or are they independent?</em> Use it when both your variables are categorical.</p>
 <section id="example-has-the-distribution-of-home-run-tiers-changed-across-eras" class="level3" data-number="17.6.1">
 <h3 data-number="17.6.1" class="anchored" data-anchor-id="example-has-the-distribution-of-home-run-tiers-changed-across-eras"><span class="header-section-number">17.6.1</span> Example: Has the distribution of home run tiers changed across eras?</h3>
-<div id="503af17a" class="cell" data-execution_count="10">
+<div id="5c0c8cea" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bin HR into categories</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>hr_data <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>].isin([<span class="dv">1980</span>, <span class="dv">2000</span>])].copy()</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>hr_data[<span class="st">'hr_tier'</span>] <span class="op">=</span> pd.cut(</span>
@@ -554,7 +554,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Contingency table:'</span>)</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(contingency)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="24e5d06b" class="cell" data-execution_count="11">
+<div id="d822031b" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>chi2, p_value, dof, expected <span class="op">=</span> stats.chi2_contingency(contingency)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Chi-square statistic: </span><span class="sc">{</span>chi2<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
@@ -562,7 +562,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'p-value: </span><span class="sc">{</span>p_value<span class="sc">:.6f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Here is what you can conclude: if the p-value is small, the distribution of home run tiers differs significantly between the two eras — the two variables (era and HR tier) are not independent. To understand <em>how</em> they differ, compare the observed counts to the expected counts (what you would see if era and HR tier were independent):</p>
-<div id="f1206fbd" class="cell" data-execution_count="12">
+<div id="8b688dd0" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>expected_df <span class="op">=</span> pd.DataFrame(</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    expected, index<span class="op">=</span>contingency.index, columns<span class="op">=</span>contingency.columns</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>).<span class="bu">round</span>(<span class="dv">1</span>)</span>
@@ -577,7 +577,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="effect-size-cramérs-v" class="level3" data-number="17.6.2">
 <h3 data-number="17.6.2" class="anchored" data-anchor-id="effect-size-cramérs-v"><span class="header-section-number">17.6.2</span> Effect size: Cramér’s V</h3>
 <p>Cramér’s V is the chi-square analog of Cohen’s d — a measure of how strongly the two categorical variables are associated, scaled from 0 (independent) to 1 (perfectly associated):</p>
-<div id="681ff4be" class="cell" data-execution_count="13">
+<div id="1ed7a1aa" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> contingency.<span class="bu">sum</span>().<span class="bu">sum</span>()</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>min_dim <span class="op">=</span> <span class="bu">min</span>(contingency.shape) <span class="op">-</span> <span class="dv">1</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>cramers_v <span class="op">=</span> np.sqrt(chi2 <span class="op">/</span> (n <span class="op">*</span> min_dim))</span>
@@ -591,7 +591,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The Pearson correlation coefficient (r) measures the strength and direction of a linear relationship between two numeric variables. It ranges from -1 (perfect negative linear relationship) to +1 (perfect positive linear relationship), with 0 indicating no linear relationship.</p>
 <section id="example-salary-and-performance" class="level3" data-number="17.7.1">
 <h3 data-number="17.7.1" class="anchored" data-anchor-id="example-salary-and-performance"><span class="header-section-number">17.7.1</span> Example: Salary and performance</h3>
-<div id="0e53cfbe" class="cell" data-execution_count="14">
+<div id="a3ed86de" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter to a single recent season with enough data</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>season_2015 <span class="op">=</span> bat_sal[bat_sal[<span class="st">'yearID'</span>] <span class="op">==</span> <span class="dv">2015</span>].dropna(subset<span class="op">=</span>[<span class="st">'salary'</span>, <span class="st">'OPS'</span>])</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -602,7 +602,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'n: </span><span class="sc">{</span><span class="bu">len</span>(season_2015)<span class="sc">}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Visualize alongside the statistic:</p>
-<div id="fba32a24" class="cell" data-execution_count="15">
+<div id="b2eb1472" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>ax.scatter(season_2015[<span class="st">'salary'</span>] <span class="op">/</span> <span class="fl">1e6</span>, season_2015[<span class="st">'OPS'</span>], alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">20</span>)</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Salary (millions $)'</span>)</span>
@@ -617,7 +617,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="spearman-correlation-for-non-linear-monotonic-relationships" class="level3" data-number="17.7.2">
 <h3 data-number="17.7.2" class="anchored" data-anchor-id="spearman-correlation-for-non-linear-monotonic-relationships"><span class="header-section-number">17.7.2</span> Spearman correlation for non-linear monotonic relationships</h3>
 <p>Pearson’s r measures linear relationships. If the relationship is monotonic but curved (both variables increase together, but not in a straight line), Spearman’s rank correlation is more appropriate:</p>
-<div id="4b231b5c" class="cell" data-execution_count="16">
+<div id="75bd7952" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>rho, p_value <span class="op">=</span> stats.spearmanr(season_2015[<span class="st">'salary'</span>], season_2015[<span class="st">'OPS'</span>])</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Spearman rho: </span><span class="sc">{</span>rho<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
@@ -629,7 +629,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="correlation-across-many-variables" class="level2" data-number="17.8">
 <h2 data-number="17.8" class="anchored" data-anchor-id="correlation-across-many-variables"><span class="header-section-number">17.8</span> Correlation Across Many Variables</h2>
 <p>When you have several numeric columns, compute the full pairwise correlation matrix and identify which pairs have the strongest relationships:</p>
-<div id="e81aafc5" class="cell" data-execution_count="17">
+<div id="2aeaf5d3" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> bat_sal[[<span class="st">'AB'</span>, <span class="st">'HR'</span>, <span class="st">'BB'</span>, <span class="st">'BA'</span>, <span class="st">'SLG'</span>, <span class="st">'OBP'</span>, <span class="st">'OPS'</span>, <span class="st">'salary'</span>]].dropna()</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>corr <span class="op">=</span> metrics.corr()</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -724,7 +724,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="6c201636" class="cell" data-execution_count="18">
+<div id="03ada9a8" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>hr_80s <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>] <span class="op">==</span> <span class="dv">1980</span>][<span class="st">'HR'</span>].dropna()</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>hr_10s <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>] <span class="op">==</span> <span class="dv">2010</span>][<span class="st">'HR'</span>].dropna()</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -769,7 +769,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="39daa8f8" class="cell" data-execution_count="19">
+<div id="4f11a00d" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>for_chi <span class="op">=</span> cannabis[cannabis[<span class="st">'year'</span>].isin([<span class="dv">2016</span>, <span class="dv">2023</span>])].copy()</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>for_chi[<span class="st">'has_retail'</span>] <span class="op">=</span> for_chi[<span class="st">'retail'</span>].notna() <span class="op">&amp;</span> (for_chi[<span class="st">'retail'</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>yearly <span class="op">=</span> for_chi.groupby([<span class="st">'year'</span>, <span class="st">'county'</span>])[<span class="st">'has_retail'</span>].<span class="bu">any</span>().reset_index()</span>
@@ -812,7 +812,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="2a0f2bcd" class="cell" data-execution_count="20">
+<div id="c0312870" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>recent <span class="op">=</span> bat_sal[bat_sal[<span class="st">'decade'</span>] <span class="op">==</span> <span class="dv">2010</span>].dropna(subset<span class="op">=</span>[<span class="st">'AB'</span>, <span class="st">'salary'</span>])</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>r_pearson, p_pearson <span class="op">=</span> stats.pearsonr(recent[<span class="st">'AB'</span>], recent[<span class="st">'salary'</span>])</span>

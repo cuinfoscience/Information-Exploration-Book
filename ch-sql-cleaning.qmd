@@ -1,0 +1,293 @@
+# Cleaning Data with SQL {#sec-sql-cleaning}
+
+Cleaning data in SQL follows the same logic you learned in pandas — identify missingness, duplicates, inconsistent categories, and invalid ranges — but uses a different set of tools. SQL excels at diagnostic queries: you can characterize problems across an entire table with a single statement, and the declarative syntax makes your logic explicit and auditable. This chapter applies a structured diagnostic framework to three real Colorado government datasets, loads them into a SQLite database, and demonstrates a critical lesson about silent join failures caused by inconsistent key formatting across sources.
+
+## The Diagnostic Framework
+
+Every cleaning session in this chapter follows the same five stages:
+
+```
+Inspect → Clean → Design Schema → Load → Validate
+```
+
+Within the Inspect stage, we run four standard diagnostics, one per category of data quality issue:
+
+1. **Missingness** — which columns have nulls, and how many?
+2. **Duplicates** — are there repeated rows on the expected key columns?
+3. **Inconsistent categories** — do text columns have variant spellings, extra whitespace, or unexpected values?
+4. **Invalid ranges** — are numeric and date columns within plausible bounds?
+
+This is the same INSPECT → TRANSFORM → VALIDATE → DOCUMENT workflow from the pandas chapters, specialized for SQL.
+
+## Setup
+
+```{python}
+import sqlite3
+import pandas as pd
+import numpy as np
+
+pd.set_option('display.max_columns', 20)
+pd.set_option('display.max_colwidth', 55)
+
+conn = sqlite3.connect('colorado_public_health.db')
+cursor = conn.cursor()
+```
+
+## Datasets
+
+This chapter works with three Colorado government datasets that will be joined together in @sec-sql-reshaping.
+
+| File | Source | Description |
+|------|--------|-------------|
+| `cdc_deaths.csv` | CDC WONDER | Colorado mortality counts by county, year, age group, and ICD-10 chapter |
+| `cbi_crime.csv` | Colorado Bureau of Investigation | Reported offenses by jurisdiction, date, and offense type |
+| `sya-county.csv` | State Demography Office | Single-year-of-age population estimates by county and year |
+
+## Part 1: CDC Mortality Data
+
+### 1.1 Inspect
+
+Load the raw file in pandas and run each diagnostic.
+
+```{python}
+deaths_raw = pd.read_csv('cdc_deaths.csv')
+print('Shape:', deaths_raw.shape)
+deaths_raw.head()
+```
+
+#### Missingness
+
+```{python}
+print(deaths_raw.isna().sum())
+```
+
+#### Duplicates
+
+```{python}
+key_cols = ['County', 'Year', 'Age Group', 'ICD Chapter']
+print('Duplicates on key:', deaths_raw.duplicated(subset=key_cols).sum())
+```
+
+#### Inconsistent categories
+
+```{python}
+print(deaths_raw['County'].value_counts().head(10))
+```
+
+Pay attention to the format of county names. Does this dataset use `'Adams'`, `'Adams County'`, or `'Adams County, CO'`? This will matter critically when we join tables later.
+
+#### Invalid ranges
+
+```{python}
+print('Year range:', deaths_raw['Year'].min(), '–', deaths_raw['Year'].max())
+print('Deaths range:', deaths_raw['Deaths'].min(), '–', deaths_raw['Deaths'].max())
+```
+
+### 1.2 Clean
+
+Apply cleaning operations in pandas based on what the diagnostics revealed. Strip whitespace from text columns, standardize county names, and handle any sentinel values (CDC WONDER uses "Suppressed" and "Unreliable" as data quality flags).
+
+```{python}
+deaths_clean = deaths_raw.copy()
+
+# Strip whitespace from all text columns
+for col in deaths_clean.select_dtypes(include='object').columns:
+    deaths_clean[col] = deaths_clean[col].str.strip()
+```
+
+### 1.3 Design Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS deaths (
+    county TEXT,
+    year INTEGER,
+    age_group TEXT,
+    icd_chapter TEXT,
+    deaths INTEGER
+);
+```
+
+### 1.4 Load
+
+```{python}
+deaths_clean.to_csv('deaths_clean.csv', index=False)
+```
+
+### 1.5 Validate
+
+After loading into SQLite, run diagnostic queries to confirm the import matches the pandas source:
+
+```{python}
+pd.read_sql_query("SELECT COUNT(*) AS n_rows FROM deaths;", conn)
+```
+
+```{python}
+pd.read_sql_query("""
+    SELECT county, COUNT(*) AS n
+    FROM deaths
+    GROUP BY county
+    ORDER BY n DESC
+    LIMIT 5;
+""", conn)
+```
+
+Cross-check the SQL count against the pandas count — they should match exactly.
+
+## Part 2: CBI Crime Data
+
+The same five-stage process applies. The crime data introduces additional challenges: jurisdiction names that do not match county names, nullable columns with complex patterns, and timestamp fields that require careful parsing.
+
+```{python}
+crime_raw = pd.read_csv('cbi_crime.csv')
+print('Shape:', crime_raw.shape)
+crime_raw.head()
+```
+
+Run all four diagnostics (missingness, duplicates, inconsistent categories, invalid ranges), clean the data, design a schema, load it, and validate the load.
+
+## Part 3: Population Estimates
+
+```{python}
+pop_raw = pd.read_csv('sya-county.csv', skiprows=1, dtype={'countyfips': str})
+pop_raw = pop_raw[pop_raw['datatype'] == 'Estimate'].copy()
+print('Shape:', pop_raw.shape)
+pop_raw.head()
+```
+
+The population data has its own quirks: a header row that needs to be skipped, a `datatype` column that mixes estimates and forecasts, and county names in yet another format.
+
+## Part 4: The Silent Join Failure
+
+This is the most important section of the chapter. After loading all three tables, we discover that county names are formatted differently in each source:
+
+| Table | Example county name |
+|-------|-------------------|
+| deaths | `Adams County, CO` |
+| crime | `Adams County` |
+| population | `Adams` |
+
+What happens when you try to join these tables on county name? Nothing matches. The join produces zero rows — silently, with no error message. This is a **silent join failure**, and it is one of the most dangerous problems in data work because it looks like the query succeeded (it ran without errors) but the result is empty or incomplete.
+
+### Demonstrating the failure
+
+```{python}
+pd.read_sql_query("""
+    SELECT d.county AS death_county, p.county AS pop_county, COUNT(*) AS n
+    FROM deaths d
+    JOIN population p ON d.county = p.county
+    LIMIT 5;
+""", conn)
+```
+
+If this returns zero rows, the county formats do not match.
+
+### Diagnosing the mismatch
+
+```{python}
+pd.read_sql_query("""
+    SELECT DISTINCT county FROM deaths ORDER BY county LIMIT 10;
+""", conn)
+```
+
+```{python}
+pd.read_sql_query("""
+    SELECT DISTINCT county FROM population ORDER BY county LIMIT 10;
+""", conn)
+```
+
+### Fixing the mismatch
+
+The fix is to standardize county names to a common format before loading, or to use SQL string functions to normalize them at query time. The `REPLACE()` and `TRIM()` functions in SQLite can help, but the cleanest approach is to fix the data in pandas before loading:
+
+```{python}
+# Standardize all county names to bare names: 'Adams'
+# From 'Adams County, CO' → remove ', CO' then remove ' County'
+# From 'Adams County' → remove ' County'
+# From 'Adams' → already correct
+```
+
+### The lesson
+
+County name mismatches across sources are not a quirk of these particular datasets — they are a universal pattern. Any time you join data from different sources on a text key, you must verify that the key values actually match before running the join. The diagnostic pattern is: list the distinct values from each table, compare them, and fix any mismatches before joining.
+
+## SQL Functions for Cleaning
+
+Several SQL functions are useful for cleaning operations:
+
+| Function | Purpose | Example |
+|----------|---------|---------|
+| `TRIM(col)` | Remove leading/trailing whitespace | `SELECT TRIM(county) FROM deaths;` |
+| `UPPER(col)` | Convert to uppercase | `SELECT UPPER(county) FROM deaths;` |
+| `LOWER(col)` | Convert to lowercase | `SELECT LOWER(county) FROM deaths;` |
+| `REPLACE(col, old, new)` | Replace substring | `SELECT REPLACE(county, ' County', '') FROM deaths;` |
+| `CAST(col AS type)` | Change data type | `SELECT CAST(year AS INTEGER) FROM deaths;` |
+| `COALESCE(col, default)` | Replace NULL with default | `SELECT COALESCE(deaths, 0) FROM deaths;` |
+| `CASE WHEN` | Conditional logic | See below |
+
+### `CASE WHEN` for conditional cleaning
+
+```sql
+SELECT
+    county,
+    CASE
+        WHEN deaths IS NULL THEN 'Missing'
+        WHEN deaths = 0 THEN 'Zero'
+        WHEN deaths < 10 THEN 'Suppressed range'
+        ELSE 'Normal'
+    END AS death_status
+FROM deaths;
+```
+
+## Core Diagnostic Patterns
+
+These four query patterns apply to any table in any database:
+
+**Missingness**: `SELECT col, COUNT(*) - COUNT(col) AS n_null FROM table;`
+
+**Duplicates**: `SELECT key_cols, COUNT(*) AS n FROM table GROUP BY key_cols HAVING n > 1;`
+
+**Inconsistent categories**: `SELECT col, COUNT(*) FROM table GROUP BY col ORDER BY COUNT(*) DESC;`
+
+**Invalid ranges**: `SELECT MIN(col), MAX(col), AVG(col) FROM table;`
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Missingness by year
+Write a SQL query that shows the number of NULL death counts per year in the deaths table. Which years have the most missing data?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT year,
+           COUNT(*) AS total_rows,
+           SUM(CASE WHEN deaths IS NULL THEN 1 ELSE 0 END) AS n_null
+    FROM deaths
+    GROUP BY year
+    ORDER BY year;
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: TRIM audit
+Write a query that identifies rows in the crime table where the jurisdiction column has leading or trailing whitespace (i.e., `jurisdiction <> TRIM(jurisdiction)`). How many rows are affected?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT COUNT(*) AS whitespace_rows
+    FROM crime
+    WHERE jurisdiction <> TRIM(jurisdiction);
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Cross-table county audit
+Write queries that list the distinct county names from all three tables. Identify at least two counties whose names differ across sources. Propose a standardization strategy.
+:::

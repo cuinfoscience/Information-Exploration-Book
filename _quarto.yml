@@ -1,0 +1,53 @@
+project:
+  type: book
+  output-dir: book
+
+book:
+  title: "Information Exploration"
+  author: "Brian C. Keegan, Ph.D."
+  date: "2026"
+  repo-url: https://github.com/cuinfoscience/Information-Exploration-Book
+  repo-actions: [edit]
+  chapters:
+    - index.qmd
+    - part: "Foundations"
+      chapters:
+        - ch-terminal.qmd
+        - ch-projects.qmd
+        - ch-documentation.qmd
+        - ch-environments.qmd
+        - ch-errors.qmd
+    - part: "Python"
+      chapters:
+        - ch-py-loading.qmd
+        - ch-py-cleaning.qmd
+        - ch-py-extending.qmd
+        - ch-py-reshaping.qmd
+    - part: "SQL"
+      chapters:
+        - ch-sql-loading.qmd
+        - ch-sql-cleaning.qmd
+        - ch-sql-extending.qmd
+        - ch-sql-reshaping.qmd
+    - part: "Analysis"
+      chapters:
+        - ch-research-questions.qmd
+        - ch-descriptive.qmd
+        - ch-visualization.qmd
+        - ch-hypothesis-testing.qmd
+  appendices:
+    - appendix-datasets.qmd
+
+format:
+  html:
+    theme: cosmo
+    code-fold: false
+    code-tools: true
+    toc: true
+    number-sections: true
+    highlight-style: github
+
+execute:
+  eval: false
+  echo: true
+  warning: false

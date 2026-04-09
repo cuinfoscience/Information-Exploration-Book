@@ -1,0 +1,90 @@
+# Project Organization {#sec-projects}
+
+A well-organized project is one you can return to after six months and understand immediately. It is also one that someone else — a collaborator, an instructor, a future employer reviewing your portfolio — can open and navigate without asking you questions. This chapter introduces a simple project structure that scales from a homework assignment to a professional analysis.
+
+## Why Structure Matters
+
+When you first start working with data, everything tends to end up in one folder: the raw data files, the cleaned versions, the notebooks, the outputs, and the half-finished experiments. This works until it doesn't. The moment you have two versions of a dataset and cannot remember which one you cleaned, or you overwrite your raw data with a transformed version, you have a problem that no amount of technical skill can fix.
+
+Good project organization prevents these problems before they arise. It costs almost nothing to set up and saves enormous time later.
+
+## A Minimal Project Structure
+
+Here is a structure that works for the projects in this book and adapts easily to larger work:
+
+```
+my_project/
+├── data/
+│   ├── raw/           # Original, untouched data files
+│   └── clean/         # Cleaned versions ready for analysis
+├── notebooks/         # Jupyter notebooks (analysis work)
+├── output/            # Tables, figures, exported results
+└── README.md          # What this project is about
+```
+
+The key principle is the separation between `raw` and `clean` data. Raw data files are sacred — you should never modify them directly. Instead, your notebooks read from `raw/`, perform transformations, and write results to `clean/` or `output/`. If something goes wrong, you can always start over from the original files.
+
+## Naming Conventions
+
+File names should be descriptive, consistent, and machine-friendly. A few rules that eliminate most naming headaches:
+
+Use lowercase letters, numbers, hyphens, and underscores. Avoid spaces, special characters, and accented letters. Spaces in file names cause problems in the terminal (you have to escape them with backslashes or wrap the name in quotes), and special characters can break scripts that process files automatically.
+
+Include dates in ISO format (`YYYY-MM-DD`) when versioning matters. `report-2026-02-10.csv` sorts chronologically; `report-Feb-10.csv` does not.
+
+Be specific. `data.csv` tells you nothing. `colorado-cannabis-sales-by-county-2014-2024.csv` tells you exactly what is inside without opening the file.
+
+## The README File
+
+Every project should have a `README.md` file in its root directory. This file answers three questions: what is this project about, what data does it use, and how do you run it. A minimal README for a course project might look like this:
+
+```markdown
+# Cannabis Sales Analysis
+
+Analysis of Colorado cannabis sales by county (2014–2024) for INFO 3401.
+
+## Data
+
+- `data/raw/colorado_cannabis_sales_by_county.csv`: Source file from
+  Colorado Department of Revenue. Downloaded 2026-02-10.
+
+## Notebooks
+
+- `notebooks/01-loading.ipynb`: Load and inspect raw data.
+- `notebooks/02-cleaning.ipynb`: Clean column names, fix types, remove totals.
+```
+
+Writing this file takes five minutes and makes your project immediately legible to anyone who opens it.
+
+## Working Directories and File Paths in Notebooks
+
+When you open a Jupyter notebook, it runs in the directory where the notebook file lives. If your notebook is in `my_project/notebooks/` and your data is in `my_project/data/raw/`, you need a relative path that goes up one level and then down into `data`:
+
+```python
+df = pd.read_csv('../data/raw/cannabis_sales.csv')
+```
+
+The `..` means "go up one directory." This relative path works on any computer with the same project structure, regardless of where the project folder itself lives. Avoid hardcoding absolute paths like `/Users/yourname/Documents/my_project/data/raw/cannabis_sales.csv` — they break the moment someone else tries to run your notebook.
+
+::: {.callout-tip}
+## A common frustration
+If `pd.read_csv()` gives you a `FileNotFoundError`, the problem is almost always that your notebook's working directory is not where you think it is. Run `import os; print(os.getcwd())` to check, then adjust your path accordingly.
+:::
+
+## Version Control (A Brief Preview)
+
+As your projects grow, you will benefit from a version control system like **git**, which tracks every change you make to every file and lets you revert to any previous state. Git is beyond the scope of this book, but knowing it exists shapes how you organize your work. The project structure described above — with raw data separated from outputs, and a README explaining the project — is designed to work naturally with version control.
+
+If you want to explore git, GitHub provides excellent beginner tutorials, and most data science courses cover it in depth. For now, the discipline of keeping raw data untouched and documenting your workflow in notebooks gives you many of the same benefits.
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Set up a project
+Create a project directory for this course using the structure described above. Add a `README.md` that describes the project. Download one of the course datasets into `data/raw/`. Create a notebook in `notebooks/` that loads the dataset using a relative path and prints its shape.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Naming audit
+Look at the files on your computer's desktop or downloads folder. Identify three file names that violate the naming conventions described in this chapter. For each, write a better name and explain why it is an improvement.
+:::

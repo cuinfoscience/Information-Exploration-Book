@@ -1,0 +1,123 @@
+# The Terminal and File System {#sec-terminal}
+
+Every graphical application you use — Jupyter Notebook, VS Code, Excel, your file manager — is a visual wrapper around operations that happen in the terminal. When you double-click a file to open it, your operating system is running a command. When you save a file, it is writing bytes to a location on disk. Learning to use the terminal directly gives you access to the same operations without the graphical middleman, which matters for three practical reasons.
+
+First, many data tools — including SQLite, git, and package managers — are designed to be used from the terminal. You will encounter them throughout this book and throughout your career. Second, terminal commands are scriptable: you can record a sequence of steps in a file and replay them exactly, which makes your workflow reproducible. Third, when something goes wrong in a graphical tool, the terminal is often the only way to diagnose the problem.
+
+This chapter introduces the small set of terminal commands you will use repeatedly in this book. You do not need to memorize them — you need to understand what they do so you can look them up when you need them.
+
+## Opening a Terminal
+
+On **macOS**, open the Terminal application (found in Applications → Utilities, or search for "Terminal" with Spotlight). On **Windows**, open Anaconda Prompt from the Start menu — this is a terminal preconfigured with access to your Python environment. You can also use PowerShell or Windows Terminal, though some commands differ. On **Linux**, open your distribution's terminal emulator.
+
+When the terminal opens, you see a **prompt** — a line of text ending with `$` (Mac/Linux) or `>` (Windows) — followed by a blinking cursor. This is where you type commands. The terminal executes each command when you press Enter and prints any output below it.
+
+## Where Am I? Navigating the File System
+
+Your computer's file system is a tree of directories (folders) and files. At any moment, your terminal session is "inside" one directory, called the **working directory**. Every command you run operates relative to this location unless you specify an absolute path.
+
+### Printing the working directory
+
+To find out where you are, use `pwd` (print working directory):
+
+```bash
+pwd
+```
+
+On Mac or Linux, you might see something like `/Users/yourname` or `/home/yourname`. On Windows, the equivalent command is `cd` with no arguments, and the output looks like `C:\Users\yourname`.
+
+### Listing files
+
+To see what is in the current directory, use `ls` (list):
+
+```bash
+ls
+```
+
+On Windows, the equivalent is `dir`. To see more detail — file sizes, modification dates, and hidden files — use `ls -la` on Mac/Linux.
+
+### Changing directories
+
+To move into a subdirectory, use `cd` (change directory) followed by the folder name:
+
+```bash
+cd Documents
+```
+
+To move up one level (to the parent directory), use `cd ..`:
+
+```bash
+cd ..
+```
+
+To jump to your home directory from anywhere, use `cd ~` on Mac/Linux or `cd %USERPROFILE%` on Windows.
+
+### Absolute vs. relative paths
+
+A **relative path** starts from your current directory: `cd Documents/projects` moves into the `projects` folder inside `Documents`. An **absolute path** starts from the root of the file system: `/Users/yourname/Documents/projects` on Mac, or `C:\Users\yourname\Documents\projects` on Windows. Absolute paths work regardless of where your terminal session currently is.
+
+::: {.callout-tip}
+## Building a mental model
+Think of `pwd` as asking "Where am I?", `ls` as asking "What's here?", and `cd` as saying "Go there." These three commands are the navigation triad you will use constantly.
+:::
+
+## Creating and Managing Files
+
+### Creating directories
+
+Use `mkdir` (make directory) to create a new folder:
+
+```bash
+mkdir my_project
+```
+
+To create nested directories in one step, add the `-p` flag:
+
+```bash
+mkdir -p my_project/data/raw
+```
+
+### Moving and copying files
+
+Use `cp` to copy a file and `mv` to move (or rename) a file:
+
+```bash
+cp original.csv backup.csv          # copy
+mv old_name.csv new_name.csv        # rename
+mv data.csv data/raw/data.csv       # move to a subdirectory
+```
+
+On Windows, the equivalents are `copy` and `move`.
+
+### Viewing file contents
+
+To see the first few lines of a text file without opening it in an editor, use `head`:
+
+```bash
+head -5 my_data.csv
+```
+
+This prints the first 5 lines — useful for checking whether a CSV has the header row you expect. On Windows, use `Get-Content my_data.csv -Head 5` in PowerShell, or `type my_data.csv | more` in Command Prompt.
+
+## Paths and Your Python Environment
+
+When you run a command like `python` or `sqlite3`, your terminal searches for that program in a list of directories called the **PATH**. If the program is not in any of those directories, you get a `command not found` error — even if the program is installed somewhere on your computer.
+
+This is the most common source of confusion when setting up tools. The fix is usually one of two things: either install the program through a package manager that automatically updates your PATH (such as `conda install sqlite`), or manually add the program's directory to your PATH. The details vary by operating system, but the concept is the same everywhere.
+
+::: {.callout-warning}
+## The most common Windows mistake
+After installing a new tool or editing your PATH, you must open a **new** terminal window. The old window will not see the change.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Navigate to your project folder
+Open a terminal and use `pwd`, `ls`, and `cd` to navigate to the folder where you keep your course materials. Create a new subdirectory called `data` inside it. Verify the directory was created by listing the contents of the parent folder.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Inspect a CSV from the terminal
+Download one of the course datasets to your project folder. Use `head` (or the Windows equivalent) to view the first 10 lines. Based on what you see, answer: does the file have a single header row? What delimiter does it use? Are there any obvious problems visible in the first few rows?
+:::

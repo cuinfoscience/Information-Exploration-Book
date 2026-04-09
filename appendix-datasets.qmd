@@ -1,0 +1,254 @@
+# Datasets {#sec-datasets}
+
+This appendix describes every dataset used in the book, including its source, structure, key columns, and known quirks. All datasets are available in the accompanying GitHub repository.
+
+## Colorado Cannabis Sales by County
+
+**Source:** Colorado Department of Revenue, Marijuana Enforcement Division  
+**URL:** <https://cdor.colorado.gov/data-and-reports/marijuana-data/marijuana-sales-reports>  
+**File:** `colorado_cannabis_sales_by_county.csv`  
+**Used in:** @sec-py-loading, @sec-sql-loading
+
+This file contains monthly medical and retail cannabis sales totals for each Colorado county from 2014 to 2024. The original file is an Excel export with a two-row title block at the top and an eight-row footnote section at the bottom.
+
+**Structure:** Each row represents one county's sales for one month.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| Month | integer | Calendar month (1–12) |
+| Year | integer | Calendar year (2014–2024) |
+| County | text | Colorado county name |
+| Medical Sales | currency string | Medical cannabis sales in dollars |
+| Retail Sales | currency string | Retail cannabis sales in dollars |
+
+**Known quirks:**
+
+- Header row is on row 2 (zero-indexed), not row 0. Use `header=2` in `read_csv`.
+- Eight footer rows contain footnotes and source information. Use `skipfooter=8`.
+- Sales columns are formatted as currency strings (`$1,234,567`) and must be stripped of `$` and `,` before numeric conversion.
+- `NR` (Not Reported) appears in sales columns for counties with fewer than three licensees. Treat as missing with `na_values=['NR']`.
+- Rows with `County == 'Total'` are monthly statewide aggregates and should be removed before county-level analysis.
+- County names may contain leading or trailing whitespace.
+
+## Boulder County Voter Registration Data
+
+**Source:** Boulder County Clerk and Recorder  
+**URL**: <https://bouldercounty.gov/elections/maps-and-data/data-access/>  
+**File:** `boco_voter_data.txt`  
+**Used in:** @sec-py-cleaning  
+
+A pipe-delimited text file containing voter registration records for Boulder County. Each row represents one registered voter.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| VOTER_ID | text | Unique voter identifier (has leading zeros) |
+| VOTER_NAME | text | Full name |
+| RES_ADDRESS | text | Residential address |
+| RES_CITY | text | City of residence |
+| RES_ZIP_CODE | text | 5-digit ZIP code (has leading zeros) |
+| PARTY | text | Party affiliation code |
+| YOB | integer | Year of birth |
+| PRECINCT | text | Precinct number |
+
+**Known quirks:**
+
+- Delimiter is `|` (pipe), not comma. Use `sep='|'` in `read_csv`.
+- `VOTER_ID`, `RES_ZIP_CODE`, `BALLOT_ZIP`, and `PRECINCT` contain leading zeros and should be loaded as strings using the `dtype` parameter.
+- Party affiliation codes are inconsistent — multiple abbreviations for the same party (e.g., `DEM`, `Dem`, `D`, `Democrat`).
+- Some text fields contain extra whitespace, non-breaking spaces, or inconsistent capitalization.
+
+## Lahman Baseball Database
+
+**Source:** Sean Lahman's Baseball Archive  
+**URL:** <https://www.seanlahman.com/baseball-archive/statistics/>  
+**Files:** `Batting.csv`, `Salaries.csv`, `People.csv`, `Teams.csv`  
+**Used in:** @sec-py-extending, @sec-py-reshaping
+
+A comprehensive historical database of Major League Baseball statistics. The book uses four tables from this database.
+
+### Batting.csv
+
+Each row represents one player's statistics for one team in one season. Players traded mid-season have multiple rows (one per "stint").
+
+| Column | Type | Description |
+|--------|------|-------------|
+| playerID | text | Unique player identifier |
+| yearID | integer | Season year |
+| teamID | text | Team abbreviation |
+| stint | integer | Order of appearance with team that season |
+| AB | integer | At bats |
+| H | integer | Hits |
+| 2B | integer | Doubles |
+| 3B | integer | Triples |
+| HR | integer | Home runs |
+| BB | integer | Bases on balls (walks) |
+| HBP | integer | Hit by pitch (NULL before this stat was tracked) |
+| SF | integer | Sacrifice flies (NULL before this stat was tracked) |
+
+**Known quirks:**
+
+- `HBP` and `SF` are NULL for early seasons when these statistics were not recorded. Filling with 0 is a common choice but should be documented.
+- Players traded mid-season appear as multiple rows. Aggregate to one row per (playerID, yearID) before computing season-level metrics or merging with other tables.
+
+### Salaries.csv
+
+One row per player per season. Salary data begins in 1985.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| playerID | text | Unique player identifier |
+| yearID | integer | Season year |
+| teamID | text | Team abbreviation |
+| salary | integer | Annual salary in dollars |
+
+### People.csv
+
+One row per player. Biographical information.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| playerID | text | Unique player identifier |
+| nameFirst | text | First name |
+| nameLast | text | Last name |
+| birthYear | integer | Year of birth |
+| birthState | text | State/province of birth |
+| birthCountry | text | Country of birth |
+
+### Teams.csv
+
+One row per team per season. Franchise-level information.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| teamID | text | Team abbreviation |
+| yearID | integer | Season year |
+| franchID | text | Franchise identifier |
+| name | text | Full team name |
+| W | integer | Wins |
+| L | integer | Losses |
+| attendance | integer | Season attendance |
+
+## Colorado State Demography Office — Single Year of Age Estimates
+
+**Source:** Colorado Department of Local Affairs (DOLA), State Demography Office  
+**URL:** <https://demography.dola.colorado.gov/assets/html/sdodata.html>  
+**File:** `sya-county.csv`  
+**Used in:** @sec-py-extending, @sec-py-reshaping, @sec-sql-cleaning, @sec-sql-reshaping
+
+Population estimates by county, year, and single year of age (0 through 100). Includes both historical estimates and future forecasts.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| countyfips | text | FIPS county code (with leading zeros) |
+| county | text | County name |
+| year | integer | Calendar year |
+| age | integer | Single year of age (0–100) |
+| malepopulation | integer | Male population count |
+| femalepopulation | integer | Female population count |
+| totalpopulation | integer | Total population count |
+| datatype | text | `Estimate` (historical) or `Forecast` (projected) |
+
+**Known quirks:**
+
+- The first row of the CSV is a metadata header. Use `skiprows=1` in `read_csv`.
+- `countyfips` has leading zeros and should be loaded as a string.
+- The `datatype` column distinguishes historical estimates from projections. Filter to `Estimate` rows for historical analysis.
+- County names use bare names (e.g., `Adams`, not `Adams County`). This format differs from the CDC and CBI datasets and must be standardized before joining.
+- Contains a `DtypeWarning` on some columns due to mixed types.
+
+## CDC WONDER — Underlying Cause of Death
+
+**Source:** Centers for Disease Control and Prevention, WONDER database  
+**URL:** <https://wonder.cdc.gov/ucd-icd10.html>  
+**File:** `cdc_deaths.csv`  
+**Used in:** @sec-sql-cleaning, @sec-sql-reshaping
+
+Colorado mortality counts by county, year, age group, and ICD-10 chapter (broad cause of death category).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| County | text | County name (format: `Adams County, CO`) |
+| Year | integer | Calendar year |
+| Age Group | text | Age band |
+| ICD Chapter | text | Broad cause of death category |
+| Deaths | integer | Number of deaths |
+
+**Known quirks:**
+
+- County names are in the format `'Adams County, CO'`. This must be standardized to match other datasets.
+- Death counts below 10 may be suppressed for privacy. The value appears as `Suppressed` rather than a number.
+- `Unreliable` flags appear for counts based on small numbers.
+
+## Colorado Bureau of Investigation — Crime Statistics
+
+**Source:** Colorado Bureau of Investigation  
+**URL:** <https://coloradocrimestats.state.co.us/>  
+**File:** `cbi_crime.csv`  
+**Used in:** @sec-sql-cleaning, @sec-sql-reshaping
+
+Reported criminal offenses by jurisdiction, date, and offense type.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| jurisdiction | text | Reporting agency (format: `Adams County`) |
+| offense_date | text | Date of offense |
+| offense_type | text | Type of offense |
+| county | text | County (may differ from jurisdiction) |
+
+**Known quirks:**
+
+- County names use the format `'Adams County'` (with " County" suffix but without state abbreviation). Must be standardized before joining with other sources.
+- Jurisdiction names do not always map cleanly to county names — some jurisdictions are municipal police departments rather than county sheriff offices.
+- Multiple NULL patterns across columns; different columns use different conventions for missing data.
+
+## Boulder County Assessor
+
+### Buildings
+
+**Source:** Boulder County Assessor's Office  
+**URL:** <https://bouldercounty.gov/property-and-land/assessor/data-download/>  
+**File:** `buildings.csv`  
+**Used in:** @sec-sql-extending
+
+One row per improvement section recorded for each parcel. Contains detailed building characteristics.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| strap | text | Parcel account number |
+| bld_num | integer | Building number on parcel |
+| section_num | integer | Section within building |
+| bldg_class | text | Building class (R = residential, C = commercial) |
+| quality_grade | text | Construction quality rating |
+| year_built | integer | Year of construction |
+| above_ground_sqft | integer | Above-ground square footage |
+| heating_type | text | Heating system type |
+| roof_type | text | Roof material |
+
+**Known quirks:**
+
+- Some text columns have trailing whitespace.
+- Placeholder zeros in categorical columns should be treated as missing.
+- Multiple rows per parcel account number (one per building section).
+
+### Residential Sales
+
+**Source:** Boulder County Assessor's Office  
+**URL:** <https://bouldercounty.gov/property-and-land/assessor/sales/>  
+**File:** `ar-rec-2025-residential.xlsx`  
+**Used in:** @sec-py-cleaning
+
+Residential property sales records.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| ACCOUNTNO | text | Property account number (has trailing whitespace) |
+| PROPERTY_ADDRESS | text | Street address |
+| LOCCITY | text | City |
+| SALE_DATE | datetime | Date of sale |
+| SALE_PRICE | mixed | Sale price (contains `$`, commas, and text like `PRIVATE SALE`) |
+
+**Known quirks:**
+
+- `ACCOUNTNO` has trailing whitespace that must be stripped.
+- `SALE_PRICE` contains currency formatting and non-numeric values like `PRIVATE SALE`.
+- Multiple rows per `ACCOUNTNO` (representing different sale transactions over time).

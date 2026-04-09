@@ -1,0 +1,403 @@
+# Visual Exploration {#sec-visualization}
+
+A well-chosen visualization reveals structure that no table of numbers can convey: the shape of a distribution, the trajectory of a trend, the clustering of groups, the isolation of outliers. This chapter introduces a systematic repertoire of plot types for exploratory data analysis using matplotlib and seaborn, organized by what you are trying to see — distributions, relationships, trends, and comparisons. The goal is not to produce publication-ready graphics (though some of these will be close) but to build visual intuitions that inform your analytical decisions.
+
+Every plot in this chapter answers a question. Before writing any plotting code, state the question in a Markdown cell. After producing the plot, write one or two sentences interpreting what it shows. This habit turns exploratory plots from pretty pictures into analytical evidence.
+
+## Setup
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.float_format', '{:.3f}'.format)
+
+# Seaborn defaults: clean, readable, and appropriately sized
+sns.set_style('whitegrid')
+sns.set_context('notebook', font_scale=1.1)
+```
+
+## Datasets
+
+```{python}
+# Lahman batting — qualified player-seasons
+batting = pd.read_csv('Batting.csv')
+batting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))
+batting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']
+batting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))
+batting['HBP'] = batting['HBP'].fillna(0)
+batting['SF'] = batting['SF'].fillna(0)
+batting['OBP'] = (
+    (batting['H'] + batting['BB'] + batting['HBP'])
+    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))
+)
+batting['OPS'] = batting['OBP'] + batting['SLG']
+batting['decade'] = (batting['yearID'] // 10) * 10
+qualified = batting[batting['AB'] >= 100].copy()
+
+# Salaries
+salaries = pd.read_csv('Salaries.csv')
+bat_sal = pd.merge(
+    qualified, salaries[['playerID', 'yearID', 'salary']],
+    on=['playerID', 'yearID'], how='inner'
+)
+```
+
+```{python}
+# Colorado population
+url = 'https://storage.googleapis.com/co-publicdata/sya-county.csv'
+pop = pd.read_csv(url, skiprows=1, dtype={'countyfips': str})
+estimates = pop[pop['datatype'] == 'Estimate'].copy()
+estimates['age_band'] = pd.cut(
+    estimates['age'], bins=[0, 18, 65, 101],
+    labels=['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)'],
+    right=False
+)
+```
+
+```{python}
+# Cannabis sales
+cannabis = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2, skipfooter=8, engine='python', na_values=['NR']
+)
+cannabis.columns = ['month', 'year', 'county', 'medical', 'retail']
+cannabis['county'] = cannabis['county'].str.strip()
+for col in ['medical', 'retail']:
+    cannabis[col] = pd.to_numeric(
+        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False),
+        errors='coerce'
+    )
+cannabis = cannabis[cannabis['county'] != 'Total']
+```
+
+## Visualizing Distributions
+
+The first question to ask about any numeric variable is: *what does its distribution look like?* Is it symmetric, skewed, bimodal, or uniform? Distributions guide your choice of summary statistics (mean vs. median), your approach to outliers, and your selection of statistical tests.
+
+### Histograms
+
+A histogram divides the range of values into bins and counts how many observations fall in each. It is the most direct visualization of a distribution's shape.
+
+```{python}
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.hist(qualified['BA'], bins=50, edgecolor='white', alpha=0.7)
+ax.set_xlabel('Batting Average')
+ax.set_ylabel('Count')
+ax.set_title('Distribution of Batting Average (qualified player-seasons, AB ≥ 100)')
+ax.axvline(qualified['BA'].mean(), color='red', linestyle='--', label=f'Mean: {qualified["BA"].mean():.3f}')
+ax.axvline(qualified['BA'].median(), color='orange', linestyle='--', label=f'Median: {qualified["BA"].median():.3f}')
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+The mean and median are close together, suggesting a roughly symmetric distribution. If they diverged substantially, the distribution would be skewed.
+
+### Kernel density estimation (KDE)
+
+A KDE plot smooths the histogram into a continuous curve, making it easier to see the overall shape:
+
+```{python}
+fig, ax = plt.subplots(figsize=(8, 4))
+sns.kdeplot(data=qualified, x='BA', ax=ax, fill=True, alpha=0.3)
+ax.set_title('KDE of Batting Average')
+ax.set_xlabel('Batting Average')
+plt.tight_layout()
+plt.show()
+```
+
+### Comparing distributions across groups
+
+Overlaying distributions for different groups reveals how they differ. Here we compare batting averages across eras:
+
+```{python}
+era_filter = qualified['decade'].isin([1920, 1960, 2000])
+era_data = qualified[era_filter].copy()
+era_data['era'] = era_data['decade'].map({1920: '1920s', 1960: '1960s', 2000: '2000s'})
+
+fig, ax = plt.subplots(figsize=(8, 4))
+sns.kdeplot(data=era_data, x='BA', hue='era', ax=ax, fill=True, alpha=0.3)
+ax.set_title('Batting Average Distribution by Era')
+ax.set_xlabel('Batting Average')
+plt.tight_layout()
+plt.show()
+```
+
+### Box plots
+
+Box plots show the five-number summary (min, Q1, median, Q3, max) plus individual outlier points. They are especially effective for comparing distributions across many groups:
+
+```{python}
+fig, ax = plt.subplots(figsize=(10, 5))
+decade_data = qualified[qualified['decade'] >= 1900]
+sns.boxplot(data=decade_data, x='decade', y='BA', ax=ax, color='lightblue')
+ax.set_title('Batting Average by Decade (AB ≥ 100)')
+ax.set_xlabel('Decade')
+ax.set_ylabel('Batting Average')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+```
+
+The boxes show the interquartile range (middle 50%), the horizontal line is the median, and the dots are outliers beyond the IQR fences.
+
+### Violin plots
+
+A violin plot combines a box plot with a KDE, showing the full shape of each group's distribution:
+
+```{python}
+fig, ax = plt.subplots(figsize=(10, 5))
+selected_decades = decade_data[decade_data['decade'].isin([1920, 1950, 1980, 2010])]
+sns.violinplot(data=selected_decades, x='decade', y='HR', ax=ax, inner='quartile')
+ax.set_title('Home Run Distribution by Selected Decades')
+ax.set_xlabel('Decade')
+ax.set_ylabel('Home Runs')
+plt.tight_layout()
+plt.show()
+```
+
+## Visualizing Relationships
+
+When you want to understand how two numeric variables relate to each other, scatter plots and correlation heatmaps are your primary tools.
+
+### Scatter plots
+
+```{python}
+fig, ax = plt.subplots(figsize=(8, 6))
+sample = bat_sal[bat_sal['yearID'] == 2015].copy()
+ax.scatter(sample['salary'] / 1e6, sample['OPS'], alpha=0.4, s=20)
+ax.set_xlabel('Salary (millions $)')
+ax.set_ylabel('OPS')
+ax.set_title('Salary vs. OPS (2015 season, qualified batters)')
+plt.tight_layout()
+plt.show()
+```
+
+If the points form a rising cloud, the variables are positively correlated. If the cloud is flat or shapeless, there is little linear relationship. If the cloud curves, the relationship may be nonlinear — something a correlation coefficient alone would not reveal.
+
+### Adding context with color and size
+
+Seaborn's `scatterplot()` can encode additional variables using color (hue) and size:
+
+```{python}
+fig, ax = plt.subplots(figsize=(9, 6))
+sns.scatterplot(
+    data=sample, x=sample['salary']/1e6, y='OPS',
+    hue='AB', size='HR', sizes=(20, 200), alpha=0.6, ax=ax
+)
+ax.set_xlabel('Salary (millions $)')
+ax.set_title('Salary vs. OPS — sized by HR, colored by AB')
+plt.tight_layout()
+plt.show()
+```
+
+### Pair plots
+
+When you have several numeric variables, a pair plot shows every pairwise scatter plot and each variable's distribution in a single figure:
+
+```{python}
+pair_cols = ['BA', 'SLG', 'OBP', 'HR']
+pair_data = qualified[qualified['decade'] == 2010][pair_cols].dropna().sample(500, random_state=42)
+
+sns.pairplot(pair_data, diag_kind='kde', plot_kws={'alpha': 0.3, 's': 15})
+plt.suptitle('Pairwise Relationships — 2010s Batting (sample)', y=1.02)
+plt.tight_layout()
+plt.show()
+```
+
+### Correlation heatmaps
+
+A heatmap visualizes the correlation matrix from @sec-descriptive, making it easy to spot strong relationships at a glance:
+
+```{python}
+metrics = qualified[['AB', 'H', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS']].dropna()
+corr = metrics.corr()
+
+fig, ax = plt.subplots(figsize=(8, 6))
+sns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', center=0, ax=ax,
+            square=True, linewidths=0.5)
+ax.set_title('Correlation Matrix — Batting Metrics')
+plt.tight_layout()
+plt.show()
+```
+
+Red cells indicate strong positive correlations, blue cells indicate negative correlations, and white cells indicate little linear relationship.
+
+## Visualizing Trends Over Time
+
+Time series plots — line charts showing how a variable changes across time — are essential for longitudinal analysis.
+
+### Single trend line
+
+```{python}
+# Statewide cannabis retail sales by year
+annual_state = cannabis.groupby('year')['retail'].sum().reset_index()
+
+fig, ax = plt.subplots(figsize=(8, 4))
+ax.plot(annual_state['year'], annual_state['retail'] / 1e9, marker='o')
+ax.set_xlabel('Year')
+ax.set_ylabel('Retail Sales ($ billions)')
+ax.set_title('Colorado Statewide Retail Cannabis Sales')
+plt.tight_layout()
+plt.show()
+```
+
+### Multiple trend lines for comparison
+
+```{python}
+# Compare top 5 counties
+top_counties = (
+    cannabis.groupby('county')['retail'].sum()
+    .nlargest(5).index.tolist()
+)
+top_data = cannabis[cannabis['county'].isin(top_counties)]
+county_annual = top_data.groupby(['year', 'county'])['retail'].sum().reset_index()
+
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.lineplot(data=county_annual, x='year', y='retail', hue='county', marker='o', ax=ax)
+ax.set_ylabel('Annual Retail Sales ($)')
+ax.set_title('Retail Cannabis Sales — Top 5 Counties')
+ax.legend(title='County', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+```
+
+### Trends with confidence bands
+
+Seaborn can compute and display confidence intervals around aggregated trends:
+
+```{python}
+decade_ba = qualified[qualified['decade'] >= 1900]
+
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.lineplot(data=decade_ba, x='yearID', y='BA', ax=ax, ci=95)
+ax.set_xlabel('Year')
+ax.set_ylabel('Batting Average')
+ax.set_title('League-Wide Batting Average Over Time (95% CI)')
+plt.tight_layout()
+plt.show()
+```
+
+The shaded band shows the 95% confidence interval around the mean at each year, giving you a sense of both the trend and the variability.
+
+## Visualizing Comparisons
+
+When you want to compare a metric across categorical groups, bar charts, grouped bar charts, and faceted plots make the differences visible.
+
+### Bar charts for group comparisons
+
+```{python}
+# Dependency ratio by county type (top vs bottom 10)
+dep_wide = (
+    estimates[estimates['year'] == 2020]
+    .groupby(['county', 'age_band'], observed=True)
+    .agg(pop=('totalpopulation', 'sum'))
+    .reset_index()
+    .pivot_table(index='county', columns='age_band', values='pop', aggfunc='sum')
+    .reset_index()
+)
+dep_wide.columns.name = None
+dep_wide['dep_ratio'] = (
+    (dep_wide['Children (0-17)'] + dep_wide['Seniors (65+)'])
+    / dep_wide['Working Age (18-64)']
+)
+
+top5 = dep_wide.nlargest(5, 'dep_ratio')
+bot5 = dep_wide.nsmallest(5, 'dep_ratio')
+comparison = pd.concat([top5, bot5]).sort_values('dep_ratio', ascending=True)
+
+fig, ax = plt.subplots(figsize=(8, 5))
+colors = ['steelblue' if x in bot5['county'].values else 'coral' for x in comparison['county']]
+ax.barh(comparison['county'], comparison['dep_ratio'], color=colors)
+ax.set_xlabel('Dependency Ratio')
+ax.set_title('Highest and Lowest Dependency Ratios — Colorado Counties (2020)')
+ax.axvline(dep_wide['dep_ratio'].median(), color='gray', linestyle='--', alpha=0.5, label='Median')
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+### Faceted plots (small multiples)
+
+Faceting breaks a single plot into a grid of subplots, one per group. This is one of the most effective techniques for comparing patterns across categories:
+
+```{python}
+# Batting average distribution across four selected decades
+four_decades = qualified[qualified['decade'].isin([1930, 1960, 1990, 2020])].copy()
+four_decades['era'] = four_decades['decade'].astype(str) + 's'
+
+g = sns.FacetGrid(four_decades, col='era', col_wrap=2, height=3.5, aspect=1.3)
+g.map(sns.histplot, 'BA', bins=30, kde=True)
+g.set_axis_labels('Batting Average', 'Count')
+g.set_titles('{col_name}')
+g.figure.suptitle('Batting Average Distribution by Era', y=1.02)
+plt.tight_layout()
+plt.show()
+```
+
+## Choosing the Right Plot
+
+| Question | Plot type | When to use |
+|----------|-----------|-------------|
+| What does this variable look like? | Histogram, KDE, box plot | Single numeric variable |
+| How do distributions differ across groups? | Overlaid KDE, grouped box plot, violin plot | One numeric + one categorical |
+| How are two variables related? | Scatter plot, pair plot | Two numeric variables |
+| What are all pairwise relationships? | Correlation heatmap, pair plot | Many numeric variables |
+| How has a variable changed over time? | Line plot | Numeric variable + time |
+| How do groups compare on a metric? | Bar chart, grouped bar chart | One numeric + one categorical |
+| How do patterns vary across subgroups? | Faceted plot (small multiples) | Any plot + a grouping variable |
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Distribution comparison
+Create overlaid KDE plots comparing home run distributions for the 1990s and 2010s. What differences do you observe in the shape, center, and spread of the two distributions?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+era_hr = qualified[qualified['decade'].isin([1990, 2010])].copy()
+era_hr['era'] = era_hr['decade'].map({1990: '1990s', 2010: '2010s'})
+
+fig, ax = plt.subplots(figsize=(8, 4))
+sns.kdeplot(data=era_hr, x='HR', hue='era', fill=True, alpha=0.3, ax=ax)
+ax.set_title('Home Run Distribution: 1990s vs 2010s')
+plt.tight_layout()
+plt.show()
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Scatter plot with interpretation
+Create a scatter plot of medical vs. retail cannabis sales by county-year. Add a 45-degree reference line. What does the plot tell you about the relationship between the two sales categories?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+county_year = cannabis.groupby(['county', 'year'])[['medical', 'retail']].sum().dropna().reset_index()
+
+fig, ax = plt.subplots(figsize=(7, 7))
+ax.scatter(county_year['medical'], county_year['retail'], alpha=0.3, s=15)
+lim = max(county_year['medical'].max(), county_year['retail'].max())
+ax.plot([0, lim], [0, lim], 'r--', alpha=0.5, label='1:1 line')
+ax.set_xlabel('Medical Sales ($)')
+ax.set_ylabel('Retail Sales ($)')
+ax.set_title('Medical vs. Retail Cannabis Sales by County-Year')
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+Most points fall above the 1:1 line, indicating that retail sales generally exceed medical sales — increasingly so over time as the recreational market has grown.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Faceted trend plot
+Create a faceted line plot showing the annual dependency ratio trend for four Colorado counties of your choice. Use `FacetGrid` or `col_wrap` in seaborn. What similarities and differences do you observe across counties?
+:::

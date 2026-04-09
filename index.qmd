@@ -1,0 +1,63 @@
+# Preface {.unnumbered}
+
+This book teaches you how to use information to identify interesting real-world problems and generate insight. You will learn to find, collect, assemble, and organize data to inspire new questions, make predictions, generate deliverables, and work toward solutions. Along the way, you will develop the practical skills of exploratory data analysis using Python and SQL — two tools that appear in virtually every data-oriented career.
+
+## Who This Book Is For
+
+This book is written for undergraduate students who have completed one introductory course in Python. You should be comfortable with variables, loops, conditionals, functions, and lists. If you can write a `for` loop that iterates over a list and appends results to another list, you have enough Python background to begin.
+
+No prior experience with pandas, SQL, databases, or the command line is required. The book introduces each of these tools from scratch, with careful attention to the concepts that trip up newcomers.
+
+## The Load–Clean–Extend–Reshape Framework
+
+Data analysis is often taught as a grab bag of techniques. This book takes a different approach: it organizes the entire curriculum around a four-stage workflow that applies regardless of the tool you are using.
+
+**Loading** is the process of getting data from its source — a CSV file, an Excel spreadsheet, a database — into your working environment. This stage seems simple, but it is where many invisible problems originate: wrong delimiters, misidentified headers, encoding errors, and columns silently cast to the wrong type.
+
+**Cleaning** addresses the problems that loading reveals. You will learn to identify and fix data type mismatches, standardize inconsistent categories, handle missing values, detect duplicates, and document every decision you make along the way.
+
+**Extending** means deriving new information from what you already have. This includes computing new columns, building grouped summaries and aggregation tables, and combining information from multiple sources. The goal is to transform raw observations into metrics that can support analysis.
+
+**Reshaping** is the process of changing the structure of your data — pivoting between wide and long formats, merging tables on shared keys, and auditing the results to confirm nothing was lost or duplicated in the process.
+
+These four stages are not strictly sequential. Real analysis involves cycling back through them as you discover new issues. But the framework gives you a reliable starting point and a vocabulary for describing where you are in any analysis workflow.
+
+## How This Book Is Organized
+
+The book is divided into three parts, each applying the Load–Clean–Extend–Reshape framework with a different tool.
+
+**Part I: Foundations** covers the paratechnical skills that most courses skip but that every analyst needs: navigating the terminal, organizing project files, writing documentation, managing Python environments, and reading error messages. These short chapters are designed to be referenced throughout the rest of the book.
+
+**Part II: Python** introduces the pandas library for tabular data analysis. Across four chapters, you will learn to load CSV and Excel files with `read_csv` and `read_excel`, clean data using string methods, type coercion, and dictionary-based recoding, extend datasets with derived columns, `groupby` aggregation, and `pivot_table`, and reshape data using `melt`, `merge`, and `concat`. The datasets in this section include Colorado cannabis sales data, Boulder County voter registration records, Lahman Baseball statistics, and Colorado population estimates from the State Demography Office.
+
+**Part III: SQL** teaches you to perform the same operations using Structured Query Language and the SQLite database engine. You will set up a database from the command line, design schemas, load cleaned CSVs, write diagnostic queries, use `GROUP BY`, subqueries, and Common Table Expressions (CTEs), and join multiple tables while auditing join quality. The SQL chapters use Colorado public health datasets — CDC mortality data, Colorado Bureau of Investigation crime statistics, and population estimates — culminating in a multi-table join that produces an analysis-ready dataset.
+
+**Part IV: Analysis** introduces the concepts and tools for making sense of the clean, well-structured data you have built. You will learn to formulate research questions and recognize the structure of the comparisons your data supports (between-subjects vs. within-subjects, cross-sectional vs. longitudinal), to characterize distributions and identify outliers through descriptive statistics, to build a visual vocabulary for exploring patterns using matplotlib and seaborn, and to apply simple hypothesis tests — t-tests, chi-square tests, and correlation coefficients — and interpret their results in plain language. Part IV uses the same datasets from earlier chapters, so that the analytical questions grow naturally from the data preparation work you have already done.
+
+An **Appendix** describes each dataset used in the book, including its source, structure, key columns, and known quirks.
+
+## Recurring Themes
+
+Several principles recur throughout the book, regardless of whether you are working in pandas or SQL.
+
+**Inspect before you act.** Every chapter begins by looking at the data before transforming it. The post-load checklist — shape, headers, types, missingness, distributions, duplicates, plausibility, and a quick visual scan — appears in every loading chapter and becomes second nature.
+
+**Validate after every transformation.** Cleaning and reshaping operations can silently drop rows, create duplicates, or introduce null values. The book teaches you to check row counts, compare totals, and cross-verify results after every step.
+
+**Make invisible problems visible.** Many data errors are silent — a join that drops rows because of trailing whitespace in a key column, a column that looks numeric but contains a hidden sentinel value, a merge that inflates row counts because of an unexpected many-to-many relationship. A central goal of this book is to train your eye to catch these problems before they corrupt your analysis.
+
+**Document your decisions.** Every cleaning choice involves a judgment call. The book introduces the Known Issues Log and Data Dictionary as lightweight documentation tools that make your workflow reproducible and your assumptions transparent.
+
+## Conventions Used in This Book
+
+Code blocks contain Python or SQL that you can run in a Jupyter notebook or SQLite shell. When a code example includes output, it appears directly below the code block. Exercises appear throughout each chapter with solutions hidden in collapsible blocks — try the exercise before revealing the answer.
+
+Terminal commands are shown in `bash` code blocks. On Windows, equivalent commands are noted where they differ.
+
+## Accompanying Materials
+
+All datasets used in this book are available in the accompanying GitHub repository. Each chapter assumes you have downloaded the relevant data files to your working directory. Instructions for setting up your environment appear in @sec-environments.
+
+## Acknowledgments
+
+This book grew out of the INFO 3401: Information Exploration course at the University of Colorado Boulder. It reflects the contributions of many students whose questions, mistakes, and feedback shaped the material into its current form.

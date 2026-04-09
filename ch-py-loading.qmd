@@ -1,0 +1,305 @@
+# Loading Data with pandas {#sec-py-loading}
+
+Every analysis begins with loading data — getting information from a file on disk into a pandas DataFrame where you can inspect and manipulate it. This chapter covers the mechanics of loading CSV and Excel files using `pd.read_csv()` and `pd.read_excel()`, the parameters that control how pandas interprets the file, and the post-load inspection routine that catches problems before they propagate into your analysis.
+
+Loading data is where most silent errors originate. A column that looks numeric but was loaded as text, a header row mistakenly treated as data, a delimiter that splits values in the wrong places — these problems are invisible unless you actively look for them. The discipline of inspecting data immediately after loading is one of the most valuable habits you will develop in this course.
+
+## Setup
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+```
+
+## A First Load
+
+The Colorado Department of Revenue publishes monthly cannabis sales by county. The data is distributed as a CSV file originally exported from Excel, which means it has some quirks we need to handle. Let's start with a naive load and see what happens.
+
+```{python}
+df = pd.read_csv('colorado_cannabis_sales_by_county.csv')
+```
+
+Before doing anything else, look at the data.
+
+```{python}
+df.shape
+```
+
+```{python}
+df.head()
+```
+
+```{python}
+df.tail(10)
+```
+
+Something is wrong. The real column headers appear to be on row 2, not row 0. The first two rows contain a title block from the original Excel file. And the bottom of the file likely contains footnotes or totals that are not data rows.
+
+This is a common pattern with government data — the files are formatted for human reading, not for machine ingestion. Your job is to tell pandas how to read the file correctly.
+
+## The Post-Load Checklist
+
+Before you touch any data, run through this checklist. It takes less than a minute and catches the majority of loading problems.
+
+- **Shape**: `df.shape` — does the row and column count match expectations?
+- **Headers**: `df.columns.tolist()` — are column names unique, non-empty, and meaningful?
+- **Types**: `df.dtypes` — are numbers numeric, dates datetime, and text object?
+- **Missingness**: `df.isna().sum()` — how many missing values per column?
+- **Distributions**: `df['col'].value_counts()` — do categorical values look right?
+- **Duplicates**: `df.duplicated(subset=[key_cols]).sum()` — is there a candidate key?
+- **Plausibility**: `df.describe()` — any impossible ranges, negative counts, future dates?
+- **Quick look**: `df.head()`, `df.tail()`, `df.sample(5)` — do rows look right?
+
+You will apply this checklist in every loading chapter in this book, in both Python and SQL. Memorize it.
+
+## Fixing the Load with `read_csv` Parameters
+
+The `pd.read_csv()` function has dozens of parameters that control how the file is interpreted. For most real-world files, you will need to specify at least a few of them. Here are the most important ones.
+
+### `header`: where the column names are
+
+If the header row is not the first row of the file, specify its zero-indexed position:
+
+```{python}
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2
+)
+
+df.head()
+```
+
+### `skipfooter`: removing trailing rows
+
+Government data files often have footnotes, totals, or metadata appended to the bottom. The `skipfooter` parameter removes a specified number of rows from the end. Note that `skipfooter` requires setting `engine='python'` because the default C parser does not support it.
+
+```{python}
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python'
+)
+
+df.tail()
+```
+
+### `na_values`: declaring custom missing value codes
+
+Many datasets use codes like `NR` (Not Reported), `-999`, `.`, or empty strings to represent missing values. The `na_values` parameter tells pandas to treat these as `NaN`:
+
+```{python}
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+df.tail()
+```
+
+### `sep`: specifying the delimiter
+
+CSV stands for "comma-separated values," but many files use other delimiters — tabs (`\t`), pipes (`|`), or semicolons (`;`). If your file uses something other than a comma, specify it with `sep`:
+
+```{python}
+# Example: pipe-delimited file
+# df = pd.read_csv('voter_data.txt', sep='|')
+```
+
+### `dtype`: controlling column types
+
+By default, pandas guesses each column's type. You can override this with a dictionary mapping column names to types. This is especially useful for columns that look numeric but should remain strings — like zip codes or ID numbers that have leading zeros:
+
+```{python}
+# Example: preserve leading zeros in zip codes
+# df = pd.read_csv('data.csv', dtype={'zip_code': str, 'voter_id': str})
+```
+
+## Building Up Iteratively
+
+Notice the pattern above: you load the file, check the result, add a parameter to fix a problem, and reload. This iterative approach — get something to work, then move on to the next issue — is how experienced analysts work with messy files.
+
+In a finished notebook, you would consolidate everything into a single cell. But when you are first working with a new dataset, spread the steps across multiple cells so you can see the effect of each parameter.
+
+## Cleaning During Load vs. After Load
+
+Some cleaning can happen at load time through `read_csv` parameters (`header`, `skipfooter`, `na_values`). Other cleaning — renaming columns, stripping currency symbols, filtering out aggregate rows — happens after loading.
+
+For the cannabis data, the post-load cleaning involves fixing column names, removing whitespace from county names, converting dollar-formatted strings to numbers, and filtering out the "Total" rows.
+
+### Fixing column names
+
+```{python}
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+df.tail()
+```
+
+### Stripping whitespace
+
+```{python}
+df['County'] = df['County'].str.strip()
+```
+
+### Converting currency strings to numbers
+
+The sales columns contain values like `$1,234,567` — dollar signs and commas that prevent numeric operations. The `.str.replace()` method removes them, and `pd.to_numeric()` converts the result:
+
+```{python}
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+df.tail()
+```
+
+::: {.callout-note}
+## The leading-dot style
+Notice the chain of `.str.replace()` calls written on separate lines. This "leading dot" style makes method chains easier to read and debug — you can comment out individual steps to isolate problems.
+:::
+
+### Removing aggregate rows
+
+The dataset includes rows where `County == 'Total'` — these are monthly statewide totals that would corrupt any county-level analysis. Remove them with boolean indexing:
+
+```{python}
+df = df[df['County'] != 'Total']
+```
+
+## The Complete Load Cell
+
+In a finished notebook, all of these steps belong in a single cell that someone can run to reproduce the clean DataFrame from the raw file:
+
+```{python}
+# Read in skipping headers, footers, and NRs
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+# Rename columns
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+
+# Strip random whitespace
+df['County'] = df['County'].str.strip()
+
+# Convert sales volumes to numeric
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+# Remove annual totals
+df = df[df['County'] != 'Total']
+
+# Inspect
+df.tail()
+```
+
+## Running the Full Checklist
+
+Now apply the post-load checklist to the cleaned DataFrame:
+
+```{python}
+print('Shape:', df.shape)
+print('\nDtypes:')
+print(df.dtypes)
+print('\nMissing values:')
+print(df.isna().sum())
+```
+
+```{python}
+for col in ['Month', 'Year', 'County']:
+    print(df[col].value_counts(), '\n\n')
+```
+
+```{python}
+for col in ['Medical', 'Retail']:
+    print(df[col].describe(), '\n\n')
+```
+
+## A Quick Preview: What You Can Do with Clean Data
+
+With the data loaded and cleaned, you can immediately begin exploring. Here is a pivot table and a simple visualization — both of which we will cover in depth in later chapters:
+
+```{python}
+pivot_df = pd.pivot_table(
+    data=df,
+    index='County',
+    columns='Year',
+    values='Retail',
+    aggfunc='sum'
+)
+
+pivot_df.head()
+```
+
+```{python}
+pivot_df.loc['Las Animas'].plot(title='Las Animas County Retail Cannabis Sales by Year')
+```
+
+## The `read_csv` Parameters You Should Know
+
+| Parameter | Purpose | Example |
+|-----------|---------|---------|
+| `header` | Which row contains column names | `header=2` |
+| `skiprows` | Rows to skip at the top | `skiprows=3` |
+| `skipfooter` | Rows to skip at the bottom | `skipfooter=8` (requires `engine='python'`) |
+| `sep` | Column delimiter | `sep='|'`, `sep='\t'` |
+| `na_values` | Custom missing value codes | `na_values=['NR', '-999', '.']` |
+| `dtype` | Force column types | `dtype={'zip': str}` |
+| `encoding` | Character encoding | `encoding='latin-1'` |
+| `usecols` | Load only specific columns | `usecols=['County', 'Year', 'Sales']` |
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Load a pipe-delimited file
+Load the Boulder County voter data file (`boco_voter_data.txt`), which uses a pipe (`|`) delimiter. Run the post-load checklist. How many rows and columns does it have? What are the column dtypes? Are there any columns that should be loaded as strings but were guessed as numeric?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+df = pd.read_csv('boco_voter_data.txt', sep='|')
+print('Shape:', df.shape)
+print('\nDtypes:')
+print(df.dtypes)
+print('\nFirst few rows:')
+df.head()
+```
+
+Columns like `RES_ZIP_CODE`, `VOTER_ID`, and `PRECINCT` may contain leading zeros and should be loaded as strings using the `dtype` parameter.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Diagnose a mixed-type warning
+Load the Colorado State Demography Office population file (`sya-county.csv`). You may see a `DtypeWarning` about mixed types. Investigate which column triggered the warning by checking `.dtypes` and inspecting the column's unique values. What non-numeric value is present, and what should you do about it?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+sya_df = pd.read_csv('sya-county.csv', header=1)
+print(sya_df.dtypes)
+print(sya_df.head())
+```
+
+The `DtypeWarning` typically indicates that a column contains both numbers and text (such as a header row mixed into the data, or a metadata row). Investigate with `.value_counts()` and address by specifying `dtype` on import or by filtering out the problematic rows.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Build a complete load cell
+Choose one of the course datasets and write a single cell that loads it cleanly — specifying all necessary `read_csv` parameters, renaming columns to clean names, converting types as needed, and removing any non-data rows. End the cell by printing the shape and a sample of rows.
+:::

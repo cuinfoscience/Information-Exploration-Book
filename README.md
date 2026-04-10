@@ -62,7 +62,7 @@ Output is written to the `book/` directory. Open `book/index.html` in a browser 
 To preview a single chapter with live reload:
 
 ```bash
-quarto preview ch-py-loading.qmd
+quarto preview 08-py-loading.qmd
 ```
 
 To render to a specific format:
@@ -79,7 +79,7 @@ The `_quarto.yml` file sets `eval: false` globally, which means code blocks are 
 To execute code blocks interactively, open the `.qmd` files as Jupyter notebooks:
 
 ```bash
-quarto convert ch-py-loading.qmd   # converts to .ipynb for Jupyter
+quarto convert 08-py-loading.qmd   # converts to .ipynb for Jupyter
 ```
 
 ## Repository Structure
@@ -88,24 +88,24 @@ quarto convert ch-py-loading.qmd   # converts to .ipynb for Jupyter
 Information-Exploration-Book/
 ├── _quarto.yml              # Book configuration and chapter ordering
 ├── index.qmd                # Preface
-├── ch-terminal.qmd          # Part I: Foundations
-├── ch-projects.qmd
-├── ch-documentation.qmd
-├── ch-environments.qmd
-├── ch-errors.qmd
-├── ch-research-questions.qmd
-├── ch-public-interest.qmd
-├── ch-py-loading.qmd        # Part II: Python
-├── ch-py-cleaning.qmd
-├── ch-py-extending.qmd
-├── ch-py-reshaping.qmd
-├── ch-sql-loading.qmd       # Part III: SQL
-├── ch-sql-cleaning.qmd
-├── ch-sql-extending.qmd
-├── ch-sql-reshaping.qmd
-├── ch-descriptive.qmd       # Part IV: Analysis
-├── ch-visualization.qmd
-├── ch-hypothesis-testing.qmd
+├── 01-terminal.qmd          # Part I: Foundations
+├── 02-projects.qmd
+├── 03-documentation.qmd
+├── 04-environments.qmd
+├── 05-errors.qmd
+├── 06-research-questions.qmd
+├── 07-public-interest.qmd
+├── 08-py-loading.qmd        # Part II: Python
+├── 09-py-cleaning.qmd
+├── 10-py-extending.qmd
+├── 11-py-reshaping.qmd
+├── 12-sql-loading.qmd       # Part III: SQL
+├── 13-sql-cleaning.qmd
+├── 14-sql-extending.qmd
+├── 15-sql-reshaping.qmd
+├── 16-descriptive.qmd       # Part IV: Analysis
+├── 17-visualization.qmd
+├── 18-hypothesis-testing.qmd
 ├── appendix-datasets.qmd    # Appendices
 ├── appendix-llm-methods.qmd
 ├── book/                    # Rendered HTML output (generated; not committed)

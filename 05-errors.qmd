@@ -131,3 +131,41 @@ KeyError: 'Retial_Sales'
 (a) `KeyError`. (b) The column `'Retial_Sales'` does not exist — note the typo: "Retial" instead of "Retail". (c) Line 1 of cell 7. (d) Correct the column name to `'Retail_Sales'` (or whatever it is — check with `df.columns.tolist()` to see the exact names).
 :::
 :::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Trigger and fix common errors
+Write code that deliberately triggers each error type below, then fix it. For each, write a one-sentence explanation of what caused the error and what the fix was.
+
+a. Load the cannabis sales data without any `read_csv` parameters. Try to sum the `Retail Sales` column. You will get a `TypeError`. What caused it, and how do you fix it?
+
+b. Try to access a column named `'retail_sales'` (lowercase) on the DataFrame you just loaded. You will get a `KeyError`. Why? What does `df.columns.tolist()` show you?
+
+c. After loading the cannabis data with `header=2` and assigning column names, try to convert the `Month` column to integer using `.astype(int)` on the raw (uncleaned) version of the DataFrame. If any values prevent conversion, you will get a `ValueError`. What does the error message tell you?
+
+::: {.callout-note collapse="true"}
+## Solution
+a. Without `na_values=['NR']`, the `Retail Sales` column is loaded as `object` dtype because it contains both currency strings and the text `NR`. Summing strings raises a `TypeError`. Fix: add `na_values=['NR']` and strip currency symbols before converting to numeric.
+
+b. The raw column name includes a space: `'Retail Sales'`, not `'retail_sales'`. `df.columns.tolist()` shows the exact names. Fix: use the exact name, or rename columns with `df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']`.
+
+c. If the `Month` column has any non-integer values (e.g., leftover header text from the title block), `.astype(int)` raises a `ValueError`. Fix: use `pd.to_numeric(df['Month'], errors='coerce')` to handle unconvertible values.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Apply the systematic debugging process
+A classmate shows you the following code and says "it runs but gives the wrong answer":
+
+```python
+df = pd.read_csv('colorado_cannabis_sales_by_county.csv', header=2, skipfooter=8)
+total = df['Retail Sales'].sum()
+print(f"Total retail sales: {total}")
+```
+
+The output is `Total retail sales: 0`. Using the five-step debugging process from this chapter, identify what went wrong. What would you inspect, and what is the likely cause of the zero result?
+
+::: {.callout-note collapse="true"}
+## Solution
+Step 4 (inspect the inputs) is the key step here. Run `print(df['Retail Sales'].dtype)` — it almost certainly shows `object` because the column contains currency strings like `$1,234,567`. Summing strings returns 0 (or raises a `TypeError` depending on the pandas version). Step 3 (reproduce minimally): `df['Retail Sales'].head()` confirms the values are formatted as strings. The fix is to strip `$` and `,` characters and convert to numeric with `pd.to_numeric()`. This error produces a wrong answer with no error message — a "silent error" that is more dangerous than an exception.
+:::
+:::

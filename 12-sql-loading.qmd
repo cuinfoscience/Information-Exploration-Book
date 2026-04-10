@@ -68,31 +68,31 @@ import numpy as np
 
 df_raw = pd.read_csv(
     'colorado_cannabis_sales_by_county.csv',
-    header=2,
-    skipfooter=8,
-    engine='python',
-    na_values=['NR']
+    header=2,        # row index 2 (zero-based) holds the real column headers
+    skipfooter=8,    # skip the 8 footnote rows at the bottom of the file
+    engine='python', # required when using skipfooter (the C parser doesn't support it)
+    na_values=['NR'] # treat "NR" (Not Reported) as a missing value
 )
 
-# Rename to clean, SQL-friendly column names
+# Rename to clean, SQL-friendly column names (lowercase, no spaces or special chars)
 df_raw.columns = ['month', 'year', 'county', 'medical_sales', 'retail_sales']
 
 # Strip currency formatting and cast to nullable integer
 for col in ['medical_sales', 'retail_sales']:
     df_raw[col] = (
         df_raw[col]
-        .str.strip()
-        .str.replace('$', '', regex=False)
-        .str.replace(',', '', regex=False)
-        .pipe(pd.to_numeric, errors='coerce')
-        .astype('Int64')
-    )
+        .str.strip()                           # remove any surrounding whitespace
+        .str.replace('$', '', regex=False)     # remove dollar signs
+        .str.replace(',', '', regex=False)     # remove thousands-separator commas
+        .pipe(pd.to_numeric, errors='coerce')  # convert strings to numbers; 'coerce' turns failures to NaN
+        .astype('Int64')                       # pandas nullable integer type (capital I) — supports NaN
+    )                                          # regular int64 does NOT support NaN; Int64 does
 
-# Remove aggregate Total rows
+# Remove statewide aggregate rows (county = 'Total'); these are not county-level data
 df_raw = df_raw[df_raw['county'].str.strip() != 'Total']
 
-# Export
-df_raw.to_csv('cannabis_clean.csv', index=False)
+# Export to a clean rectangular CSV — one header row, no special formatting
+df_raw.to_csv('cannabis_clean.csv', index=False)  # index=False omits the row numbers column
 print(f"Exported {len(df_raw):,} rows to cannabis_clean.csv")
 ```
 
@@ -172,11 +172,13 @@ If the path is wrong, `sqlite3.connect()` will silently create a **new empty fil
 
 ### Low-level access with a cursor
 
+A **cursor** is an object that manages the state of a single database operation — it tracks where you are in the result set, similar to a bookmark in a book. You `execute()` a query through the cursor, then use `fetchone()` to retrieve one row at a time, or `fetchall()` to retrieve all rows as a list of tuples. For most analytical work, `pd.read_sql_query()` is more convenient because it returns a DataFrame directly.
+
 ```{python}
 cursor = conn.cursor()
-cursor.execute("SELECT COUNT(*) FROM cannabis_sales;")
-result = cursor.fetchone()
-print("Row count:", result[0])
+cursor.execute("SELECT COUNT(*) FROM cannabis_sales;")  # run the query
+result = cursor.fetchone()  # retrieve the first (and only) row of results as a tuple
+print("Row count:", result[0])  # result is a tuple like (8436,); [0] gets the first element
 ```
 
 ### The preferred workflow: `pd.read_sql_query()`
@@ -321,6 +323,53 @@ queries = [
 for q in queries:
     print(pd.read_sql_query(q, conn))
     print()
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Load and query a second table
+Prepare the Colorado State Demography Office population data for SQLite:
+
+1. Load `sya-county.csv` in pandas using `skiprows=1` and filter to `Estimate` rows only.
+2. Export it as `population_clean.csv`.
+3. Define a schema for a `population` table in SQLite (at minimum: `countyfips TEXT`, `county TEXT`, `year INTEGER`, `age INTEGER`, `totalpopulation INTEGER`).
+4. Load the CSV into your `cannabis.db` database using the `.import` command.
+5. Write a SQL query that counts the number of distinct counties and years in the table, and verify the row count matches what pandas reported.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+# Step 1–2: Prepare and export
+pop = pd.read_csv('sya-county.csv', skiprows=1, dtype={'countyfips': str})
+pop = pop[pop['datatype'] == 'Estimate']
+pop.to_csv('population_clean.csv', index=False)
+print(f"Exported {len(pop):,} rows")
+```
+
+```sql
+-- Step 3: Schema
+CREATE TABLE IF NOT EXISTS population (
+    countyfips TEXT,
+    county TEXT,
+    year INTEGER,
+    age INTEGER,
+    malepopulation INTEGER,
+    femalepopulation INTEGER,
+    totalpopulation INTEGER,
+    datatype TEXT
+);
+```
+
+```python
+# Step 5: Verify
+pd.read_sql_query("""
+    SELECT
+        COUNT(DISTINCT county) AS n_counties,
+        COUNT(DISTINCT year) AS n_years,
+        COUNT(*) AS total_rows
+    FROM population;
+""", conn)
 ```
 :::
 :::

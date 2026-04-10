@@ -149,17 +149,21 @@ The column names, currency formatting, and statewide aggregate rows still need a
 ```{python}
 print('Shape:', df.shape)
 print('\nDtypes:')
-print(df.dtypes)
+print(df.dtypes)   # object dtype for numeric columns means they were loaded as strings
 print('\nMissing values:')
-print(df.isna().sum())
+print(df.isna().sum())  # count NaN values per column; NR entries should now show as NaN
 ```
 
 ```{python}
+# value_counts() for categorical columns — check that values look sensible
+# (12 unique months, expected years, no garbled county names)
 for col in ['Month', 'Year', 'County']:
     print(df[col].value_counts(), '\n\n')
 ```
 
 ```{python}
+# describe() for numeric-looking columns — note: these are still strings at this point
+# so describe() shows string statistics (count, unique, top, freq) not min/max
 for col in ['Medical', 'Retail']:
     print(df[col].describe(), '\n\n')
 ```
@@ -169,6 +173,11 @@ for col in ['Medical', 'Retail']:
 With the data loaded and cleaned, you can immediately begin exploring. Here is a pivot table and a simple visualization — both of which we will cover in depth in later chapters:
 
 ```{python}
+# pivot_table() aggregates and reshapes in one step:
+# index='County' → one row per county
+# columns='Year' → one column per year
+# values='Retail' → the cell values are retail sales
+# aggfunc='sum' → sum all months within each county-year cell
 pivot_df = pd.pivot_table(
     data=df,
     index='County',
@@ -181,6 +190,8 @@ pivot_df.head()
 ```
 
 ```{python}
+# .loc['Las Animas'] selects the row for Las Animas County
+# .plot() with a datetime-like index creates a line chart by default
 pivot_df.loc['Las Animas'].plot(title='Las Animas County Retail Cannabis Sales by Year')
 ```
 

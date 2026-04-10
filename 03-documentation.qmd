@@ -152,3 +152,15 @@ Open one of the course datasets and identify a data quality issue (a column with
 ## Exercise 2: Build a data dictionary
 Choose a dataset you have worked with recently. Write a data dictionary as a Markdown table that describes every column, its type, valid values, and any cleaning that was applied. If you have not cleaned the data yet, note what cleaning you think will be needed.
 :::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Document a complete workflow
+Create a Jupyter notebook that loads the Colorado cannabis sales data and produces the following documentation artifacts — all visible in the notebook as rendered Markdown cells:
+
+1. A header cell identifying the dataset, its source URL, and the date you accessed it.
+2. A Data Dictionary table describing every column in the raw file (before any cleaning).
+3. A Known Issues Log entry for at least one data quality problem you observed during loading (e.g., the two-row title block, the currency formatting, or the `NR` values).
+4. At least two inline code comments — one explaining *why* a particular `read_csv` parameter was used, and one explaining a non-obvious cleaning decision.
+
+The goal is a notebook that a classmate could open, read the Markdown cells, and understand what you found and why you made the choices you made.
+:::

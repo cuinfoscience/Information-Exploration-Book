@@ -80,16 +80,17 @@ print('Wide shape:', hr_wide.shape)
 ```
 
 ```{python}
-team_cols = [c for c in hr_wide.columns if c != 'decade']
+team_cols = [c for c in hr_wide.columns if c != 'decade']  # all columns except the ID column
 
 hr_long = hr_wide.melt(
-    id_vars=['decade'],
-    value_vars=team_cols,
-    var_name='teamID',
-    value_name='total_HR'
+    id_vars=['decade'],        # columns that stay as identifiers (not melted)
+    value_vars=team_cols,      # columns to unpivot into rows (one row per team per decade)
+    var_name='teamID',         # name for the new column that holds the old column headers
+    value_name='total_HR'      # name for the new column that holds the old cell values
 )
 
 print('Long shape:', hr_long.shape)
+# Expected: one row per (decade × team) combination
 print('Expected rows:', hr_wide.shape[0], '×', len(team_cols), '=', hr_wide.shape[0] * len(team_cols))
 ```
 
@@ -124,6 +125,9 @@ live_ball = batting[(batting['yearID'] >= 1920) & (batting['yearID'] < 1970)].co
 modern = batting[batting['yearID'] >= 1970].copy()
 
 frames = [dead_ball, live_ball, modern]
+# ignore_index=True resets the row index to 0, 1, 2, ... in the combined result.
+# Without it, each DataFrame keeps its original index, creating a non-unique index
+# that can cause subtle bugs later (e.g., .loc[0] returns multiple rows).
 all_eras = pd.concat(frames, ignore_index=True)
 
 print('Shape after concat:', all_eras.shape)
@@ -200,15 +204,17 @@ The `indicator=True` parameter adds a `_merge` column that shows whether each ro
 bat_sal = pd.merge(
     left=batting_season,
     right=salaries[['playerID', 'yearID', 'salary']],
-    on=['playerID', 'yearID'],
-    how='left',
-    indicator=True
+    on=['playerID', 'yearID'],  # match rows where both playerID AND yearID agree
+    how='left',      # LEFT JOIN: keep all rows from batting_season; add salary where available
+    indicator=True   # add a '_merge' column showing each row's match status
 )
 
 print('Before merge:', batting_season.shape[0], 'rows')
+# Row count should NOT change for a left merge — every batting row stays, salary is added alongside
 print('After merge:', bat_sal.shape[0], 'rows')
 print()
 print('Merge audit:')
+# 'both' = matched in both tables | 'left_only' = in batting but not salaries | 'right_only' = vice versa
 print(bat_sal['_merge'].value_counts())
 print(f'\nMatch rate: {(bat_sal["_merge"] == "both").mean():.1%}')
 ```
@@ -279,8 +285,10 @@ print('MultiIndex columns:', team_stats.columns[:4])
 ```
 
 ```{python}
-# Flatten with reset_index and column renaming
+# Flatten MultiIndex columns: join each (metric, agg_func) tuple with '_'
+# e.g., ('HR', 'mean') → 'HR_mean', ('BA', 'sum') → 'BA_sum'
 team_stats.columns = ['_'.join(col) for col in team_stats.columns]
+# reset_index() moves the groupby keys (decade, teamID) from index back into columns
 team_stats = team_stats.reset_index()
 team_stats.head()
 ```

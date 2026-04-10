@@ -85,6 +85,8 @@ The independent samples t-test asks: *Is the mean of one group different from th
 The late 1990s through early 2000s are sometimes called baseball's "steroid era." Did batting averages differ between the pre-steroid period (1980–1993) and the steroid era (1994–2004)?
 
 ```{python}
+# Filter to each era separately and extract the BA values as a Series
+# dropna() removes rows where BA could not be computed (zero at-bats, etc.)
 pre_steroid = qualified[
     (qualified['yearID'] >= 1980) & (qualified['yearID'] <= 1993)
 ]['BA'].dropna()
@@ -113,6 +115,9 @@ plt.show()
 Now run the t-test:
 
 ```{python}
+# ttest_ind: independent-samples t-test (comparing two separate groups)
+# Returns (t_statistic, p_value) as a tuple
+# A large |t| and small p indicates the means are unlikely to be equal by chance
 t_stat, p_value = stats.ttest_ind(pre_steroid, steroid_era)
 
 print(f't-statistic: {t_stat:.3f}')
@@ -137,9 +142,12 @@ What you **cannot** conclude: that steroids caused the difference. These are dif
 Cohen's d measures the difference in means in terms of standard deviations. It provides a standardized measure of effect size that is comparable across different variables and studies.
 
 ```{python}
+# Cohen's d = mean difference / pooled standard deviation
+# Pooled std averages the variance of both groups, giving equal weight to each
 pooled_std = np.sqrt((pre_steroid.std()**2 + steroid_era.std()**2) / 2)
 cohens_d = (steroid_era.mean() - pre_steroid.mean()) / pooled_std
 
+# Interpretation guide: |d| < 0.2 = negligible, 0.2–0.5 = small, 0.5–0.8 = medium, > 0.8 = large
 print(f"Cohen's d: {cohens_d:.3f}")
 ```
 
@@ -274,11 +282,21 @@ When you have several numeric columns, compute the full pairwise correlation mat
 
 ```{python}
 metrics = bat_sal[['AB', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS', 'salary']].dropna()
+# .corr() computes Pearson correlation between every pair of columns
+# Values range from -1 (perfect negative) to +1 (perfect positive), 0 = no linear relationship
 corr = metrics.corr()
 
 fig, ax = plt.subplots(figsize=(8, 6))
-sns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', center=0,
-            square=True, linewidths=0.5, ax=ax)
+sns.heatmap(
+    corr,
+    annot=True,      # print the r value inside each cell
+    fmt='.2f',       # round to 2 decimal places
+    cmap='coolwarm', # red = positive correlation, blue = negative, white = near zero
+    center=0,        # anchor the neutral color at r=0
+    square=True,
+    linewidths=0.5,
+    ax=ax
+)
 ax.set_title('Correlation Matrix — Batting Metrics and Salary')
 plt.tight_layout()
 plt.show()
@@ -378,5 +396,44 @@ plt.show()
 ```
 
 If Spearman is larger than Pearson, the relationship is monotonic but nonlinear — likely because salary increases steeply at high AB counts but flattens at low counts.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 4: Report a full statistical result
+Using the cannabis data, test whether the mean retail sales per county-month differ significantly between the first five years of legalization (2014–2018) and the most recent five years (2019–2023).
+
+1. Compute the mean and standard deviation for each period.
+2. Visualize both distributions as overlaid KDE plots.
+3. Run an independent t-test and compute Cohen's d.
+4. Write a four-sentence result statement following the reporting template from this chapter (what you tested, the result, the test statistics, and the practical significance). Be specific about the direction and magnitude of the difference.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+early = cannabis[(cannabis['year'] >= 2014) & (cannabis['year'] <= 2018)]['retail'].dropna()
+recent_c = cannabis[(cannabis['year'] >= 2019) & (cannabis['year'] <= 2023)]['retail'].dropna()
+
+print(f'Early (2014–2018): n={len(early)}, mean=${early.mean():,.0f}, std=${early.std():,.0f}')
+print(f'Recent (2019–2023): n={len(recent_c)}, mean=${recent_c.mean():,.0f}, std=${recent_c.std():,.0f}')
+
+fig, ax = plt.subplots(figsize=(8, 4))
+import seaborn as sns
+sns.kdeplot(early, label='2014–2018', fill=True, alpha=0.3, ax=ax)
+sns.kdeplot(recent_c, label='2019–2023', fill=True, alpha=0.3, ax=ax)
+ax.set_title('Retail Cannabis Sales Distribution by Era')
+ax.legend()
+plt.tight_layout()
+plt.show()
+
+t, p = stats.ttest_ind(early, recent_c)
+pooled = np.sqrt((early.std()**2 + recent_c.std()**2) / 2)
+d = (recent_c.mean() - early.mean()) / pooled
+
+print(f'\nt = {t:.3f}, p = {p:.4f}')
+print(f"Cohen's d = {d:.3f}")
+```
+
+Example result statement: "We compared mean monthly retail cannabis sales per county between the early legalization period (2014–2018) and the recent period (2019–2023). Sales in the recent period were significantly higher (mean $X vs. $Y per county-month). The difference was statistically significant, t(N) = Z, p < 0.001. Cohen's d = W, indicating a large practical effect — monthly sales have more than doubled, on average, since the early years of the legal market."
 :::
 :::

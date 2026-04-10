@@ -128,12 +128,17 @@ The interquartile range (IQR) is the distance between the 25th and 75th percenti
 ```{python}
 def find_outliers_iqr(series, multiplier=1.5):
     """Identify outliers using the IQR method."""
-    Q1 = series.quantile(0.25)
-    Q3 = series.quantile(0.75)
-    IQR = Q3 - Q1
+    Q1 = series.quantile(0.25)  # 25th percentile: 25% of values fall below this
+    Q3 = series.quantile(0.75)  # 75th percentile: 75% of values fall below this
+    IQR = Q3 - Q1               # interquartile range: the spread of the middle 50%
+
+    # Standard outlier fences: 1.5×IQR below Q1 and above Q3
+    # The 1.5 multiplier is a widely-used convention (from Tukey box plots);
+    # use multiplier=3.0 for "extreme" outliers
     lower = Q1 - multiplier * IQR
     upper = Q3 + multiplier * IQR
 
+    # Boolean index selects only the values outside both fences
     outliers = series[(series < lower) | (series > upper)]
 
     print(f'Q1={Q1:.3f}, Q3={Q3:.3f}, IQR={IQR:.3f}')
@@ -150,14 +155,24 @@ hr_outliers = find_outliers_iqr(qualified['HR'])
 A z-score measures how many standard deviations a value is from the mean. Values with |z| > 3 are conventionally considered outliers:
 
 ```{python}
+# z-score formula: (value - mean) / std_dev
+# A z-score of 2 means "2 standard deviations above the mean"
+# The IQR method is more robust for skewed distributions (like HR counts);
+# the z-score method assumes approximate normality
 qualified['hr_zscore'] = (
     (qualified['HR'] - qualified['HR'].mean()) / qualified['HR'].std()
 )
 
+# |z| > 3 is the conventional threshold: fewer than 0.3% of normally
+# distributed values fall here, so these are unusually extreme observations
 extreme = qualified[qualified['hr_zscore'].abs() > 3]
 print(f'Observations with |z| > 3: {len(extreme)}')
 print(extreme[['playerID', 'yearID', 'HR', 'hr_zscore']].sort_values('hr_zscore', ascending=False).head(10))
 ```
+
+### IQR vs. z-score: choosing a method
+
+The two methods answer slightly different questions. The **IQR method** is non-parametric — it makes no assumptions about the distribution's shape. It works well for skewed distributions (like HR counts, where most players hit few home runs and a handful hit many) and for data with heavy tails. The **z-score method** assumes approximate normality and is sensitive to the same extreme values it is trying to detect (a single record-setting season shifts the mean and inflates the standard deviation). For most real-world data analysis, the IQR method is safer.
 
 ### Investigating outliers
 
@@ -301,4 +316,11 @@ crosstab.columns = ['No Medical', 'Has Medical', 'Total']
 print(crosstab)
 ```
 :::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 4: Build a descriptive summary
+Choose a single numeric variable from one of the course datasets (e.g., `totalpopulation` for a specific year, or `retail` cannabis sales for a specific county). Following the Descriptive Summary Template at the end of this chapter, produce a complete written summary that covers: unit of analysis, sample size after filtering, key statistics (mean, median, std, min, max), distribution shape, outlier count and method used, missing data pattern, and at least one notable finding you would follow up on.
+
+Your summary should be written as a Markdown cell in a Jupyter notebook, with the supporting code visible alongside it.
 :::

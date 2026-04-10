@@ -71,14 +71,31 @@ If the package is missing, install it with `conda install package-name`.
 
 When you open a Jupyter notebook, it runs code using a **kernel** — a specific Python environment. If you have multiple environments, each one can have its own kernel. A common source of confusion is having a package installed in one environment but running your notebook with a kernel from a different environment.
 
+This is a surprisingly common problem. You install pandas with `conda install pandas` in your `base` environment, but Jupyter is running with a different kernel — and the install is invisible to it. The result is a `ModuleNotFoundError` even though you are confident pandas is installed somewhere.
+
 To check which Python your notebook is using, run this in a code cell:
 
 ```python
 import sys
-print(sys.executable)
+print(sys.executable)   # full path to the Python interpreter this kernel uses
+print(sys.version)      # Python version number
 ```
 
-The output path should point to the Python interpreter inside your intended environment.
+The output path should point to the Python interpreter inside your intended environment. If it points to a path you do not recognize, or a different environment than you expected, switch the kernel using the Kernel menu (Jupyter Notebook) or the kernel picker in the top-right corner (VS Code or JupyterLab).
+
+### Verifying the active environment matches the kernel
+
+A more complete check compares the environment name in your terminal prompt with the kernel path reported by `sys.executable`:
+
+```python
+import sys
+import pandas   # will fail with ImportError if pandas is not in this kernel's env
+
+print('Python location:', sys.executable)
+print('pandas version:', pandas.__version__)
+```
+
+If this cell runs without error, the kernel has access to pandas and is in a working state. If it fails, install the package in the environment the kernel is pointing to, not just any environment.
 
 ## SQLite Installation
 
@@ -106,4 +123,24 @@ Open a terminal and run `conda list`. Verify that `pandas`, `numpy`, `matplotlib
 ::: {.callout-note collapse="true"}
 ## Exercise 2: Install SQLite
 Follow the instructions above to verify that SQLite is installed on your system. Run `sqlite3 --version` in a terminal. If it is not found, install it using conda or by downloading the binaries. Create a test database by running `sqlite3 test.db ".tables"` and verify that the file `test.db` appears in your directory.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Kernel mismatch diagnosis
+Open a new Jupyter notebook and run the following in a code cell:
+
+```python
+import sys
+print('Python executable:', sys.executable)
+print('Python version:', sys.version)
+
+import pandas
+print('pandas version:', pandas.__version__)
+```
+
+1. What path does `sys.executable` report? Does it contain the name of your conda environment (e.g., `base`)?
+2. Open a terminal and run `conda activate base` (or your environment name), then `conda list | grep pandas`. Does the version match what the notebook reported?
+3. If you can switch the notebook to a different kernel (from the Kernel menu or kernel picker), do so and re-run the cell. Did the path and version change?
+
+Describe in two sentences what you learned about how Jupyter selects which Python to use.
 :::

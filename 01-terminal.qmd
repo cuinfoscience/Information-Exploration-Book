@@ -34,7 +34,7 @@ To see what is in the current directory, use `ls` (list):
 ls
 ```
 
-On Windows, the equivalent is `dir`. To see more detail — file sizes, modification dates, and hidden files — use `ls -la` on Mac/Linux.
+On Windows, the equivalent is `dir`. To see more detail — file sizes, modification dates, and hidden files — use `ls -la` on Mac/Linux. The `-l` flag means "long format" (one file per line with details) and `-a` means "all files" (including hidden files whose names start with a dot, like `.gitignore`).
 
 ### Changing directories
 
@@ -74,7 +74,8 @@ mkdir my_project
 To create nested directories in one step, add the `-p` flag:
 
 ```bash
-mkdir -p my_project/data/raw
+mkdir -p my_project/data/raw   # -p creates all intermediate directories at once
+                               # without -p, mkdir errors if a parent doesn't exist
 ```
 
 ### Moving and copying files
@@ -122,4 +123,16 @@ Open a terminal and use `pwd`, `ls`, and `cd` to navigate to the folder where yo
 ::: {.callout-note collapse="true"}
 ## Exercise 2: Inspect a CSV from the terminal
 Download one of the course datasets to your project folder. Use `head` (or the Windows equivalent) to view the first 10 lines. Based on what you see, answer: does the file have a single header row? What delimiter does it use? Are there any obvious problems visible in the first few rows?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Exploring the PATH
+Run `echo $PATH` in a terminal (Mac/Linux) or `echo %PATH%` (Windows). How many directories are listed? Then run `which python` (Mac/Linux) or `where python` (Windows) to find where your Python executable lives. Is that directory in your PATH? Close the terminal, open a new one, and run `echo $PATH` again — does the output match?
+
+Explain in one sentence: what would happen if your Python installation directory were *not* in the PATH?
+
+::: {.callout-note collapse="true"}
+## Solution
+If Python's directory is not in the PATH, running `python` from the terminal gives a `command not found` error even though Python is installed. The operating system searches each directory in PATH in order and stops at the first match. If none of the directories contain the executable, the shell reports it as not found.
+:::
 :::

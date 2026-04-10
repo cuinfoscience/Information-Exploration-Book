@@ -53,8 +53,10 @@ The sales columns contain values like `$1,234,567` — dollar signs and commas t
 for col in ['Medical', 'Retail']:
     df[col] = pd.to_numeric(
         df[col]
-        .str.replace('$', '', regex=False)
-        .str.replace(',', '', regex=False)
+        .str.replace('$', '', regex=False)   # remove dollar signs; regex=False means treat '$' as
+        .str.replace(',', '', regex=False)   # a literal character, not a regex special character
+        # pd.to_numeric() converts the cleaned string to float or int
+        # NaN values (from na_values=['NR'] at load time) are preserved as NaN
     )
 
 df.tail()
@@ -158,12 +160,15 @@ Text fields in real data are messy in predictable ways: inconsistent capitalizat
 ### Trimming and case standardization
 
 ```{python}
-# Chain operations for readability
+# Chaining .str methods in a single expression applies them left to right.
+# Each method returns a new Series; the next method is called on that result.
+# Writing each step on its own line makes it easy to comment out one step
+# at a time to isolate which operation produces an unexpected result.
 df['STREET_NAME'] = (
     df['STREET_NAME']
     .str.strip()                              # remove leading/trailing whitespace
-    .str.upper()                              # standardize casing
-    .str.replace(r'\s+', ' ', regex=True)     # collapse internal whitespace
+    .str.upper()                              # standardize casing (avoids 'Main St' vs 'MAIN ST' mismatches)
+    .str.replace(r'\s+', ' ', regex=True)     # collapse multiple internal spaces into one
 )
 ```
 
@@ -227,7 +232,7 @@ Build the mapping dictionary by examining `.value_counts()` output, not by guess
 
 ### `.map()` vs. `.replace()`
 
-The `.map()` method is stricter: it replaces *everything*, and unmapped values become `NaN`. Use `.map()` when you have a controlled vocabulary and anything outside it is an error:
+The `.map()` method is stricter: it replaces *everything*, and unmapped values become `NaN`. Use `.map()` when you have a controlled vocabulary and anything outside it is an error. Use `.replace()` when you want to update some values while leaving others untouched.
 
 ```{python}
 valid_parties = {
@@ -238,9 +243,13 @@ valid_parties = {
     'GRN': 'Green'
 }
 
+# .map() replaces every value using the dictionary. Values NOT in the dictionary
+# become NaN — unlike .replace(), which leaves unmapped values unchanged.
+# This strict behavior makes unmapped codes visible so you can investigate them.
 df['PARTY_LABEL'] = df['PARTY'].map(valid_parties)
 
-# Find codes with no mapping
+# Any NaN in PARTY_LABEL where PARTY is not NaN means the code had no mapping
+# — either a new code or a variant not in our dictionary
 missing_labels = df[df['PARTY_LABEL'].isna() & df['PARTY'].notna()]
 print(missing_labels['PARTY'].value_counts())
 ```
@@ -455,6 +464,49 @@ def standardize_categorical(df, col_name, mapping_dict, new_col_name=None):
     print(f"\nUnmapped rows: {len(unmapped)} ({len(unmapped)/len(df):.1%})")
 
     return df
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Investigate duplicates and document your decision
+Load the Boulder County voter registration data. Check for duplicate `VOTER_ID` values:
+
+1. How many voter IDs appear more than once?
+2. For one example of a duplicated voter ID, print all rows that share that ID. What columns differ between the duplicate rows? What columns are identical?
+3. Write a Known Issues Log entry describing what you found, including: the number of affected rows, what you think caused the duplication (data entry error? administrative update?), and which deduplication strategy you chose.
+4. Implement your chosen strategy (keep first, keep last, or flag for review). Verify the row count before and after.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+dtype_d = {'RES_ZIP_CODE': str, 'BALLOT_ZIP': str, 'VOTER_ID': str, 'PRECINCT': str}
+df = pd.read_csv('boco_voter_data.txt', sep='|', dtype=dtype_d)
+
+# 1. Count duplicated voter IDs
+id_counts = df['VOTER_ID'].value_counts()
+n_duped = (id_counts > 1).sum()
+print(f"Voter IDs appearing more than once: {n_duped}")
+
+# 2. Examine one example
+if n_duped > 0:
+    example_id = id_counts[id_counts > 1].index[0]
+    example = df[df['VOTER_ID'] == example_id]
+    for col in df.columns:
+        if example[col].nunique() > 1:
+            print(f"  {col} varies: {example[col].unique()}")
+
+# 3. Strategy: keep last row (most recent entry likely has updated address)
+# Known Issues Log: VOTER_ID duplication
+# Problem: N voter IDs appear in multiple rows
+# Fix: Retain the last row per VOTER_ID (assumed to be the most recent record)
+# Impact: Reduced row count from X to Y
+# Remaining issue: Cannot confirm which row reflects the true current state
+
+n_before = len(df)
+df_deduped = df.drop_duplicates(subset=['VOTER_ID'], keep='last')
+n_after = len(df_deduped)
+print(f"\nRows before: {n_before}, after deduplication: {n_after}, removed: {n_before - n_after}")
 ```
 :::
 :::

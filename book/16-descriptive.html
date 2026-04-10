@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>15&nbsp; Descriptive and Qualitative Exploration – Information Exploration</title>
+<title>16&nbsp; Descriptive and Qualitative Exploration – Information Exploration</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,8 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ch-visualization.html" rel="next">
-<link href="./ch-research-questions.html" rel="prev">
+<link href="./17-visualization.html" rel="next">
+<link href="./15-sql-reshaping.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -120,7 +120,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch-research-questions.html">Analysis</a></li><li class="breadcrumb-item"><a href="./ch-descriptive.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./16-descriptive.html">Analysis</a></li><li class="breadcrumb-item"><a href="./16-descriptive.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -165,32 +165,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-terminal.html" class="sidebar-item-text sidebar-link">
+  <a href="./01-terminal.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Terminal and File System</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-projects.html" class="sidebar-item-text sidebar-link">
+  <a href="./02-projects.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Project Organization</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-documentation.html" class="sidebar-item-text sidebar-link">
+  <a href="./03-documentation.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Documentation and Markdown</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-environments.html" class="sidebar-item-text sidebar-link">
+  <a href="./04-environments.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Python Environments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-errors.html" class="sidebar-item-text sidebar-link">
+  <a href="./05-errors.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reading Error Messages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-research-questions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Research Questions and Study Designs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-public-interest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Public Interest Data Science</span></span></a>
   </div>
 </li>
       </ul>
@@ -206,26 +218,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-py-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Loading Data with pandas</span></span></a>
+  <a href="./08-py-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Loading Data with pandas</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-py-cleaning.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Cleaning Data with pandas</span></span></a>
+  <a href="./09-py-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Cleaning Data with pandas</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-py-extending.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Extending Data with pandas</span></span></a>
+  <a href="./10-py-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Extending Data with pandas</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-py-reshaping.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Reshaping Data with pandas</span></span></a>
+  <a href="./11-py-reshaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reshaping Data with pandas</span></span></a>
   </div>
 </li>
       </ul>
@@ -241,26 +253,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-sql-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Loading Data with SQL</span></span></a>
+  <a href="./12-sql-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Loading Data with SQL</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-sql-cleaning.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Cleaning Data with SQL</span></span></a>
+  <a href="./13-sql-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Cleaning Data with SQL</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-sql-extending.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Extending Data with SQL</span></span></a>
+  <a href="./14-sql-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Extending Data with SQL</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-sql-reshaping.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></span></a>
+  <a href="./15-sql-reshaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></span></a>
   </div>
 </li>
       </ul>
@@ -276,26 +288,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-research-questions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Research Questions and Study Designs</span></span></a>
+  <a href="./16-descriptive.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-descriptive.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+  <a href="./17-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./ch-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./18-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
   </div>
 </li>
       </ul>
@@ -315,6 +321,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Datasets</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-llm-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AI Use Disclosure</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -327,37 +339,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup"><span class="header-section-number">15.1</span> Setup</a></li>
-  <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets"><span class="header-section-number">15.2</span> Datasets</a></li>
-  <li><a href="#beyond-.describe-understanding-distributions" id="toc-beyond-.describe-understanding-distributions" class="nav-link" data-scroll-target="#beyond-.describe-understanding-distributions"><span class="header-section-number">15.3</span> Beyond <code>.describe()</code>: Understanding Distributions</a>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup"><span class="header-section-number">16.1</span> Setup</a></li>
+  <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets"><span class="header-section-number">16.2</span> Datasets</a></li>
+  <li><a href="#beyond-.describe-understanding-distributions" id="toc-beyond-.describe-understanding-distributions" class="nav-link" data-scroll-target="#beyond-.describe-understanding-distributions"><span class="header-section-number">16.3</span> Beyond <code>.describe()</code>: Understanding Distributions</a>
   <ul class="collapse">
-  <li><a href="#skewness" id="toc-skewness" class="nav-link" data-scroll-target="#skewness"><span class="header-section-number">15.3.1</span> Skewness</a></li>
-  <li><a href="#quantiles-and-percentiles" id="toc-quantiles-and-percentiles" class="nav-link" data-scroll-target="#quantiles-and-percentiles"><span class="header-section-number">15.3.2</span> Quantiles and percentiles</a></li>
-  <li><a href="#the-coefficient-of-variation" id="toc-the-coefficient-of-variation" class="nav-link" data-scroll-target="#the-coefficient-of-variation"><span class="header-section-number">15.3.3</span> The coefficient of variation</a></li>
+  <li><a href="#skewness" id="toc-skewness" class="nav-link" data-scroll-target="#skewness"><span class="header-section-number">16.3.1</span> Skewness</a></li>
+  <li><a href="#quantiles-and-percentiles" id="toc-quantiles-and-percentiles" class="nav-link" data-scroll-target="#quantiles-and-percentiles"><span class="header-section-number">16.3.2</span> Quantiles and percentiles</a></li>
+  <li><a href="#the-coefficient-of-variation" id="toc-the-coefficient-of-variation" class="nav-link" data-scroll-target="#the-coefficient-of-variation"><span class="header-section-number">16.3.3</span> The coefficient of variation</a></li>
   </ul></li>
-  <li><a href="#identifying-outliers" id="toc-identifying-outliers" class="nav-link" data-scroll-target="#identifying-outliers"><span class="header-section-number">15.4</span> Identifying Outliers</a>
+  <li><a href="#identifying-outliers" id="toc-identifying-outliers" class="nav-link" data-scroll-target="#identifying-outliers"><span class="header-section-number">16.4</span> Identifying Outliers</a>
   <ul class="collapse">
-  <li><a href="#the-iqr-method" id="toc-the-iqr-method" class="nav-link" data-scroll-target="#the-iqr-method"><span class="header-section-number">15.4.1</span> The IQR method</a></li>
-  <li><a href="#the-z-score-method" id="toc-the-z-score-method" class="nav-link" data-scroll-target="#the-z-score-method"><span class="header-section-number">15.4.2</span> The z-score method</a></li>
-  <li><a href="#investigating-outliers" id="toc-investigating-outliers" class="nav-link" data-scroll-target="#investigating-outliers"><span class="header-section-number">15.4.3</span> Investigating outliers</a></li>
+  <li><a href="#the-iqr-method" id="toc-the-iqr-method" class="nav-link" data-scroll-target="#the-iqr-method"><span class="header-section-number">16.4.1</span> The IQR method</a></li>
+  <li><a href="#the-z-score-method" id="toc-the-z-score-method" class="nav-link" data-scroll-target="#the-z-score-method"><span class="header-section-number">16.4.2</span> The z-score method</a></li>
+  <li><a href="#iqr-vs.-z-score-choosing-a-method" id="toc-iqr-vs.-z-score-choosing-a-method" class="nav-link" data-scroll-target="#iqr-vs.-z-score-choosing-a-method"><span class="header-section-number">16.4.3</span> IQR vs.&nbsp;z-score: choosing a method</a></li>
+  <li><a href="#investigating-outliers" id="toc-investigating-outliers" class="nav-link" data-scroll-target="#investigating-outliers"><span class="header-section-number">16.4.4</span> Investigating outliers</a></li>
   </ul></li>
-  <li><a href="#categorical-patterns" id="toc-categorical-patterns" class="nav-link" data-scroll-target="#categorical-patterns"><span class="header-section-number">15.5</span> Categorical Patterns</a>
+  <li><a href="#categorical-patterns" id="toc-categorical-patterns" class="nav-link" data-scroll-target="#categorical-patterns"><span class="header-section-number">16.5</span> Categorical Patterns</a>
   <ul class="collapse">
-  <li><a href="#frequency-tables" id="toc-frequency-tables" class="nav-link" data-scroll-target="#frequency-tables"><span class="header-section-number">15.5.1</span> Frequency tables</a></li>
-  <li><a href="#cross-tabulations" id="toc-cross-tabulations" class="nav-link" data-scroll-target="#cross-tabulations"><span class="header-section-number">15.5.2</span> Cross-tabulations</a></li>
+  <li><a href="#frequency-tables" id="toc-frequency-tables" class="nav-link" data-scroll-target="#frequency-tables"><span class="header-section-number">16.5.1</span> Frequency tables</a></li>
+  <li><a href="#cross-tabulations" id="toc-cross-tabulations" class="nav-link" data-scroll-target="#cross-tabulations"><span class="header-section-number">16.5.2</span> Cross-tabulations</a></li>
   </ul></li>
-  <li><a href="#summarizing-multiple-variables-together" id="toc-summarizing-multiple-variables-together" class="nav-link" data-scroll-target="#summarizing-multiple-variables-together"><span class="header-section-number">15.6</span> Summarizing Multiple Variables Together</a></li>
-  <li><a href="#the-descriptive-summary-template" id="toc-the-descriptive-summary-template" class="nav-link" data-scroll-target="#the-descriptive-summary-template"><span class="header-section-number">15.7</span> The Descriptive Summary Template</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">15.8</span> Exercises</a></li>
+  <li><a href="#summarizing-multiple-variables-together" id="toc-summarizing-multiple-variables-together" class="nav-link" data-scroll-target="#summarizing-multiple-variables-together"><span class="header-section-number">16.6</span> Summarizing Multiple Variables Together</a></li>
+  <li><a href="#the-descriptive-summary-template" id="toc-the-descriptive-summary-template" class="nav-link" data-scroll-target="#the-descriptive-summary-template"><span class="header-section-number">16.7</span> The Descriptive Summary Template</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">16.8</span> Exercises</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/ch-descriptive.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/16-descriptive.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./ch-research-questions.html">Analysis</a></li><li class="breadcrumb-item"><a href="./ch-descriptive.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./16-descriptive.html">Analysis</a></li><li class="breadcrumb-item"><a href="./16-descriptive.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span id="sec-descriptive" class="quarto-section-identifier"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span id="sec-descriptive" class="quarto-section-identifier"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
 </div>
 
 
@@ -376,9 +389,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>Before you compare groups or test hypotheses, you need to understand what your data looks like. Descriptive exploration is the process of characterizing a dataset’s central tendencies, variability, shape, and outliers — building an informed mental model of the data that guides every subsequent analytical decision. This chapter goes beyond the <code>.describe()</code> method you have already used and introduces systematic techniques for understanding distributions, identifying unusual observations, examining categorical patterns, and constructing frequency tables and cross-tabulations.</p>
 <p>The philosophy here is qualitative in the broadest sense: you are looking for patterns, surprises, and anomalies rather than computing formal test statistics. The goal is to know your data well enough that nothing in the later chapters catches you off guard.</p>
-<section id="setup" class="level2" data-number="15.1">
-<h2 data-number="15.1" class="anchored" data-anchor-id="setup"><span class="header-section-number">15.1</span> Setup</h2>
-<div id="ce9bb4b7" class="cell" data-execution_count="1">
+<section id="setup" class="level2" data-number="16.1">
+<h2 data-number="16.1" class="anchored" data-anchor-id="setup"><span class="header-section-number">16.1</span> Setup</h2>
+<div id="aa613149" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -390,10 +403,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>sns.set_style(<span class="st">'whitegrid'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="datasets" class="level2" data-number="15.2">
-<h2 data-number="15.2" class="anchored" data-anchor-id="datasets"><span class="header-section-number">15.2</span> Datasets</h2>
+<section id="datasets" class="level2" data-number="16.2">
+<h2 data-number="16.2" class="anchored" data-anchor-id="datasets"><span class="header-section-number">16.2</span> Datasets</h2>
 <p>We continue with the datasets from earlier chapters, loading and preparing them with the derived columns already established.</p>
-<div id="d27276ca" class="cell" data-execution_count="2">
+<div id="9be44499" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lahman batting with derived metrics</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> pd.read_csv(<span class="st">'Batting.csv'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'BA'</span>] <span class="op">=</span> batting[<span class="st">'H'</span>] <span class="op">/</span> batting[<span class="st">'AB'</span>].replace(<span class="dv">0</span>, <span class="bu">float</span>(<span class="st">'nan'</span>))</span>
@@ -413,13 +426,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Qualified player-seasons:'</span>, qualified.shape[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="e7239779" class="cell" data-execution_count="3">
+<div id="e3eb5351" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Colorado population estimates</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">'https://storage.googleapis.com/co-publicdata/sya-county.csv'</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pop <span class="op">=</span> pd.read_csv(url, skiprows<span class="op">=</span><span class="dv">1</span>, dtype<span class="op">=</span>{<span class="st">'countyfips'</span>: <span class="bu">str</span>})</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>estimates <span class="op">=</span> pop[pop[<span class="st">'datatype'</span>] <span class="op">==</span> <span class="st">'Estimate'</span>].copy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="632db58d" class="cell" data-execution_count="4">
+<div id="e39881e2" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cannabis sales (cleaned)</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cannabis <span class="op">=</span> pd.read_csv(</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'colorado_cannabis_sales_by_county.csv'</span>,</span>
@@ -435,13 +448,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>cannabis <span class="op">=</span> cannabis[cannabis[<span class="st">'county'</span>] <span class="op">!=</span> <span class="st">'Total'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="beyond-.describe-understanding-distributions" class="level2" data-number="15.3">
-<h2 data-number="15.3" class="anchored" data-anchor-id="beyond-.describe-understanding-distributions"><span class="header-section-number">15.3</span> Beyond <code>.describe()</code>: Understanding Distributions</h2>
+<section id="beyond-.describe-understanding-distributions" class="level2" data-number="16.3">
+<h2 data-number="16.3" class="anchored" data-anchor-id="beyond-.describe-understanding-distributions"><span class="header-section-number">16.3</span> Beyond <code>.describe()</code>: Understanding Distributions</h2>
 <p>The <code>.describe()</code> method gives you the five-number summary (min, 25th percentile, median, 75th percentile, max) plus the mean and count. This is a useful starting point, but it hides important features of a distribution: its shape, its skewness, and whether it has multiple modes.</p>
-<section id="skewness" class="level3" data-number="15.3.1">
-<h3 data-number="15.3.1" class="anchored" data-anchor-id="skewness"><span class="header-section-number">15.3.1</span> Skewness</h3>
+<section id="skewness" class="level3" data-number="16.3.1">
+<h3 data-number="16.3.1" class="anchored" data-anchor-id="skewness"><span class="header-section-number">16.3.1</span> Skewness</h3>
 <p>Many real-world variables are <strong>right-skewed</strong> — a long tail extends toward high values while most observations cluster near the low end. Income, city populations, and home prices all follow this pattern. Cannabis sales across Colorado counties are a clear example:</p>
-<div id="ab14cf57" class="cell" data-execution_count="5">
+<div id="9ee0f935" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>annual_sales <span class="op">=</span> (</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    cannabis[cannabis[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2023</span>]</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .groupby(<span class="st">'county'</span>)[<span class="st">'retail'</span>]</span>
@@ -456,21 +469,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>When the mean is substantially larger than the median, the distribution is right-skewed, and the mean is being pulled upward by a few very large values. In this case, the median is a better measure of the “typical” county than the mean.</p>
 </section>
-<section id="quantiles-and-percentiles" class="level3" data-number="15.3.2">
-<h3 data-number="15.3.2" class="anchored" data-anchor-id="quantiles-and-percentiles"><span class="header-section-number">15.3.2</span> Quantiles and percentiles</h3>
+<section id="quantiles-and-percentiles" class="level3" data-number="16.3.2">
+<h3 data-number="16.3.2" class="anchored" data-anchor-id="quantiles-and-percentiles"><span class="header-section-number">16.3.2</span> Quantiles and percentiles</h3>
 <p>Quantiles divide your data into equal-sized groups. The <code>.quantile()</code> method lets you compute arbitrary percentiles:</p>
-<div id="b68c953c" class="cell" data-execution_count="6">
+<div id="9d98ba8d" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Decile boundaries for batting average</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>percentiles <span class="op">=</span> qualified[<span class="st">'BA'</span>].quantile(np.arange(<span class="dv">0</span>, <span class="fl">1.1</span>, <span class="fl">0.1</span>))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Batting average deciles:'</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(percentiles.<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Quantiles are useful for creating bins (as with <code>pd.qcut()</code> in <a href="ch-py-reshaping.html" class="quarto-xref"><span>Chapter 9</span></a>), for identifying where a specific value falls in the distribution, and for detecting whether the distribution has unusual gaps or concentrations.</p>
+<p>Quantiles are useful for creating bins (as with <code>pd.qcut()</code> in <a href="11-py-reshaping.html" class="quarto-xref"><span>Chapter 11</span></a>), for identifying where a specific value falls in the distribution, and for detecting whether the distribution has unusual gaps or concentrations.</p>
 </section>
-<section id="the-coefficient-of-variation" class="level3" data-number="15.3.3">
-<h3 data-number="15.3.3" class="anchored" data-anchor-id="the-coefficient-of-variation"><span class="header-section-number">15.3.3</span> The coefficient of variation</h3>
+<section id="the-coefficient-of-variation" class="level3" data-number="16.3.3">
+<h3 data-number="16.3.3" class="anchored" data-anchor-id="the-coefficient-of-variation"><span class="header-section-number">16.3.3</span> The coefficient of variation</h3>
 <p>Standard deviation tells you how spread out values are, but its meaning depends on the scale of the variable. A standard deviation of 1,000 is enormous for a variable with a mean of 500 but trivial for a variable with a mean of 10,000,000. The <strong>coefficient of variation</strong> (CV) — the ratio of the standard deviation to the mean — provides a scale-free measure of relative variability:</p>
-<div id="efe6cecb" class="cell" data-execution_count="7">
+<div id="01f93ea7" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'medical'</span>, <span class="st">'retail'</span>]:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    mean_val <span class="op">=</span> cannabis[col].mean()</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    std_val <span class="op">=</span> cannabis[col].std()</span>
@@ -480,49 +493,64 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A CV above 1.0 indicates very high variability relative to the mean — typical of skewed distributions.</p>
 </section>
 </section>
-<section id="identifying-outliers" class="level2" data-number="15.4">
-<h2 data-number="15.4" class="anchored" data-anchor-id="identifying-outliers"><span class="header-section-number">15.4</span> Identifying Outliers</h2>
+<section id="identifying-outliers" class="level2" data-number="16.4">
+<h2 data-number="16.4" class="anchored" data-anchor-id="identifying-outliers"><span class="header-section-number">16.4</span> Identifying Outliers</h2>
 <p>An <strong>outlier</strong> is an observation that is unusually far from the rest of the data. Outliers are not automatically errors — they may be legitimate extreme values that are analytically important. The goal is to identify them, investigate them, and make a documented decision about whether to include them in your analysis.</p>
-<section id="the-iqr-method" class="level3" data-number="15.4.1">
-<h3 data-number="15.4.1" class="anchored" data-anchor-id="the-iqr-method"><span class="header-section-number">15.4.1</span> The IQR method</h3>
+<section id="the-iqr-method" class="level3" data-number="16.4.1">
+<h3 data-number="16.4.1" class="anchored" data-anchor-id="the-iqr-method"><span class="header-section-number">16.4.1</span> The IQR method</h3>
 <p>The interquartile range (IQR) is the distance between the 25th and 75th percentiles. The standard convention defines outliers as values below Q1 − 1.5 × IQR or above Q3 + 1.5 × IQR:</p>
-<div id="3704eaef" class="cell" data-execution_count="8">
+<div id="7669c75e" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_outliers_iqr(series, multiplier<span class="op">=</span><span class="fl">1.5</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Identify outliers using the IQR method."""</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    Q1 <span class="op">=</span> series.quantile(<span class="fl">0.25</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    Q3 <span class="op">=</span> series.quantile(<span class="fl">0.75</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    IQR <span class="op">=</span> Q3 <span class="op">-</span> Q1</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    lower <span class="op">=</span> Q1 <span class="op">-</span> multiplier <span class="op">*</span> IQR</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    upper <span class="op">=</span> Q3 <span class="op">+</span> multiplier <span class="op">*</span> IQR</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    outliers <span class="op">=</span> series[(series <span class="op">&lt;</span> lower) <span class="op">|</span> (series <span class="op">&gt;</span> upper)]</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Q1=</span><span class="sc">{</span>Q1<span class="sc">:.3f}</span><span class="ss">, Q3=</span><span class="sc">{</span>Q3<span class="sc">:.3f}</span><span class="ss">, IQR=</span><span class="sc">{</span>IQR<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Lower fence: </span><span class="sc">{</span>lower<span class="sc">:.3f}</span><span class="ss">, Upper fence: </span><span class="sc">{</span>upper<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Outliers: </span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(series)<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="op">/</span><span class="bu">len</span>(series)<span class="sc">:.1%}</span><span class="ss">)'</span>)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> outliers</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>hr_outliers <span class="op">=</span> find_outliers_iqr(qualified[<span class="st">'HR'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    Q1 <span class="op">=</span> series.quantile(<span class="fl">0.25</span>)  <span class="co"># 25th percentile: 25% of values fall below this</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    Q3 <span class="op">=</span> series.quantile(<span class="fl">0.75</span>)  <span class="co"># 75th percentile: 75% of values fall below this</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    IQR <span class="op">=</span> Q3 <span class="op">-</span> Q1               <span class="co"># interquartile range: the spread of the middle 50%</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Standard outlier fences: 1.5×IQR below Q1 and above Q3</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The 1.5 multiplier is a widely-used convention (from Tukey box plots);</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use multiplier=3.0 for "extreme" outliers</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    lower <span class="op">=</span> Q1 <span class="op">-</span> multiplier <span class="op">*</span> IQR</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    upper <span class="op">=</span> Q3 <span class="op">+</span> multiplier <span class="op">*</span> IQR</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Boolean index selects only the values outside both fences</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    outliers <span class="op">=</span> series[(series <span class="op">&lt;</span> lower) <span class="op">|</span> (series <span class="op">&gt;</span> upper)]</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Q1=</span><span class="sc">{</span>Q1<span class="sc">:.3f}</span><span class="ss">, Q3=</span><span class="sc">{</span>Q3<span class="sc">:.3f}</span><span class="ss">, IQR=</span><span class="sc">{</span>IQR<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Lower fence: </span><span class="sc">{</span>lower<span class="sc">:.3f}</span><span class="ss">, Upper fence: </span><span class="sc">{</span>upper<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Outliers: </span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(series)<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="op">/</span><span class="bu">len</span>(series)<span class="sc">:.1%}</span><span class="ss">)'</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> outliers</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>hr_outliers <span class="op">=</span> find_outliers_iqr(qualified[<span class="st">'HR'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="the-z-score-method" class="level3" data-number="15.4.2">
-<h3 data-number="15.4.2" class="anchored" data-anchor-id="the-z-score-method"><span class="header-section-number">15.4.2</span> The z-score method</h3>
+<section id="the-z-score-method" class="level3" data-number="16.4.2">
+<h3 data-number="16.4.2" class="anchored" data-anchor-id="the-z-score-method"><span class="header-section-number">16.4.2</span> The z-score method</h3>
 <p>A z-score measures how many standard deviations a value is from the mean. Values with |z| &gt; 3 are conventionally considered outliers:</p>
-<div id="b36c4373" class="cell" data-execution_count="9">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>qualified[<span class="st">'hr_zscore'</span>] <span class="op">=</span> (</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    (qualified[<span class="st">'HR'</span>] <span class="op">-</span> qualified[<span class="st">'HR'</span>].mean()) <span class="op">/</span> qualified[<span class="st">'HR'</span>].std()</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>extreme <span class="op">=</span> qualified[qualified[<span class="st">'hr_zscore'</span>].<span class="bu">abs</span>() <span class="op">&gt;</span> <span class="dv">3</span>]</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Observations with |z| &gt; 3: </span><span class="sc">{</span><span class="bu">len</span>(extreme)<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(extreme[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'HR'</span>, <span class="st">'hr_zscore'</span>]].sort_values(<span class="st">'hr_zscore'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">10</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="c7a055f8" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># z-score formula: (value - mean) / std_dev</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># A z-score of 2 means "2 standard deviations above the mean"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The IQR method is more robust for skewed distributions (like HR counts);</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the z-score method assumes approximate normality</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>qualified[<span class="st">'hr_zscore'</span>] <span class="op">=</span> (</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    (qualified[<span class="st">'HR'</span>] <span class="op">-</span> qualified[<span class="st">'HR'</span>].mean()) <span class="op">/</span> qualified[<span class="st">'HR'</span>].std()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># |z| &gt; 3 is the conventional threshold: fewer than 0.3% of normally</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># distributed values fall here, so these are unusually extreme observations</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>extreme <span class="op">=</span> qualified[qualified[<span class="st">'hr_zscore'</span>].<span class="bu">abs</span>() <span class="op">&gt;</span> <span class="dv">3</span>]</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Observations with |z| &gt; 3: </span><span class="sc">{</span><span class="bu">len</span>(extreme)<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(extreme[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'HR'</span>, <span class="st">'hr_zscore'</span>]].sort_values(<span class="st">'hr_zscore'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">10</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="investigating-outliers" class="level3" data-number="15.4.3">
-<h3 data-number="15.4.3" class="anchored" data-anchor-id="investigating-outliers"><span class="header-section-number">15.4.3</span> Investigating outliers</h3>
+<section id="iqr-vs.-z-score-choosing-a-method" class="level3" data-number="16.4.3">
+<h3 data-number="16.4.3" class="anchored" data-anchor-id="iqr-vs.-z-score-choosing-a-method"><span class="header-section-number">16.4.3</span> IQR vs.&nbsp;z-score: choosing a method</h3>
+<p>The two methods answer slightly different questions. The <strong>IQR method</strong> is non-parametric — it makes no assumptions about the distribution’s shape. It works well for skewed distributions (like HR counts, where most players hit few home runs and a handful hit many) and for data with heavy tails. The <strong>z-score method</strong> assumes approximate normality and is sensitive to the same extreme values it is trying to detect (a single record-setting season shifts the mean and inflates the standard deviation). For most real-world data analysis, the IQR method is safer.</p>
+</section>
+<section id="investigating-outliers" class="level3" data-number="16.4.4">
+<h3 data-number="16.4.4" class="anchored" data-anchor-id="investigating-outliers"><span class="header-section-number">16.4.4</span> Investigating outliers</h3>
 <p>Once you identify outliers, investigate them before deciding what to do. Are they data entry errors, measurement artifacts, or genuinely extreme observations?</p>
-<div id="9e146fa9" class="cell" data-execution_count="10">
+<div id="f5a0c201" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Are the extreme HR seasons real or errors?</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: do the player names and years match known record holders?</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(extreme[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'teamID'</span>, <span class="st">'HR'</span>]].sort_values(<span class="st">'HR'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -530,13 +558,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>If these are legitimate records (Barry Bonds’ 73 HR in 2001, for instance), removing them would be analytically dishonest. If they are data entry errors (a player with 999 HR), removing them is necessary. Document the decision either way.</p>
 </section>
 </section>
-<section id="categorical-patterns" class="level2" data-number="15.5">
-<h2 data-number="15.5" class="anchored" data-anchor-id="categorical-patterns"><span class="header-section-number">15.5</span> Categorical Patterns</h2>
+<section id="categorical-patterns" class="level2" data-number="16.5">
+<h2 data-number="16.5" class="anchored" data-anchor-id="categorical-patterns"><span class="header-section-number">16.5</span> Categorical Patterns</h2>
 <p>For non-numeric columns, the primary descriptive tools are frequency tables and cross-tabulations.</p>
-<section id="frequency-tables" class="level3" data-number="15.5.1">
-<h3 data-number="15.5.1" class="anchored" data-anchor-id="frequency-tables"><span class="header-section-number">15.5.1</span> Frequency tables</h3>
+<section id="frequency-tables" class="level3" data-number="16.5.1">
+<h3 data-number="16.5.1" class="anchored" data-anchor-id="frequency-tables"><span class="header-section-number">16.5.1</span> Frequency tables</h3>
 <p>The <code>.value_counts()</code> method is your workhorse for categorical exploration. Use it with <code>normalize=True</code> to get proportions instead of counts:</p>
-<div id="52d69be5" class="cell" data-execution_count="11">
+<div id="dad8cf52" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># County distribution of cannabis sales records</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>county_counts <span class="op">=</span> cannabis[<span class="st">'county'</span>].value_counts()</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Counties with data: </span><span class="sc">{</span><span class="bu">len</span>(county_counts)<span class="sc">}</span><span class="ss">'</span>)</span>
@@ -545,7 +573,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Bottom 5:'</span>)</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(county_counts.tail(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="79c58ffb" class="cell" data-execution_count="12">
+<div id="6c45712c" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Age band distribution in Colorado (2020)</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">18</span>, <span class="dv">65</span>, <span class="dv">101</span>]</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">'Children (0-17)'</span>, <span class="st">'Working Age (18-64)'</span>, <span class="st">'Seniors (65+)'</span>]</span>
@@ -559,10 +587,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>((band_totals <span class="op">/</span> band_totals.<span class="bu">sum</span>()).<span class="bu">round</span>(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="cross-tabulations" class="level3" data-number="15.5.2">
-<h3 data-number="15.5.2" class="anchored" data-anchor-id="cross-tabulations"><span class="header-section-number">15.5.2</span> Cross-tabulations</h3>
+<section id="cross-tabulations" class="level3" data-number="16.5.2">
+<h3 data-number="16.5.2" class="anchored" data-anchor-id="cross-tabulations"><span class="header-section-number">16.5.2</span> Cross-tabulations</h3>
 <p>A cross-tabulation (crosstab) shows the joint distribution of two categorical variables. Use <code>pd.crosstab()</code> to build one:</p>
-<div id="487cddd7" class="cell" data-execution_count="13">
+<div id="096db8ca" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Decades × league for batting data</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>batting_with_league <span class="op">=</span> batting.copy()</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -577,19 +605,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Cross-tabulations become more informative with <code>normalize</code> to show proportions and with <code>margins=True</code> to include row and column totals.</p>
 </section>
 </section>
-<section id="summarizing-multiple-variables-together" class="level2" data-number="15.6">
-<h2 data-number="15.6" class="anchored" data-anchor-id="summarizing-multiple-variables-together"><span class="header-section-number">15.6</span> Summarizing Multiple Variables Together</h2>
+<section id="summarizing-multiple-variables-together" class="level2" data-number="16.6">
+<h2 data-number="16.6" class="anchored" data-anchor-id="summarizing-multiple-variables-together"><span class="header-section-number">16.6</span> Summarizing Multiple Variables Together</h2>
 <p>When you have several numeric columns, examining them individually is tedious. A <strong>correlation matrix</strong> provides a compact summary of pairwise relationships:</p>
-<div id="dcad443e" class="cell" data-execution_count="14">
+<div id="1b8ffb70" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>batting_metrics <span class="op">=</span> qualified[[<span class="st">'AB'</span>, <span class="st">'H'</span>, <span class="st">'HR'</span>, <span class="st">'BB'</span>, <span class="st">'BA'</span>, <span class="st">'SLG'</span>, <span class="st">'OBP'</span>, <span class="st">'OPS'</span>]].copy()</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> batting_metrics.corr().<span class="bu">round</span>(<span class="dv">2</span>)</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(corr_matrix)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>We will visualize this matrix as a heatmap in <a href="ch-visualization.html" class="quarto-xref"><span>Chapter 16</span></a> and test individual correlations formally in <a href="ch-hypothesis-testing.html" class="quarto-xref"><span>Chapter 17</span></a>.</p>
+<p>We will visualize this matrix as a heatmap in <a href="17-visualization.html" class="quarto-xref"><span>Chapter 17</span></a> and test individual correlations formally in <a href="18-hypothesis-testing.html" class="quarto-xref"><span>Chapter 18</span></a>.</p>
 </section>
-<section id="the-descriptive-summary-template" class="level2" data-number="15.7">
-<h2 data-number="15.7" class="anchored" data-anchor-id="the-descriptive-summary-template"><span class="header-section-number">15.7</span> The Descriptive Summary Template</h2>
+<section id="the-descriptive-summary-template" class="level2" data-number="16.7">
+<h2 data-number="16.7" class="anchored" data-anchor-id="the-descriptive-summary-template"><span class="header-section-number">16.7</span> The Descriptive Summary Template</h2>
 <p>For any new dataset or analytical question, produce a descriptive summary that covers these elements. You can structure this as a Markdown cell in your notebook:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Descriptive Summary: [Dataset / Variable]</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -601,8 +629,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>**Missing data:** <span class="co">[</span><span class="ot">count, pattern, impact on analysis</span><span class="co">]</span></span>
 <span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>**Notable patterns:** <span class="co">[</span><span class="ot">any surprises, clusters, or anomalies</span><span class="co">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="exercises" class="level2" data-number="15.8">
-<h2 data-number="15.8" class="anchored" data-anchor-id="exercises"><span class="header-section-number">15.8</span> Exercises</h2>
+<section id="exercises" class="level2" data-number="16.8">
+<h2 data-number="16.8" class="anchored" data-anchor-id="exercises"><span class="header-section-number">16.8</span> Exercises</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -628,7 +656,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="602da3fd" class="cell" data-execution_count="15">
+<div id="4c40fb01" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>annual <span class="op">=</span> cannabis[cannabis[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2023</span>].groupby(<span class="st">'county'</span>)[<span class="st">'retail'</span>].<span class="bu">sum</span>().dropna()</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean:     $</span><span class="sc">{</span>annual<span class="sc">.</span>mean()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Median:   $</span><span class="sc">{</span>annual<span class="sc">.</span>median()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
@@ -668,7 +696,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="c9c45f5a" class="cell" data-execution_count="16">
+<div id="ef1b3c8d" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>outliers <span class="op">=</span> find_outliers_iqr(annual)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Outlier counties:'</span>)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(outliers.sort_values(ascending<span class="op">=</span><span class="va">False</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -705,7 +733,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="53e1261a" class="cell" data-execution_count="17">
+<div id="fac28a74" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cannabis[<span class="st">'has_medical'</span>] <span class="op">=</span> cannabis[<span class="st">'medical'</span>].notna() <span class="op">&amp;</span> (cannabis[<span class="st">'medical'</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>crosstab <span class="op">=</span> pd.crosstab(cannabis[<span class="st">'year'</span>], cannabis[<span class="st">'has_medical'</span>], margins<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>crosstab.columns <span class="op">=</span> [<span class="st">'No Medical'</span>, <span class="st">'Has Medical'</span>, <span class="st">'Total'</span>]</span>
@@ -714,6 +742,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 4: Build a descriptive summary
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Choose a single numeric variable from one of the course datasets (e.g., <code>totalpopulation</code> for a specific year, or <code>retail</code> cannabis sales for a specific county). Following the Descriptive Summary Template at the end of this chapter, produce a complete written summary that covers: unit of analysis, sample size after filtering, key statistics (mean, median, std, min, max), distribution shape, outlier count and method used, missing data pattern, and at least one notable finding you would follow up on.</p>
+<p>Your summary should be written as a Markdown cell in a Jupyter notebook, with the supporting code visible alongside it.</p>
 </div>
 </div>
 </div>
@@ -1177,13 +1222,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./ch-research-questions.html" class="pagination-link" aria-label="Research Questions and Study Designs">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Research Questions and Study Designs</span></span>
+      <a href="./15-sql-reshaping.html" class="pagination-link" aria-label="Reshaping Data with SQL">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ch-visualization.html" class="pagination-link" aria-label="Visual Exploration">
-        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./17-visualization.html" class="pagination-link" aria-label="Visual Exploration">
+        <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
@@ -1317,180 +1362,202 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-144"><a href="#cb19-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
 <span id="cb19-145"><a href="#cb19-145" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> find_outliers_iqr(series, multiplier<span class="op">=</span><span class="fl">1.5</span>):</span>
 <span id="cb19-146"><a href="#cb19-146" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Identify outliers using the IQR method."""</span></span>
-<span id="cb19-147"><a href="#cb19-147" aria-hidden="true" tabindex="-1"></a>    Q1 <span class="op">=</span> series.quantile(<span class="fl">0.25</span>)</span>
-<span id="cb19-148"><a href="#cb19-148" aria-hidden="true" tabindex="-1"></a>    Q3 <span class="op">=</span> series.quantile(<span class="fl">0.75</span>)</span>
-<span id="cb19-149"><a href="#cb19-149" aria-hidden="true" tabindex="-1"></a>    IQR <span class="op">=</span> Q3 <span class="op">-</span> Q1</span>
-<span id="cb19-150"><a href="#cb19-150" aria-hidden="true" tabindex="-1"></a>    lower <span class="op">=</span> Q1 <span class="op">-</span> multiplier <span class="op">*</span> IQR</span>
-<span id="cb19-151"><a href="#cb19-151" aria-hidden="true" tabindex="-1"></a>    upper <span class="op">=</span> Q3 <span class="op">+</span> multiplier <span class="op">*</span> IQR</span>
-<span id="cb19-152"><a href="#cb19-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-153"><a href="#cb19-153" aria-hidden="true" tabindex="-1"></a>    outliers <span class="op">=</span> series[(series <span class="op">&lt;</span> lower) <span class="op">|</span> (series <span class="op">&gt;</span> upper)]</span>
-<span id="cb19-154"><a href="#cb19-154" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-155"><a href="#cb19-155" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Q1=</span><span class="sc">{</span>Q1<span class="sc">:.3f}</span><span class="ss">, Q3=</span><span class="sc">{</span>Q3<span class="sc">:.3f}</span><span class="ss">, IQR=</span><span class="sc">{</span>IQR<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
-<span id="cb19-156"><a href="#cb19-156" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Lower fence: </span><span class="sc">{</span>lower<span class="sc">:.3f}</span><span class="ss">, Upper fence: </span><span class="sc">{</span>upper<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
-<span id="cb19-157"><a href="#cb19-157" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Outliers: </span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(series)<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="op">/</span><span class="bu">len</span>(series)<span class="sc">:.1%}</span><span class="ss">)'</span>)</span>
-<span id="cb19-158"><a href="#cb19-158" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-159"><a href="#cb19-159" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> outliers</span>
-<span id="cb19-160"><a href="#cb19-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-161"><a href="#cb19-161" aria-hidden="true" tabindex="-1"></a>hr_outliers <span class="op">=</span> find_outliers_iqr(qualified[<span class="st">'HR'</span>])</span>
-<span id="cb19-162"><a href="#cb19-162" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-147"><a href="#cb19-147" aria-hidden="true" tabindex="-1"></a>    Q1 <span class="op">=</span> series.quantile(<span class="fl">0.25</span>)  <span class="co"># 25th percentile: 25% of values fall below this</span></span>
+<span id="cb19-148"><a href="#cb19-148" aria-hidden="true" tabindex="-1"></a>    Q3 <span class="op">=</span> series.quantile(<span class="fl">0.75</span>)  <span class="co"># 75th percentile: 75% of values fall below this</span></span>
+<span id="cb19-149"><a href="#cb19-149" aria-hidden="true" tabindex="-1"></a>    IQR <span class="op">=</span> Q3 <span class="op">-</span> Q1               <span class="co"># interquartile range: the spread of the middle 50%</span></span>
+<span id="cb19-150"><a href="#cb19-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-151"><a href="#cb19-151" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Standard outlier fences: 1.5×IQR below Q1 and above Q3</span></span>
+<span id="cb19-152"><a href="#cb19-152" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The 1.5 multiplier is a widely-used convention (from Tukey box plots);</span></span>
+<span id="cb19-153"><a href="#cb19-153" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use multiplier=3.0 for "extreme" outliers</span></span>
+<span id="cb19-154"><a href="#cb19-154" aria-hidden="true" tabindex="-1"></a>    lower <span class="op">=</span> Q1 <span class="op">-</span> multiplier <span class="op">*</span> IQR</span>
+<span id="cb19-155"><a href="#cb19-155" aria-hidden="true" tabindex="-1"></a>    upper <span class="op">=</span> Q3 <span class="op">+</span> multiplier <span class="op">*</span> IQR</span>
+<span id="cb19-156"><a href="#cb19-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-157"><a href="#cb19-157" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Boolean index selects only the values outside both fences</span></span>
+<span id="cb19-158"><a href="#cb19-158" aria-hidden="true" tabindex="-1"></a>    outliers <span class="op">=</span> series[(series <span class="op">&lt;</span> lower) <span class="op">|</span> (series <span class="op">&gt;</span> upper)]</span>
+<span id="cb19-159"><a href="#cb19-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-160"><a href="#cb19-160" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Q1=</span><span class="sc">{</span>Q1<span class="sc">:.3f}</span><span class="ss">, Q3=</span><span class="sc">{</span>Q3<span class="sc">:.3f}</span><span class="ss">, IQR=</span><span class="sc">{</span>IQR<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
+<span id="cb19-161"><a href="#cb19-161" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Lower fence: </span><span class="sc">{</span>lower<span class="sc">:.3f}</span><span class="ss">, Upper fence: </span><span class="sc">{</span>upper<span class="sc">:.3f}</span><span class="ss">'</span>)</span>
+<span id="cb19-162"><a href="#cb19-162" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Outliers: </span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="sc">}</span><span class="ss"> of </span><span class="sc">{</span><span class="bu">len</span>(series)<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="bu">len</span>(outliers)<span class="op">/</span><span class="bu">len</span>(series)<span class="sc">:.1%}</span><span class="ss">)'</span>)</span>
 <span id="cb19-163"><a href="#cb19-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-164"><a href="#cb19-164" aria-hidden="true" tabindex="-1"></a><span class="fu">### The z-score method</span></span>
+<span id="cb19-164"><a href="#cb19-164" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> outliers</span>
 <span id="cb19-165"><a href="#cb19-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-166"><a href="#cb19-166" aria-hidden="true" tabindex="-1"></a>A z-score measures how many standard deviations a value is from the mean. Values with |z| &gt; 3 are conventionally considered outliers:</span>
-<span id="cb19-167"><a href="#cb19-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-170"><a href="#cb19-170" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-171"><a href="#cb19-171" aria-hidden="true" tabindex="-1"></a>qualified[<span class="st">'hr_zscore'</span>] <span class="op">=</span> (</span>
-<span id="cb19-172"><a href="#cb19-172" aria-hidden="true" tabindex="-1"></a>    (qualified[<span class="st">'HR'</span>] <span class="op">-</span> qualified[<span class="st">'HR'</span>].mean()) <span class="op">/</span> qualified[<span class="st">'HR'</span>].std()</span>
-<span id="cb19-173"><a href="#cb19-173" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-174"><a href="#cb19-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-175"><a href="#cb19-175" aria-hidden="true" tabindex="-1"></a>extreme <span class="op">=</span> qualified[qualified[<span class="st">'hr_zscore'</span>].<span class="bu">abs</span>() <span class="op">&gt;</span> <span class="dv">3</span>]</span>
-<span id="cb19-176"><a href="#cb19-176" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Observations with |z| &gt; 3: </span><span class="sc">{</span><span class="bu">len</span>(extreme)<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb19-177"><a href="#cb19-177" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(extreme[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'HR'</span>, <span class="st">'hr_zscore'</span>]].sort_values(<span class="st">'hr_zscore'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">10</span>))</span>
-<span id="cb19-178"><a href="#cb19-178" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-179"><a href="#cb19-179" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-180"><a href="#cb19-180" aria-hidden="true" tabindex="-1"></a><span class="fu">### Investigating outliers</span></span>
-<span id="cb19-181"><a href="#cb19-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-182"><a href="#cb19-182" aria-hidden="true" tabindex="-1"></a>Once you identify outliers, investigate them before deciding what to do. Are they data entry errors, measurement artifacts, or genuinely extreme observations?</span>
+<span id="cb19-166"><a href="#cb19-166" aria-hidden="true" tabindex="-1"></a>hr_outliers <span class="op">=</span> find_outliers_iqr(qualified[<span class="st">'HR'</span>])</span>
+<span id="cb19-167"><a href="#cb19-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-168"><a href="#cb19-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-169"><a href="#cb19-169" aria-hidden="true" tabindex="-1"></a><span class="fu">### The z-score method</span></span>
+<span id="cb19-170"><a href="#cb19-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-171"><a href="#cb19-171" aria-hidden="true" tabindex="-1"></a>A z-score measures how many standard deviations a value is from the mean. Values with |z| &gt; 3 are conventionally considered outliers:</span>
+<span id="cb19-172"><a href="#cb19-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-175"><a href="#cb19-175" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-176"><a href="#cb19-176" aria-hidden="true" tabindex="-1"></a><span class="co"># z-score formula: (value - mean) / std_dev</span></span>
+<span id="cb19-177"><a href="#cb19-177" aria-hidden="true" tabindex="-1"></a><span class="co"># A z-score of 2 means "2 standard deviations above the mean"</span></span>
+<span id="cb19-178"><a href="#cb19-178" aria-hidden="true" tabindex="-1"></a><span class="co"># The IQR method is more robust for skewed distributions (like HR counts);</span></span>
+<span id="cb19-179"><a href="#cb19-179" aria-hidden="true" tabindex="-1"></a><span class="co"># the z-score method assumes approximate normality</span></span>
+<span id="cb19-180"><a href="#cb19-180" aria-hidden="true" tabindex="-1"></a>qualified[<span class="st">'hr_zscore'</span>] <span class="op">=</span> (</span>
+<span id="cb19-181"><a href="#cb19-181" aria-hidden="true" tabindex="-1"></a>    (qualified[<span class="st">'HR'</span>] <span class="op">-</span> qualified[<span class="st">'HR'</span>].mean()) <span class="op">/</span> qualified[<span class="st">'HR'</span>].std()</span>
+<span id="cb19-182"><a href="#cb19-182" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb19-183"><a href="#cb19-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a><span class="co"># Are the extreme HR seasons real or errors?</span></span>
-<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: do the player names and years match known record holders?</span></span>
-<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(extreme[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'teamID'</span>, <span class="st">'HR'</span>]].sort_values(<span class="st">'HR'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">5</span>))</span>
-<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-192"><a href="#cb19-192" aria-hidden="true" tabindex="-1"></a>If these are legitimate records (Barry Bonds' 73 HR in 2001, for instance), removing them would be analytically dishonest. If they are data entry errors (a player with 999 HR), removing them is necessary. Document the decision either way.</span>
-<span id="cb19-193"><a href="#cb19-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a><span class="fu">## Categorical Patterns</span></span>
-<span id="cb19-195"><a href="#cb19-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-196"><a href="#cb19-196" aria-hidden="true" tabindex="-1"></a>For non-numeric columns, the primary descriptive tools are frequency tables and cross-tabulations.</span>
-<span id="cb19-197"><a href="#cb19-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-198"><a href="#cb19-198" aria-hidden="true" tabindex="-1"></a><span class="fu">### Frequency tables</span></span>
-<span id="cb19-199"><a href="#cb19-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-200"><a href="#cb19-200" aria-hidden="true" tabindex="-1"></a>The <span class="in">`.value_counts()`</span> method is your workhorse for categorical exploration. Use it with <span class="in">`normalize=True`</span> to get proportions instead of counts:</span>
-<span id="cb19-201"><a href="#cb19-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-204"><a href="#cb19-204" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-205"><a href="#cb19-205" aria-hidden="true" tabindex="-1"></a><span class="co"># County distribution of cannabis sales records</span></span>
-<span id="cb19-206"><a href="#cb19-206" aria-hidden="true" tabindex="-1"></a>county_counts <span class="op">=</span> cannabis[<span class="st">'county'</span>].value_counts()</span>
-<span id="cb19-207"><a href="#cb19-207" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Counties with data: </span><span class="sc">{</span><span class="bu">len</span>(county_counts)<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb19-208"><a href="#cb19-208" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Top 10:'</span>)</span>
-<span id="cb19-209"><a href="#cb19-209" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(county_counts.head(<span class="dv">10</span>))</span>
-<span id="cb19-210"><a href="#cb19-210" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Bottom 5:'</span>)</span>
-<span id="cb19-211"><a href="#cb19-211" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(county_counts.tail(<span class="dv">5</span>))</span>
-<span id="cb19-212"><a href="#cb19-212" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-213"><a href="#cb19-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-216"><a href="#cb19-216" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-217"><a href="#cb19-217" aria-hidden="true" tabindex="-1"></a><span class="co"># Age band distribution in Colorado (2020)</span></span>
-<span id="cb19-218"><a href="#cb19-218" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">18</span>, <span class="dv">65</span>, <span class="dv">101</span>]</span>
-<span id="cb19-219"><a href="#cb19-219" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">'Children (0-17)'</span>, <span class="st">'Working Age (18-64)'</span>, <span class="st">'Seniors (65+)'</span>]</span>
-<span id="cb19-220"><a href="#cb19-220" aria-hidden="true" tabindex="-1"></a>est_2020 <span class="op">=</span> estimates[estimates[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2020</span>].copy()</span>
-<span id="cb19-221"><a href="#cb19-221" aria-hidden="true" tabindex="-1"></a>est_2020[<span class="st">'age_band'</span>] <span class="op">=</span> pd.cut(est_2020[<span class="st">'age'</span>], bins<span class="op">=</span>bins, labels<span class="op">=</span>labels, right<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb19-222"><a href="#cb19-222" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-223"><a href="#cb19-223" aria-hidden="true" tabindex="-1"></a>band_totals <span class="op">=</span> est_2020.groupby(<span class="st">'age_band'</span>, observed<span class="op">=</span><span class="va">True</span>)[<span class="st">'totalpopulation'</span>].<span class="bu">sum</span>()</span>
-<span id="cb19-224"><a href="#cb19-224" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Statewide population by age band (2020):'</span>)</span>
-<span id="cb19-225"><a href="#cb19-225" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(band_totals)</span>
-<span id="cb19-226"><a href="#cb19-226" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Proportions:'</span>)</span>
-<span id="cb19-227"><a href="#cb19-227" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>((band_totals <span class="op">/</span> band_totals.<span class="bu">sum</span>()).<span class="bu">round</span>(<span class="dv">3</span>))</span>
-<span id="cb19-228"><a href="#cb19-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-229"><a href="#cb19-229" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-230"><a href="#cb19-230" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cross-tabulations</span></span>
-<span id="cb19-231"><a href="#cb19-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-232"><a href="#cb19-232" aria-hidden="true" tabindex="-1"></a>A cross-tabulation (crosstab) shows the joint distribution of two categorical variables. Use <span class="in">`pd.crosstab()`</span> to build one:</span>
-<span id="cb19-233"><a href="#cb19-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-236"><a href="#cb19-236" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-237"><a href="#cb19-237" aria-hidden="true" tabindex="-1"></a><span class="co"># Decades × league for batting data</span></span>
-<span id="cb19-238"><a href="#cb19-238" aria-hidden="true" tabindex="-1"></a>batting_with_league <span class="op">=</span> batting.copy()</span>
-<span id="cb19-239"><a href="#cb19-239" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-240"><a href="#cb19-240" aria-hidden="true" tabindex="-1"></a>decade_counts <span class="op">=</span> pd.crosstab(</span>
-<span id="cb19-241"><a href="#cb19-241" aria-hidden="true" tabindex="-1"></a>    qualified[<span class="st">'decade'</span>],</span>
-<span id="cb19-242"><a href="#cb19-242" aria-hidden="true" tabindex="-1"></a>    qualified[<span class="st">'teamID'</span>].<span class="bu">str</span>[:<span class="dv">2</span>],  <span class="co"># rough proxy</span></span>
-<span id="cb19-243"><a href="#cb19-243" aria-hidden="true" tabindex="-1"></a>    margins<span class="op">=</span><span class="va">True</span></span>
-<span id="cb19-244"><a href="#cb19-244" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-245"><a href="#cb19-245" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Player-seasons by decade (first 5 decades):'</span>)</span>
-<span id="cb19-246"><a href="#cb19-246" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decade_counts.head())</span>
-<span id="cb19-247"><a href="#cb19-247" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-184"><a href="#cb19-184" aria-hidden="true" tabindex="-1"></a><span class="co"># |z| &gt; 3 is the conventional threshold: fewer than 0.3% of normally</span></span>
+<span id="cb19-185"><a href="#cb19-185" aria-hidden="true" tabindex="-1"></a><span class="co"># distributed values fall here, so these are unusually extreme observations</span></span>
+<span id="cb19-186"><a href="#cb19-186" aria-hidden="true" tabindex="-1"></a>extreme <span class="op">=</span> qualified[qualified[<span class="st">'hr_zscore'</span>].<span class="bu">abs</span>() <span class="op">&gt;</span> <span class="dv">3</span>]</span>
+<span id="cb19-187"><a href="#cb19-187" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Observations with |z| &gt; 3: </span><span class="sc">{</span><span class="bu">len</span>(extreme)<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb19-188"><a href="#cb19-188" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(extreme[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'HR'</span>, <span class="st">'hr_zscore'</span>]].sort_values(<span class="st">'hr_zscore'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">10</span>))</span>
+<span id="cb19-189"><a href="#cb19-189" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-190"><a href="#cb19-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-191"><a href="#cb19-191" aria-hidden="true" tabindex="-1"></a><span class="fu">### IQR vs. z-score: choosing a method</span></span>
+<span id="cb19-192"><a href="#cb19-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-193"><a href="#cb19-193" aria-hidden="true" tabindex="-1"></a>The two methods answer slightly different questions. The **IQR method** is non-parametric — it makes no assumptions about the distribution's shape. It works well for skewed distributions (like HR counts, where most players hit few home runs and a handful hit many) and for data with heavy tails. The **z-score method** assumes approximate normality and is sensitive to the same extreme values it is trying to detect (a single record-setting season shifts the mean and inflates the standard deviation). For most real-world data analysis, the IQR method is safer.</span>
+<span id="cb19-194"><a href="#cb19-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-195"><a href="#cb19-195" aria-hidden="true" tabindex="-1"></a><span class="fu">### Investigating outliers</span></span>
+<span id="cb19-196"><a href="#cb19-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-197"><a href="#cb19-197" aria-hidden="true" tabindex="-1"></a>Once you identify outliers, investigate them before deciding what to do. Are they data entry errors, measurement artifacts, or genuinely extreme observations?</span>
+<span id="cb19-198"><a href="#cb19-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-201"><a href="#cb19-201" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-202"><a href="#cb19-202" aria-hidden="true" tabindex="-1"></a><span class="co"># Are the extreme HR seasons real or errors?</span></span>
+<span id="cb19-203"><a href="#cb19-203" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: do the player names and years match known record holders?</span></span>
+<span id="cb19-204"><a href="#cb19-204" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(extreme[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'teamID'</span>, <span class="st">'HR'</span>]].sort_values(<span class="st">'HR'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">5</span>))</span>
+<span id="cb19-205"><a href="#cb19-205" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-206"><a href="#cb19-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-207"><a href="#cb19-207" aria-hidden="true" tabindex="-1"></a>If these are legitimate records (Barry Bonds' 73 HR in 2001, for instance), removing them would be analytically dishonest. If they are data entry errors (a player with 999 HR), removing them is necessary. Document the decision either way.</span>
+<span id="cb19-208"><a href="#cb19-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-209"><a href="#cb19-209" aria-hidden="true" tabindex="-1"></a><span class="fu">## Categorical Patterns</span></span>
+<span id="cb19-210"><a href="#cb19-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-211"><a href="#cb19-211" aria-hidden="true" tabindex="-1"></a>For non-numeric columns, the primary descriptive tools are frequency tables and cross-tabulations.</span>
+<span id="cb19-212"><a href="#cb19-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-213"><a href="#cb19-213" aria-hidden="true" tabindex="-1"></a><span class="fu">### Frequency tables</span></span>
+<span id="cb19-214"><a href="#cb19-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-215"><a href="#cb19-215" aria-hidden="true" tabindex="-1"></a>The <span class="in">`.value_counts()`</span> method is your workhorse for categorical exploration. Use it with <span class="in">`normalize=True`</span> to get proportions instead of counts:</span>
+<span id="cb19-216"><a href="#cb19-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-219"><a href="#cb19-219" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-220"><a href="#cb19-220" aria-hidden="true" tabindex="-1"></a><span class="co"># County distribution of cannabis sales records</span></span>
+<span id="cb19-221"><a href="#cb19-221" aria-hidden="true" tabindex="-1"></a>county_counts <span class="op">=</span> cannabis[<span class="st">'county'</span>].value_counts()</span>
+<span id="cb19-222"><a href="#cb19-222" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Counties with data: </span><span class="sc">{</span><span class="bu">len</span>(county_counts)<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb19-223"><a href="#cb19-223" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Top 10:'</span>)</span>
+<span id="cb19-224"><a href="#cb19-224" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(county_counts.head(<span class="dv">10</span>))</span>
+<span id="cb19-225"><a href="#cb19-225" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Bottom 5:'</span>)</span>
+<span id="cb19-226"><a href="#cb19-226" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(county_counts.tail(<span class="dv">5</span>))</span>
+<span id="cb19-227"><a href="#cb19-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-228"><a href="#cb19-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-231"><a href="#cb19-231" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-232"><a href="#cb19-232" aria-hidden="true" tabindex="-1"></a><span class="co"># Age band distribution in Colorado (2020)</span></span>
+<span id="cb19-233"><a href="#cb19-233" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">18</span>, <span class="dv">65</span>, <span class="dv">101</span>]</span>
+<span id="cb19-234"><a href="#cb19-234" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">'Children (0-17)'</span>, <span class="st">'Working Age (18-64)'</span>, <span class="st">'Seniors (65+)'</span>]</span>
+<span id="cb19-235"><a href="#cb19-235" aria-hidden="true" tabindex="-1"></a>est_2020 <span class="op">=</span> estimates[estimates[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2020</span>].copy()</span>
+<span id="cb19-236"><a href="#cb19-236" aria-hidden="true" tabindex="-1"></a>est_2020[<span class="st">'age_band'</span>] <span class="op">=</span> pd.cut(est_2020[<span class="st">'age'</span>], bins<span class="op">=</span>bins, labels<span class="op">=</span>labels, right<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb19-237"><a href="#cb19-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-238"><a href="#cb19-238" aria-hidden="true" tabindex="-1"></a>band_totals <span class="op">=</span> est_2020.groupby(<span class="st">'age_band'</span>, observed<span class="op">=</span><span class="va">True</span>)[<span class="st">'totalpopulation'</span>].<span class="bu">sum</span>()</span>
+<span id="cb19-239"><a href="#cb19-239" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Statewide population by age band (2020):'</span>)</span>
+<span id="cb19-240"><a href="#cb19-240" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(band_totals)</span>
+<span id="cb19-241"><a href="#cb19-241" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'</span><span class="ch">\n</span><span class="ss">Proportions:'</span>)</span>
+<span id="cb19-242"><a href="#cb19-242" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>((band_totals <span class="op">/</span> band_totals.<span class="bu">sum</span>()).<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb19-243"><a href="#cb19-243" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-244"><a href="#cb19-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-245"><a href="#cb19-245" aria-hidden="true" tabindex="-1"></a><span class="fu">### Cross-tabulations</span></span>
+<span id="cb19-246"><a href="#cb19-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-247"><a href="#cb19-247" aria-hidden="true" tabindex="-1"></a>A cross-tabulation (crosstab) shows the joint distribution of two categorical variables. Use <span class="in">`pd.crosstab()`</span> to build one:</span>
 <span id="cb19-248"><a href="#cb19-248" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-249"><a href="#cb19-249" aria-hidden="true" tabindex="-1"></a>Cross-tabulations become more informative with <span class="in">`normalize`</span> to show proportions and with <span class="in">`margins=True`</span> to include row and column totals.</span>
-<span id="cb19-250"><a href="#cb19-250" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-251"><a href="#cb19-251" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summarizing Multiple Variables Together</span></span>
-<span id="cb19-252"><a href="#cb19-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-253"><a href="#cb19-253" aria-hidden="true" tabindex="-1"></a>When you have several numeric columns, examining them individually is tedious. A **correlation matrix** provides a compact summary of pairwise relationships:</span>
+<span id="cb19-251"><a href="#cb19-251" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-252"><a href="#cb19-252" aria-hidden="true" tabindex="-1"></a><span class="co"># Decades × league for batting data</span></span>
+<span id="cb19-253"><a href="#cb19-253" aria-hidden="true" tabindex="-1"></a>batting_with_league <span class="op">=</span> batting.copy()</span>
 <span id="cb19-254"><a href="#cb19-254" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-257"><a href="#cb19-257" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-258"><a href="#cb19-258" aria-hidden="true" tabindex="-1"></a>batting_metrics <span class="op">=</span> qualified[[<span class="st">'AB'</span>, <span class="st">'H'</span>, <span class="st">'HR'</span>, <span class="st">'BB'</span>, <span class="st">'BA'</span>, <span class="st">'SLG'</span>, <span class="st">'OBP'</span>, <span class="st">'OPS'</span>]].copy()</span>
-<span id="cb19-259"><a href="#cb19-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-260"><a href="#cb19-260" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> batting_metrics.corr().<span class="bu">round</span>(<span class="dv">2</span>)</span>
-<span id="cb19-261"><a href="#cb19-261" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(corr_matrix)</span>
+<span id="cb19-255"><a href="#cb19-255" aria-hidden="true" tabindex="-1"></a>decade_counts <span class="op">=</span> pd.crosstab(</span>
+<span id="cb19-256"><a href="#cb19-256" aria-hidden="true" tabindex="-1"></a>    qualified[<span class="st">'decade'</span>],</span>
+<span id="cb19-257"><a href="#cb19-257" aria-hidden="true" tabindex="-1"></a>    qualified[<span class="st">'teamID'</span>].<span class="bu">str</span>[:<span class="dv">2</span>],  <span class="co"># rough proxy</span></span>
+<span id="cb19-258"><a href="#cb19-258" aria-hidden="true" tabindex="-1"></a>    margins<span class="op">=</span><span class="va">True</span></span>
+<span id="cb19-259"><a href="#cb19-259" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-260"><a href="#cb19-260" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Player-seasons by decade (first 5 decades):'</span>)</span>
+<span id="cb19-261"><a href="#cb19-261" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decade_counts.head())</span>
 <span id="cb19-262"><a href="#cb19-262" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb19-263"><a href="#cb19-263" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-264"><a href="#cb19-264" aria-hidden="true" tabindex="-1"></a>We will visualize this matrix as a heatmap in @sec-visualization and test individual correlations formally in @sec-hypothesis-testing.</span>
+<span id="cb19-264"><a href="#cb19-264" aria-hidden="true" tabindex="-1"></a>Cross-tabulations become more informative with <span class="in">`normalize`</span> to show proportions and with <span class="in">`margins=True`</span> to include row and column totals.</span>
 <span id="cb19-265"><a href="#cb19-265" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-266"><a href="#cb19-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## The Descriptive Summary Template</span></span>
+<span id="cb19-266"><a href="#cb19-266" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summarizing Multiple Variables Together</span></span>
 <span id="cb19-267"><a href="#cb19-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-268"><a href="#cb19-268" aria-hidden="true" tabindex="-1"></a>For any new dataset or analytical question, produce a descriptive summary that covers these elements. You can structure this as a Markdown cell in your notebook:</span>
+<span id="cb19-268"><a href="#cb19-268" aria-hidden="true" tabindex="-1"></a>When you have several numeric columns, examining them individually is tedious. A **correlation matrix** provides a compact summary of pairwise relationships:</span>
 <span id="cb19-269"><a href="#cb19-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-270"><a href="#cb19-270" aria-hidden="true" tabindex="-1"></a><span class="in">```markdown</span></span>
-<span id="cb19-271"><a href="#cb19-271" aria-hidden="true" tabindex="-1"></a><span class="fu">## Descriptive Summary: [Dataset / Variable]</span></span>
-<span id="cb19-272"><a href="#cb19-272" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-273"><a href="#cb19-273" aria-hidden="true" tabindex="-1"></a>**Unit of analysis:** <span class="co">[</span><span class="ot">what each row represents</span><span class="co">]</span></span>
-<span id="cb19-274"><a href="#cb19-274" aria-hidden="true" tabindex="-1"></a>**N:** <span class="co">[</span><span class="ot">number of observations after filtering</span><span class="co">]</span></span>
-<span id="cb19-275"><a href="#cb19-275" aria-hidden="true" tabindex="-1"></a>**Key statistics:** mean, median, std, min, max</span>
-<span id="cb19-276"><a href="#cb19-276" aria-hidden="true" tabindex="-1"></a>**Shape:** <span class="co">[</span><span class="ot">symmetric, right-skewed, bimodal, etc.</span><span class="co">]</span></span>
-<span id="cb19-277"><a href="#cb19-277" aria-hidden="true" tabindex="-1"></a>**Outliers:** <span class="co">[</span><span class="ot">count, method used, decision made</span><span class="co">]</span></span>
-<span id="cb19-278"><a href="#cb19-278" aria-hidden="true" tabindex="-1"></a>**Missing data:** <span class="co">[</span><span class="ot">count, pattern, impact on analysis</span><span class="co">]</span></span>
-<span id="cb19-279"><a href="#cb19-279" aria-hidden="true" tabindex="-1"></a>**Notable patterns:** <span class="co">[</span><span class="ot">any surprises, clusters, or anomalies</span><span class="co">]</span></span>
-<span id="cb19-280"><a href="#cb19-280" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-281"><a href="#cb19-281" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-282"><a href="#cb19-282" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
-<span id="cb19-283"><a href="#cb19-283" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-284"><a href="#cb19-284" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
-<span id="cb19-285"><a href="#cb19-285" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 1: Distribution profile</span></span>
-<span id="cb19-286"><a href="#cb19-286" aria-hidden="true" tabindex="-1"></a>Compute the mean, median, standard deviation, skewness, and coefficient of variation for retail cannabis sales in 2023 across all counties. Based on these statistics, describe the shape of the distribution in one or two sentences. Which measure of central tendency (mean or median) better represents the "typical" county?</span>
+<span id="cb19-272"><a href="#cb19-272" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-273"><a href="#cb19-273" aria-hidden="true" tabindex="-1"></a>batting_metrics <span class="op">=</span> qualified[[<span class="st">'AB'</span>, <span class="st">'H'</span>, <span class="st">'HR'</span>, <span class="st">'BB'</span>, <span class="st">'BA'</span>, <span class="st">'SLG'</span>, <span class="st">'OBP'</span>, <span class="st">'OPS'</span>]].copy()</span>
+<span id="cb19-274"><a href="#cb19-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-275"><a href="#cb19-275" aria-hidden="true" tabindex="-1"></a>corr_matrix <span class="op">=</span> batting_metrics.corr().<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb19-276"><a href="#cb19-276" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(corr_matrix)</span>
+<span id="cb19-277"><a href="#cb19-277" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-278"><a href="#cb19-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-279"><a href="#cb19-279" aria-hidden="true" tabindex="-1"></a>We will visualize this matrix as a heatmap in @sec-visualization and test individual correlations formally in @sec-hypothesis-testing.</span>
+<span id="cb19-280"><a href="#cb19-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-281"><a href="#cb19-281" aria-hidden="true" tabindex="-1"></a><span class="fu">## The Descriptive Summary Template</span></span>
+<span id="cb19-282"><a href="#cb19-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-283"><a href="#cb19-283" aria-hidden="true" tabindex="-1"></a>For any new dataset or analytical question, produce a descriptive summary that covers these elements. You can structure this as a Markdown cell in your notebook:</span>
+<span id="cb19-284"><a href="#cb19-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-285"><a href="#cb19-285" aria-hidden="true" tabindex="-1"></a><span class="in">```markdown</span></span>
+<span id="cb19-286"><a href="#cb19-286" aria-hidden="true" tabindex="-1"></a><span class="fu">## Descriptive Summary: [Dataset / Variable]</span></span>
 <span id="cb19-287"><a href="#cb19-287" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-288"><a href="#cb19-288" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
-<span id="cb19-289"><a href="#cb19-289" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
-<span id="cb19-292"><a href="#cb19-292" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-293"><a href="#cb19-293" aria-hidden="true" tabindex="-1"></a>annual <span class="op">=</span> cannabis[cannabis[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2023</span>].groupby(<span class="st">'county'</span>)[<span class="st">'retail'</span>].<span class="bu">sum</span>().dropna()</span>
-<span id="cb19-294"><a href="#cb19-294" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean:     $</span><span class="sc">{</span>annual<span class="sc">.</span>mean()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
-<span id="cb19-295"><a href="#cb19-295" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Median:   $</span><span class="sc">{</span>annual<span class="sc">.</span>median()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
-<span id="cb19-296"><a href="#cb19-296" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Std:      $</span><span class="sc">{</span>annual<span class="sc">.</span>std()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
-<span id="cb19-297"><a href="#cb19-297" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Skewness: </span><span class="sc">{</span>annual<span class="sc">.</span>skew()<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
-<span id="cb19-298"><a href="#cb19-298" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'CV:       </span><span class="sc">{</span>annual<span class="sc">.</span>std() <span class="op">/</span> annual<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
-<span id="cb19-299"><a href="#cb19-299" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-300"><a href="#cb19-300" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-301"><a href="#cb19-301" aria-hidden="true" tabindex="-1"></a>The distribution is strongly right-skewed (skewness &gt;&gt; 1), with a few large urban counties pulling the mean well above the median. The median better represents the typical county.</span>
-<span id="cb19-302"><a href="#cb19-302" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb19-303"><a href="#cb19-303" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb19-304"><a href="#cb19-304" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-305"><a href="#cb19-305" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
-<span id="cb19-306"><a href="#cb19-306" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2: Outlier investigation</span></span>
-<span id="cb19-307"><a href="#cb19-307" aria-hidden="true" tabindex="-1"></a>Using the IQR method, identify outlier counties in 2023 retail cannabis sales. For each outlier, look up the county's population. Are these outliers because they are genuinely unusual, or simply because they are large counties?</span>
-<span id="cb19-308"><a href="#cb19-308" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-309"><a href="#cb19-309" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
-<span id="cb19-310"><a href="#cb19-310" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
-<span id="cb19-313"><a href="#cb19-313" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-314"><a href="#cb19-314" aria-hidden="true" tabindex="-1"></a>outliers <span class="op">=</span> find_outliers_iqr(annual)</span>
-<span id="cb19-315"><a href="#cb19-315" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Outlier counties:'</span>)</span>
-<span id="cb19-316"><a href="#cb19-316" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(outliers.sort_values(ascending<span class="op">=</span><span class="va">False</span>))</span>
-<span id="cb19-317"><a href="#cb19-317" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-318"><a href="#cb19-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-319"><a href="#cb19-319" aria-hidden="true" tabindex="-1"></a>These are almost certainly large urban counties (Denver, El Paso, Arapahoe, etc.). They are outliers in sales volume because they have more people, not because their per-capita sales are unusual. Computing per-capita sales (by dividing by population) would likely eliminate most of these as outliers.</span>
-<span id="cb19-320"><a href="#cb19-320" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb19-321"><a href="#cb19-321" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb19-322"><a href="#cb19-322" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-323"><a href="#cb19-323" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
-<span id="cb19-324"><a href="#cb19-324" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 3: Cross-tabulation</span></span>
-<span id="cb19-325"><a href="#cb19-325" aria-hidden="true" tabindex="-1"></a>Create a cross-tabulation of cannabis counties by year and whether they have any medical sales (yes/no). Has the number of counties reporting medical sales changed over time?</span>
-<span id="cb19-326"><a href="#cb19-326" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-327"><a href="#cb19-327" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
-<span id="cb19-328"><a href="#cb19-328" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
-<span id="cb19-331"><a href="#cb19-331" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
-<span id="cb19-332"><a href="#cb19-332" aria-hidden="true" tabindex="-1"></a>cannabis[<span class="st">'has_medical'</span>] <span class="op">=</span> cannabis[<span class="st">'medical'</span>].notna() <span class="op">&amp;</span> (cannabis[<span class="st">'medical'</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
-<span id="cb19-333"><a href="#cb19-333" aria-hidden="true" tabindex="-1"></a>crosstab <span class="op">=</span> pd.crosstab(cannabis[<span class="st">'year'</span>], cannabis[<span class="st">'has_medical'</span>], margins<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb19-334"><a href="#cb19-334" aria-hidden="true" tabindex="-1"></a>crosstab.columns <span class="op">=</span> [<span class="st">'No Medical'</span>, <span class="st">'Has Medical'</span>, <span class="st">'Total'</span>]</span>
-<span id="cb19-335"><a href="#cb19-335" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(crosstab)</span>
-<span id="cb19-336"><a href="#cb19-336" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb19-337"><a href="#cb19-337" aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb19-338"><a href="#cb19-338" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-288"><a href="#cb19-288" aria-hidden="true" tabindex="-1"></a>**Unit of analysis:** <span class="co">[</span><span class="ot">what each row represents</span><span class="co">]</span></span>
+<span id="cb19-289"><a href="#cb19-289" aria-hidden="true" tabindex="-1"></a>**N:** <span class="co">[</span><span class="ot">number of observations after filtering</span><span class="co">]</span></span>
+<span id="cb19-290"><a href="#cb19-290" aria-hidden="true" tabindex="-1"></a>**Key statistics:** mean, median, std, min, max</span>
+<span id="cb19-291"><a href="#cb19-291" aria-hidden="true" tabindex="-1"></a>**Shape:** <span class="co">[</span><span class="ot">symmetric, right-skewed, bimodal, etc.</span><span class="co">]</span></span>
+<span id="cb19-292"><a href="#cb19-292" aria-hidden="true" tabindex="-1"></a>**Outliers:** <span class="co">[</span><span class="ot">count, method used, decision made</span><span class="co">]</span></span>
+<span id="cb19-293"><a href="#cb19-293" aria-hidden="true" tabindex="-1"></a>**Missing data:** <span class="co">[</span><span class="ot">count, pattern, impact on analysis</span><span class="co">]</span></span>
+<span id="cb19-294"><a href="#cb19-294" aria-hidden="true" tabindex="-1"></a>**Notable patterns:** <span class="co">[</span><span class="ot">any surprises, clusters, or anomalies</span><span class="co">]</span></span>
+<span id="cb19-295"><a href="#cb19-295" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-296"><a href="#cb19-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-297"><a href="#cb19-297" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb19-298"><a href="#cb19-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-299"><a href="#cb19-299" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb19-300"><a href="#cb19-300" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 1: Distribution profile</span></span>
+<span id="cb19-301"><a href="#cb19-301" aria-hidden="true" tabindex="-1"></a>Compute the mean, median, standard deviation, skewness, and coefficient of variation for retail cannabis sales in 2023 across all counties. Based on these statistics, describe the shape of the distribution in one or two sentences. Which measure of central tendency (mean or median) better represents the "typical" county?</span>
+<span id="cb19-302"><a href="#cb19-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-303"><a href="#cb19-303" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb19-304"><a href="#cb19-304" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
+<span id="cb19-307"><a href="#cb19-307" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-308"><a href="#cb19-308" aria-hidden="true" tabindex="-1"></a>annual <span class="op">=</span> cannabis[cannabis[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2023</span>].groupby(<span class="st">'county'</span>)[<span class="st">'retail'</span>].<span class="bu">sum</span>().dropna()</span>
+<span id="cb19-309"><a href="#cb19-309" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Mean:     $</span><span class="sc">{</span>annual<span class="sc">.</span>mean()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
+<span id="cb19-310"><a href="#cb19-310" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Median:   $</span><span class="sc">{</span>annual<span class="sc">.</span>median()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
+<span id="cb19-311"><a href="#cb19-311" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Std:      $</span><span class="sc">{</span>annual<span class="sc">.</span>std()<span class="sc">:,.0f}</span><span class="ss">'</span>)</span>
+<span id="cb19-312"><a href="#cb19-312" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Skewness: </span><span class="sc">{</span>annual<span class="sc">.</span>skew()<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
+<span id="cb19-313"><a href="#cb19-313" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'CV:       </span><span class="sc">{</span>annual<span class="sc">.</span>std() <span class="op">/</span> annual<span class="sc">.</span>mean()<span class="sc">:.2f}</span><span class="ss">'</span>)</span>
+<span id="cb19-314"><a href="#cb19-314" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-315"><a href="#cb19-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-316"><a href="#cb19-316" aria-hidden="true" tabindex="-1"></a>The distribution is strongly right-skewed (skewness &gt;&gt; 1), with a few large urban counties pulling the mean well above the median. The median better represents the typical county.</span>
+<span id="cb19-317"><a href="#cb19-317" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-318"><a href="#cb19-318" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-319"><a href="#cb19-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-320"><a href="#cb19-320" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb19-321"><a href="#cb19-321" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2: Outlier investigation</span></span>
+<span id="cb19-322"><a href="#cb19-322" aria-hidden="true" tabindex="-1"></a>Using the IQR method, identify outlier counties in 2023 retail cannabis sales. For each outlier, look up the county's population. Are these outliers because they are genuinely unusual, or simply because they are large counties?</span>
+<span id="cb19-323"><a href="#cb19-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-324"><a href="#cb19-324" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb19-325"><a href="#cb19-325" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
+<span id="cb19-328"><a href="#cb19-328" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-329"><a href="#cb19-329" aria-hidden="true" tabindex="-1"></a>outliers <span class="op">=</span> find_outliers_iqr(annual)</span>
+<span id="cb19-330"><a href="#cb19-330" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Outlier counties:'</span>)</span>
+<span id="cb19-331"><a href="#cb19-331" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(outliers.sort_values(ascending<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb19-332"><a href="#cb19-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-333"><a href="#cb19-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-334"><a href="#cb19-334" aria-hidden="true" tabindex="-1"></a>These are almost certainly large urban counties (Denver, El Paso, Arapahoe, etc.). They are outliers in sales volume because they have more people, not because their per-capita sales are unusual. Computing per-capita sales (by dividing by population) would likely eliminate most of these as outliers.</span>
+<span id="cb19-335"><a href="#cb19-335" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-336"><a href="#cb19-336" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-337"><a href="#cb19-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-338"><a href="#cb19-338" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb19-339"><a href="#cb19-339" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 3: Cross-tabulation</span></span>
+<span id="cb19-340"><a href="#cb19-340" aria-hidden="true" tabindex="-1"></a>Create a cross-tabulation of cannabis counties by year and whether they have any medical sales (yes/no). Has the number of counties reporting medical sales changed over time?</span>
+<span id="cb19-341"><a href="#cb19-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-342"><a href="#cb19-342" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb19-343"><a href="#cb19-343" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
+<span id="cb19-346"><a href="#cb19-346" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb19-347"><a href="#cb19-347" aria-hidden="true" tabindex="-1"></a>cannabis[<span class="st">'has_medical'</span>] <span class="op">=</span> cannabis[<span class="st">'medical'</span>].notna() <span class="op">&amp;</span> (cannabis[<span class="st">'medical'</span>] <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb19-348"><a href="#cb19-348" aria-hidden="true" tabindex="-1"></a>crosstab <span class="op">=</span> pd.crosstab(cannabis[<span class="st">'year'</span>], cannabis[<span class="st">'has_medical'</span>], margins<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-349"><a href="#cb19-349" aria-hidden="true" tabindex="-1"></a>crosstab.columns <span class="op">=</span> [<span class="st">'No Medical'</span>, <span class="st">'Has Medical'</span>, <span class="st">'Total'</span>]</span>
+<span id="cb19-350"><a href="#cb19-350" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(crosstab)</span>
+<span id="cb19-351"><a href="#cb19-351" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb19-352"><a href="#cb19-352" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-353"><a href="#cb19-353" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb19-354"><a href="#cb19-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-355"><a href="#cb19-355" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb19-356"><a href="#cb19-356" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 4: Build a descriptive summary</span></span>
+<span id="cb19-357"><a href="#cb19-357" aria-hidden="true" tabindex="-1"></a>Choose a single numeric variable from one of the course datasets (e.g., <span class="in">`totalpopulation`</span> for a specific year, or <span class="in">`retail`</span> cannabis sales for a specific county). Following the Descriptive Summary Template at the end of this chapter, produce a complete written summary that covers: unit of analysis, sample size after filtering, key statistics (mean, median, std, min, max), distribution shape, outlier count and method used, missing data pattern, and at least one notable finding you would follow up on.</span>
+<span id="cb19-358"><a href="#cb19-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-359"><a href="#cb19-359" aria-hidden="true" tabindex="-1"></a>Your summary should be written as a Markdown cell in a Jupyter notebook, with the supporting code visible alongside it.</span>
+<span id="cb19-360"><a href="#cb19-360" aria-hidden="true" tabindex="-1"></a>:::</span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
@@ -1498,4 +1565,4 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/ch-descriptive.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/16-descriptive.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>

@@ -321,6 +321,16 @@ pd.read_sql_query("""
 
 ## Part 7: The Join-Quality Report
 
+::: {.callout-note}
+## Public Interest Context: Oversight
+
+The join-quality report is not just a technical artifact. It is an audit trail — a structured record of what matched, what was dropped, and why. In a public interest context, this kind of documentation is what oversight looks like in practice.
+
+Consider what is at stake in this specific join. You are combining mortality data, crime data, and population data to compute per-capita rates for Colorado counties. If your join silently drops rural counties with missing crime records, your rates will only reflect urban counties — and any conclusions you draw about "Colorado counties" will actually only reflect a subset of them.
+
+The join-quality report forces you to document that dropout explicitly: how many counties are missing from each source, which years have complete data, and where NULLs were introduced. A reader of your analysis should be able to evaluate your joins, not just your conclusions. See @sec-public-interest for the broader framework.
+:::
+
 Every multi-table analysis should produce a brief report documenting the join. This is the SQL equivalent of the Known Issues Log from @sec-documentation. At minimum, it should cover:
 
 1. **Join structure**: which tables, which keys, which join type, and why

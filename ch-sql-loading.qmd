@@ -46,7 +46,21 @@ The file is created on disk when you first write data to it.
 
 ### Step 2: Prepare the CSV
 
-SQLite's `.import` command expects a clean, rectangular CSV with exactly one header row and no aggregate rows. Real-world files rarely meet this requirement out of the box. The standard approach is to clean the file in pandas first — using the same parameters from @sec-py-loading — and export a clean CSV for SQLite to consume.
+::: {.callout-important}
+## SQL builds on Python
+
+The SQL workflow in this chapter depends on the Python workflow from @sec-py-loading and @sec-py-cleaning. SQLite's `.import` command requires a clean, rectangular CSV — exactly one header row, no aggregate rows, no currency formatting, no merged cells. Real-world government files rarely meet these requirements out of the box. The standard approach is to use pandas to load and clean the raw file first, then export a normalized CSV for SQLite to consume. Students who have not completed @sec-py-loading and @sec-py-cleaning should do so before continuing here.
+:::
+
+SQLite's `.import` command expects a clean, rectangular CSV with exactly one header row and no aggregate rows. The standard approach is to clean the file in pandas first — applying the same operations from @sec-py-cleaning — and export a clean CSV for SQLite to consume.
+
+::: {.callout-note}
+## Public Interest Context: Enclosure by Interface
+
+The fact that you must clean the cannabis file in pandas before SQLite can import it is not a coincidence. Government datasets are typically published through web portals designed for human download — one file at a time, formatted for spreadsheet users. The data is technically open, but the publishing workflow is optimized for a different kind of user than you.
+
+This is a specific form of enclosure: access is possible, but it requires enough technical skill to navigate the formatting. The more agencies publish machine-readable APIs or consistently formatted CSV files with documented schemas, the more equitably public data can be used. See @sec-public-interest for the broader framework.
+:::
 
 ```{python}
 import pandas as pd

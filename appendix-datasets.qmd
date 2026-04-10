@@ -153,7 +153,7 @@ Population estimates by county, year, and single year of age (0 through 100). In
 - The first row of the CSV is a metadata header. Use `skiprows=1` in `read_csv`.
 - `countyfips` has leading zeros and should be loaded as a string.
 - The `datatype` column distinguishes historical estimates from projections. Filter to `Estimate` rows for historical analysis.
-- County names use bare names (e.g., `Adams`, not `Adams County`). This format differs from the CDC and CBI datasets and must be standardized before joining.
+- County names use bare names (e.g., `Adams`, not `Adams County`). This format differs from the CDC and CBI datasets and must be standardized before joining. The standardization process and its consequences are demonstrated in @sec-sql-cleaning and @sec-sql-reshaping.
 - Contains a `DtypeWarning` on some columns due to mixed types.
 
 ## CDC WONDER — Underlying Cause of Death
@@ -175,7 +175,7 @@ Colorado mortality counts by county, year, age group, and ICD-10 chapter (broad 
 
 **Known quirks:**
 
-- County names are in the format `'Adams County, CO'`. This must be standardized to match other datasets.
+- County names are in the format `'Adams County, CO'`. This must be standardized to match other datasets; see @sec-sql-cleaning for the cleaning workflow.
 - Death counts below 10 may be suppressed for privacy. The value appears as `Suppressed` rather than a number.
 - `Unreliable` flags appear for counts based on small numbers.
 
@@ -197,7 +197,7 @@ Reported criminal offenses by jurisdiction, date, and offense type.
 
 **Known quirks:**
 
-- County names use the format `'Adams County'` (with " County" suffix but without state abbreviation). Must be standardized before joining with other sources.
+- County names use the format `'Adams County'` (with " County" suffix but without state abbreviation). Must be standardized before joining with other sources; see @sec-sql-cleaning and @sec-sql-reshaping.
 - Jurisdiction names do not always map cleanly to county names — some jurisdictions are municipal police departments rather than county sheriff offices.
 - Multiple NULL patterns across columns; different columns use different conventions for missing data.
 
@@ -252,3 +252,22 @@ Residential property sales records.
 - `ACCOUNTNO` has trailing whitespace that must be stripped.
 - `SALE_PRICE` contains currency formatting and non-numeric values like `PRIVATE SALE`.
 - Multiple rows per `ACCOUNTNO` (representing different sale transactions over time).
+
+---
+
+::: {.callout-note}
+## Public Interest Context: Exemption
+
+The datasets described in this appendix represent what is publicly available — what agencies have chosen to publish, in the formats they chose to publish it. That is a narrower set than what exists or what would be useful for public accountability.
+
+Noticeably absent from what is publicly available at a useful granularity:
+
+- **Housing displacement records** at the parcel level — public records exist, but parcel-level linkage to eviction or code enforcement actions is rarely published.
+- **Policing data at the incident level** — Colorado requires some reporting, but stop-and-frisk data, use-of-force details, and officer-level records are inconsistently available across jurisdictions.
+- **Detention and incarceration populations** — county jail populations are not systematically published in machine-readable form.
+- **Environmental health data** — air quality monitoring stations cover urban centers but are sparse in rural counties and on Tribal lands.
+
+Exemption — data that does not exist publicly, or is not released — is itself a data quality problem. The questions you cannot answer because the data is missing are often the most important ones to ask.
+
+When you finish an analysis, it is worth asking: what would you study if you had access to data that is not currently available? That question is as analytically important as what you did study. See @sec-public-interest for the broader framework.
+:::

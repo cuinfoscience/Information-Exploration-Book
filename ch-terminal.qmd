@@ -103,7 +103,9 @@ This prints the first 5 lines — useful for checking whether a CSV has the head
 
 When you run a command like `python` or `sqlite3`, your terminal searches for that program in a list of directories called the **PATH**. If the program is not in any of those directories, you get a `command not found` error — even if the program is installed somewhere on your computer.
 
-This is the most common source of confusion when setting up tools. The fix is usually one of two things: either install the program through a package manager that automatically updates your PATH (such as `conda install sqlite`), or manually add the program's directory to your PATH. The details vary by operating system, but the concept is the same everywhere.
+This is the most common source of confusion when setting up tools. The fix is usually one of two things: either install the program through a package manager that automatically updates your PATH (such as `conda install sqlite`), or manually add the program's directory to your PATH. The details vary by operating system, but the concept is the same everywhere. Managing Python environments — including configuring the PATH correctly — is covered in @sec-environments.
+
+The directory you navigate to in your terminal is your **working directory** for any scripts or notebooks you run from that location. Organizing your project files consistently makes this easier to manage; see @sec-projects for the recommended directory structure.
 
 ::: {.callout-warning}
 ## The most common Windows mistake
@@ -114,7 +116,7 @@ After installing a new tool or editing your PATH, you must open a **new** termin
 
 ::: {.callout-note collapse="true"}
 ## Exercise 1: Navigate to your project folder
-Open a terminal and use `pwd`, `ls`, and `cd` to navigate to the folder where you keep your course materials. Create a new subdirectory called `data` inside it. Verify the directory was created by listing the contents of the parent folder.
+Open a terminal and use `pwd`, `ls`, and `cd` to navigate to the folder where you keep your course materials. Create a new subdirectory called `data` inside it. Verify the directory was created by listing the contents of the parent folder. See @sec-projects for the recommended directory structure for course projects.
 :::
 
 ::: {.callout-note collapse="true"}

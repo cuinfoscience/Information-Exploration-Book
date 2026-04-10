@@ -8,6 +8,7 @@ book:
   date: "2026"
   repo-url: https://github.com/cuinfoscience/Information-Exploration-Book
   repo-actions: [edit]
+  llms-txt: true
   chapters:
     - index.qmd
     - part: "Foundations"

@@ -83,15 +83,21 @@ The first question to ask about any numeric variable is: *what does its distribu
 A histogram divides the range of values into bins and counts how many observations fall in each. It is the most direct visualization of a distribution's shape.
 
 ```{python}
-fig, ax = plt.subplots(figsize=(8, 4))
-ax.hist(qualified['BA'], bins=50, edgecolor='white', alpha=0.7)
+fig, ax = plt.subplots(figsize=(8, 4))   # create a figure (the canvas) and axes (the plot area)
+ax.hist(
+    qualified['BA'],
+    bins=50,            # number of equally-spaced intervals; more bins = more detail but noisier
+    edgecolor='white',  # draw white lines between bars so adjacent bars are visually distinct
+    alpha=0.7           # transparency (0=invisible, 1=solid); leaves room for overlaid elements
+)
 ax.set_xlabel('Batting Average')
 ax.set_ylabel('Count')
 ax.set_title('Distribution of Batting Average (qualified player-seasons, AB ≥ 100)')
+# axvline draws a vertical reference line at the given x value
 ax.axvline(qualified['BA'].mean(), color='red', linestyle='--', label=f'Mean: {qualified["BA"].mean():.3f}')
 ax.axvline(qualified['BA'].median(), color='orange', linestyle='--', label=f'Median: {qualified["BA"].median():.3f}')
 ax.legend()
-plt.tight_layout()
+plt.tight_layout()  # adjust spacing so labels don't overlap or get cut off
 plt.show()
 ```
 
@@ -169,7 +175,12 @@ When you want to understand how two numeric variables relate to each other, scat
 ```{python}
 fig, ax = plt.subplots(figsize=(8, 6))
 sample = bat_sal[bat_sal['yearID'] == 2015].copy()
-ax.scatter(sample['salary'] / 1e6, sample['OPS'], alpha=0.4, s=20)
+ax.scatter(
+    sample['salary'] / 1e6,  # divide by 1 million so x-axis reads "5.0" not "5000000"
+    sample['OPS'],
+    alpha=0.4,   # semi-transparent points so overlapping dots remain visible
+    s=20         # point size in square points; smaller = less clutter when many points overlap
+)
 ax.set_xlabel('Salary (millions $)')
 ax.set_ylabel('OPS')
 ax.set_title('Salary vs. OPS (2015 season, qualified batters)')
@@ -218,8 +229,16 @@ metrics = qualified[['AB', 'H', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS']].dropna()
 corr = metrics.corr()
 
 fig, ax = plt.subplots(figsize=(8, 6))
-sns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', center=0, ax=ax,
-            square=True, linewidths=0.5)
+sns.heatmap(
+    corr,
+    annot=True,      # print the correlation value inside each cell
+    fmt='.2f',       # format values to 2 decimal places
+    cmap='coolwarm', # diverging color palette: blue=negative, red=positive, white=zero
+    center=0,        # set the neutral color (white) at 0, so negative and positive diverge equally
+    ax=ax,
+    square=True,     # force square cells so the grid looks like a proper matrix
+    linewidths=0.5   # thin lines between cells to improve readability
+)
 ax.set_title('Correlation Matrix — Batting Metrics')
 plt.tight_layout()
 plt.show()
@@ -330,11 +349,18 @@ Faceting breaks a single plot into a grid of subplots, one per group. This is on
 four_decades = qualified[qualified['decade'].isin([1930, 1960, 1990, 2020])].copy()
 four_decades['era'] = four_decades['decade'].astype(str) + 's'
 
-g = sns.FacetGrid(four_decades, col='era', col_wrap=2, height=3.5, aspect=1.3)
-g.map(sns.histplot, 'BA', bins=30, kde=True)
+# FacetGrid creates a grid of subplots, one per unique value of col='era'
+g = sns.FacetGrid(
+    four_decades,
+    col='era',      # one subplot column per era
+    col_wrap=2,     # wrap to a new row after 2 subplots (creates a 2×2 grid)
+    height=3.5,     # height of each subplot in inches
+    aspect=1.3      # width = height × aspect, so each subplot is 4.55" wide
+)
+g.map(sns.histplot, 'BA', bins=30, kde=True)  # apply the same plot type to every subplot
 g.set_axis_labels('Batting Average', 'Count')
-g.set_titles('{col_name}')
-g.figure.suptitle('Batting Average Distribution by Era', y=1.02)
+g.set_titles('{col_name}')   # '{col_name}' is replaced by the actual era value for each panel
+g.figure.suptitle('Batting Average Distribution by Era', y=1.02)  # y>1 moves title above the grid
 plt.tight_layout()
 plt.show()
 ```
@@ -400,4 +426,19 @@ Most points fall above the 1:1 line, indicating that retail sales generally exce
 ::: {.callout-note collapse="true"}
 ## Exercise 3: Faceted trend plot
 Create a faceted line plot showing the annual dependency ratio trend for four Colorado counties of your choice. Use `FacetGrid` or `col_wrap` in seaborn. What similarities and differences do you observe across counties?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 4: Choose and justify a plot type
+For each of the following analytical questions, identify the single most appropriate plot type from the "Choosing the Right Plot" table, explain in one sentence why it is the best choice, and write the code to produce it.
+
+a. *How does the distribution of home runs change from the 1960s to the 2010s?*
+b. *How has the ratio of senior citizens to total population changed in Boulder County from 1990 to 2020?*
+c. *Are at-bats (AB) and home runs (HR) correlated for players in the 2000s?*
+d. *Which Colorado county had the highest per-capita cannabis retail sales in 2022?*
+
+::: {.callout-note collapse="true"}
+## Solution
+a. Grouped box plot or overlaid KDE — comparing distributions across two categorical groups. b. Line plot — a single entity (Boulder County) tracked over time. c. Scatter plot — two numeric variables, looking for a linear relationship. d. Horizontal bar chart — comparing a metric across many named categories (counties), where reading the county names is important.
+:::
 :::

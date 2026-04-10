@@ -71,9 +71,10 @@ The distinction between `COUNT(*)` and `COUNT(col)` is critical. `COUNT(*)` coun
 ```{python}
 pd.read_sql_query("""
     SELECT
-        COUNT(*) AS total_rows,
-        COUNT(year_built) AS non_null_year,
-        COUNT(*) - COUNT(year_built) AS null_year,
+        COUNT(*) AS total_rows,            -- all rows, including NULLs
+        COUNT(year_built) AS non_null_year, -- only rows where year_built is not NULL
+        COUNT(*) - COUNT(year_built) AS null_year,  -- the difference = number of NULLs
+        -- 100.0 forces floating-point division; integer / integer would round to 0 or 1
         ROUND(100.0 * COUNT(year_built) / COUNT(*), 1) AS pct_complete
     FROM buildings;
 """, conn)
@@ -112,10 +113,12 @@ A useful mnemonic: `WHERE` answers "which rows go into the groups?" while `HAVIN
 `CASE WHEN` expressions inside aggregate functions enable conditional counting — the SQL equivalent of `COUNTIF` in a spreadsheet. This is one of the most powerful patterns in SQL.
 
 ```{python}
-# Cross-tab: count buildings by decade and class
+# CASE WHEN inside SUM() is the SQL equivalent of COUNTIF in a spreadsheet:
+# the CASE expression returns 1 when the condition is true, 0 otherwise.
+# Summing these 1s and 0s counts how many rows satisfy each condition.
 pd.read_sql_query("""
     SELECT
-        (year_built / 10) * 10 AS decade,
+        (year_built / 10) * 10 AS decade,  -- integer division truncates, e.g. 1987/10=198, *10=1980
         SUM(CASE WHEN bldg_class = 'R' THEN 1 ELSE 0 END) AS residential,
         SUM(CASE WHEN bldg_class = 'C' THEN 1 ELSE 0 END) AS commercial,
         SUM(CASE WHEN bldg_class NOT IN ('R', 'C') THEN 1 ELSE 0 END) AS other,
@@ -311,6 +314,8 @@ pd.read_sql_query("""
 ## Part 3: Common Table Expressions (CTEs)
 
 A CTE is a named temporary result set defined at the top of a query with `WITH ... AS`. It makes complex queries readable by breaking them into named, sequential steps — the SQL equivalent of assigning intermediate DataFrames to variables in pandas.
+
+The key distinction between a CTE and a subquery is organizational, not functional: both compute the same result, but a CTE gives the intermediate result a name. Use a subquery when the computation is simple and used once. Use a CTE when the intermediate result is complex, used more than once, or when naming it would make the overall query easier to read and audit.
 
 ### The WITH ... AS pattern
 

@@ -75,6 +75,29 @@ If `pd.read_csv()` gives you a `FileNotFoundError`, the problem is almost always
 
 As your projects grow, you will benefit from a version control system like **git**, which tracks every change you make to every file and lets you revert to any previous state. Git is beyond the scope of this book, but knowing it exists shapes how you organize your work. The project structure described above — with raw data separated from outputs, and a README explaining the project — is designed to work naturally with version control.
 
+### `.gitignore`: Files You Do Not Track
+
+If you use git, some files should never be committed to version control: large binary data files, credentials, automatically generated outputs, and system junk files (like `.DS_Store` on Mac). You communicate this to git using a `.gitignore` file — a plain-text list of file patterns to exclude.
+
+A minimal `.gitignore` for a data analysis project looks like this:
+
+```
+# Data files (too large for version control)
+data/raw/
+data/clean/*.csv
+
+# Python artifacts
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+```
+
+Create this file in your project's root directory. Git will ignore any file matching these patterns. The practical effect is that your code is version-controlled, but your data files are not — which is usually the right trade-off for course projects.
+
 If you want to explore git, GitHub provides excellent beginner tutorials, and most data science courses cover it in depth. For now, the discipline of keeping raw data untouched and documenting your workflow in notebooks gives you many of the same benefits.
 
 ## Exercises
@@ -87,4 +110,16 @@ Create a project directory for this course using the structure described above, 
 ::: {.callout-note collapse="true"}
 ## Exercise 2: Naming audit
 Look at the files on your computer's desktop or downloads folder. Identify three file names that violate the naming conventions described in this chapter. For each, write a better name and explain why it is an improvement.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Project audit
+Open an existing project or homework assignment from a previous course. Evaluate it against the criteria in this chapter:
+
+1. Are raw data files separated from cleaned versions and outputs?
+2. Is there a README file? If so, does it explain what the project is, what data it uses, and how to run it?
+3. Are file names descriptive, lowercase, and free of spaces?
+4. Can you tell from the file names alone which notebook you should run first?
+
+Write a one-paragraph assessment of the project's organization and list two specific improvements you would make.
 :::

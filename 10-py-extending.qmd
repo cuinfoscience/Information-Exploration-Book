@@ -47,6 +47,9 @@ A derived column is a new column computed from existing columns using arithmetic
 Batting average is hits divided by at-bats. The formula is simple, but the implementation requires a decision about what to do when at-bats is zero:
 
 ```{python}
+# Replace 0 with NaN before dividing — a player with 0 at-bats has an
+# undefined batting average, not a 0.000 average. Division by zero in
+# pandas returns inf, which would corrupt any downstream calculations.
 batting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))
 
 print('BA stats:')
@@ -76,9 +79,13 @@ On-base percentage measures how frequently a batter reaches base. It uses a form
 $$OBP = \frac{H + BB + HBP}{AB + BB + HBP + SF}$$
 
 ```{python}
+# HBP (hit by pitch) and SF (sacrifice fly) were not tracked in early seasons.
+# Filling with 0 treats "not tracked" as "did not happen" — a documented
+# assumption that should appear in the Known Issues Log.
 batting['HBP'] = batting['HBP'].fillna(0)
 batting['SF'] = batting['SF'].fillna(0)
 
+# Build OBP numerator and denominator separately for readability
 numerator = batting['H'] + batting['BB'] + batting['HBP']
 denominator = batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']
 batting['OBP'] = numerator / denominator
@@ -93,9 +100,12 @@ Notice the `.fillna(0)` calls. The HBP (hit by pitch) and SF (sacrifice fly) col
 Binning transforms a continuous variable into categories. The Colorado population data has single-year ages (0 through 100); we want three demographic bands:
 
 ```{python}
-bins = [0, 18, 65, 101]
+bins = [0, 18, 65, 101]   # bin edges: [0,18), [18,65), [65,101)
 labels = ['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)']
 
+# right=False makes intervals left-inclusive: age 18 belongs to "Working Age",
+# not "Children". Without this, age 18 would fall in [0,18] and be a child.
+# The upper bound 101 includes age 100 (the maximum in this dataset).
 pop['age_band'] = pd.cut(pop['age'], bins=bins, labels=labels, right=False)
 
 print('Age band counts:')
@@ -141,7 +151,9 @@ for col in ['Medical', 'Retail']:
     )
 cannabis = cannabis[cannabis['County'] != 'Total']
 
-# Construct a date column from integer Month and Year
+# pd.to_datetime() accepts a DataFrame with columns named 'year', 'month', 'day'.
+# .assign(Day=1) adds a constant day-of-month (all dates become the 1st of the month).
+# .rename() maps our capitalized column names to the lowercase names pd.to_datetime expects.
 cannabis['date'] = pd.to_datetime(
     cannabis[['Year', 'Month']].assign(Day=1).rename(
         columns={'Year': 'year', 'Month': 'month'}
@@ -156,7 +168,9 @@ print(cannabis[['Month', 'Year', 'date']].head())
 Once parsed as a proper datetime, the column unlocks time-series operations — sorting chronologically, computing time differences, and resampling by period:
 
 ```{python}
-# Quarterly retail sales, statewide
+# .set_index('date') makes the date column the index so resample can use it
+# .resample('QE') groups by quarter-end periods (Q1 ends March 31, etc.)
+# .sum() aggregates all monthly values within each quarter
 quarterly = (
     cannabis
     .set_index('date')

@@ -137,24 +137,176 @@ Cross-check the SQL count against the pandas count — they should match exactly
 
 The same five-stage process applies. The crime data introduces additional challenges: jurisdiction names that do not match county names, nullable columns with complex patterns, and timestamp fields that require careful parsing.
 
+### Inspect
+
 ```{python}
 crime_raw = pd.read_csv('cbi_crime.csv')
 print('Shape:', crime_raw.shape)
 crime_raw.head()
 ```
 
-Run all four diagnostics (missingness, duplicates, inconsistent categories, invalid ranges), clean the data, design a schema, load it, and validate the load.
+#### Missingness
+
+```{python}
+print(crime_raw.isna().sum())
+```
+
+#### Duplicates
+
+```{python}
+# The expected key depends on whether each row is one offense or one report.
+# Check the grain: how many rows share the same (jurisdiction, offense_date, offense_type)?
+key_cols = ['jurisdiction', 'offense_date', 'offense_type']
+print('Duplicates on key:', crime_raw.duplicated(subset=key_cols).sum())
+```
+
+#### Inconsistent categories
+
+```{python}
+# Check jurisdiction names — these do not always map cleanly to county names
+print(crime_raw['jurisdiction'].value_counts().head(15))
+```
+
+```{python}
+# The 'county' column may differ from 'jurisdiction' — check both
+print(crime_raw['county'].value_counts().head(10))
+```
+
+#### Invalid ranges
+
+```{python}
+# Check date column — is it a parseable date string?
+print('offense_date sample:', crime_raw['offense_date'].dropna().head(5).tolist())
+```
+
+### Clean
+
+```{python}
+crime_clean = crime_raw.copy()
+
+# Strip whitespace from all string columns
+for col in crime_clean.select_dtypes(include='object').columns:
+    crime_clean[col] = crime_clean[col].str.strip()
+```
+
+### Design Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS crime (
+    jurisdiction TEXT,
+    offense_date TEXT,
+    offense_type TEXT,
+    county TEXT
+);
+```
+
+### Load
+
+```{python}
+crime_clean.to_csv('crime_clean.csv', index=False)
+```
+
+### Validate
+
+```{python}
+pd.read_sql_query("SELECT COUNT(*) AS n_rows FROM crime;", conn)
+```
+
+```{python}
+pd.read_sql_query("""
+    SELECT county, COUNT(*) AS n
+    FROM crime
+    GROUP BY county
+    ORDER BY n DESC
+    LIMIT 5;
+""", conn)
+```
 
 ## Part 3: Population Estimates
 
+### Inspect
+
 ```{python}
 pop_raw = pd.read_csv('sya-county.csv', skiprows=1, dtype={'countyfips': str})
+# Filter to historical estimates only; 'Forecast' rows are projections, not measurements
 pop_raw = pop_raw[pop_raw['datatype'] == 'Estimate'].copy()
 print('Shape:', pop_raw.shape)
 pop_raw.head()
 ```
 
 The population data has its own quirks: a header row that needs to be skipped, a `datatype` column that mixes estimates and forecasts, and county names in yet another format.
+
+#### Missingness
+
+```{python}
+print(pop_raw.isna().sum())
+```
+
+#### Duplicates
+
+```{python}
+# Each row should be unique on (county, year, age)
+key_cols = ['county', 'year', 'age']
+print('Duplicates on (county, year, age):', pop_raw.duplicated(subset=key_cols).sum())
+```
+
+#### Inconsistent categories
+
+```{python}
+# Note the county name format — bare names like 'Adams', not 'Adams County'
+print(pop_raw['county'].value_counts().head(10))
+```
+
+#### Invalid ranges
+
+```{python}
+print('Year range:', pop_raw['year'].min(), '–', pop_raw['year'].max())
+print('Age range:', pop_raw['age'].min(), '–', pop_raw['age'].max())
+print('Total population sample:')
+print(pop_raw['totalpopulation'].describe())
+```
+
+### Clean
+
+```{python}
+pop_clean = pop_raw.copy()
+
+# Strip any whitespace from text columns
+for col in pop_clean.select_dtypes(include='object').columns:
+    pop_clean[col] = pop_clean[col].str.strip()
+```
+
+### Design Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS population (
+    countyfips TEXT,
+    county TEXT,
+    year INTEGER,
+    age INTEGER,
+    malepopulation INTEGER,
+    femalepopulation INTEGER,
+    totalpopulation INTEGER,
+    datatype TEXT
+);
+```
+
+### Load
+
+```{python}
+pop_clean.to_csv('population_clean.csv', index=False)
+```
+
+### Validate
+
+```{python}
+pd.read_sql_query("SELECT COUNT(*) AS n_rows FROM population;", conn)
+```
+
+```{python}
+# Cross-check: the SQL count should match the pandas count
+print('pandas count:', len(pop_clean))
+```
 
 ## Part 4: The Silent Join Failure
 

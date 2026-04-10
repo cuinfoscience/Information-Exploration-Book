@@ -14,9 +14,97 @@ pd.options.display.max_columns = 100
 import matplotlib.pyplot as plt
 ```
 
-## Loading the Data
+## Completing the Cannabis Load
 
-We will work with Boulder County voter registration data, which arrives as a pipe-delimited text file with a mix of data types, inconsistent categories, and the kinds of quality issues that appear in virtually every real-world dataset.
+Before introducing the voter registration data, we complete the cannabis dataset cleaning started in @sec-py-loading. That chapter used `read_csv` parameters to fix the header, skip footers, and mark `NR` as missing. Four post-load operations remain: fixing column names, stripping whitespace, converting currency strings to numbers, and removing aggregate rows. This dataset is a simple cleaning scenario — each fix can be applied in a single line.
+
+### Fixing column names
+
+The `read_csv` call in @sec-py-loading produced auto-generated integer column names. Replace them with descriptive names:
+
+```{python}
+import pandas as pd
+
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+df.tail()
+```
+
+### Stripping whitespace
+
+County names contain leading or trailing whitespace that would cause join failures later:
+
+```{python}
+df['County'] = df['County'].str.strip()
+```
+
+### Converting currency strings to numbers
+
+The sales columns contain values like `$1,234,567` — dollar signs and commas that prevent numeric operations. The `.str.replace()` method removes them, and `pd.to_numeric()` converts the result:
+
+```{python}
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+df.tail()
+```
+
+::: {.callout-note}
+## The leading-dot style
+Notice the chain of `.str.replace()` calls written on separate lines. This "leading dot" style makes method chains easier to read and debug — you can comment out individual steps to isolate problems.
+:::
+
+### Removing aggregate rows
+
+The dataset includes rows where `County == 'Total'` — monthly statewide totals that would corrupt any county-level analysis:
+
+```{python}
+df = df[df['County'] != 'Total']
+```
+
+### The complete load cell
+
+In a finished notebook, all of these steps belong in a single reproducible cell:
+
+```{python}
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+df['County'] = df['County'].str.strip()
+
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+df = df[df['County'] != 'Total']
+df.tail()
+```
+
+---
+
+## Loading the Voter Registration Data
+
+We now turn to a more complex example. Boulder County voter registration data arrives as a pipe-delimited text file with a mix of data types, inconsistent categories, and the kinds of quality issues that appear in virtually every real-world dataset.
 
 ```{python}
 df = pd.read_csv('boco_voter_data.txt', sep='|')
@@ -303,6 +391,18 @@ def clean_currency_column(df, col_name, new_col_name=None):
 Every cleaning session should produce two documentation artifacts. The **Known Issues Log** records each problem you found, how you fixed it, and what impact the fix had — see @sec-documentation for the full format. The **Data Dictionary** describes every column in the cleaned dataset, including its type, valid values, and any cleaning that was applied.
 
 These are not bureaucratic exercises. They are the only reliable way to remember your decisions when you return to the analysis later or when someone else needs to reproduce your work.
+
+::: {.callout-note}
+## Public Interest Context: Ownership
+
+The Data Dictionary is a provenance record. It documents where the data came from, who collected it, what transformations were applied, and what the columns mean. In a public interest context, this kind of ownership documentation matters for two reasons.
+
+First, it enables reproducibility. Someone else — a colleague, an instructor, a journalist — should be able to reconstruct your analysis from the same sources. If your Data Dictionary records that `party` was normalized using a specific mapping dictionary, and that mapping is in your notebook, the transformation is reproducible. If it is not documented, the cleaning is invisible and unverifiable.
+
+Second, it enables accountability. The voter registration data comes from a specific county clerk's office, exported on a specific date. The cleaning decisions you made — which party codes to consolidate, which rows to treat as duplicates, how to handle missing precincts — are your analytical choices, not facts in the data. Documenting them is how you distinguish your interpretation from the original record.
+
+See @sec-public-interest for the broader framework connecting ownership to public interest data practice.
+:::
 
 ## Exercises
 

@@ -210,6 +210,16 @@ The fix is to standardize county names to a common format before loading, or to 
 
 County name mismatches across sources are not a quirk of these particular datasets — they are a universal pattern. Any time you join data from different sources on a text key, you must verify that the key values actually match before running the join. The diagnostic pattern is: list the distinct values from each table, compare them, and fix any mismatches before joining.
 
+::: {.callout-note}
+## Public Interest Context: Erosion
+
+The three county name formats — `"Adams County, CO"`, `"Adams County"`, `"Adams"` — come from three Colorado government agencies that built their data systems independently, at different times, with no shared naming authority. No one decided to make them incompatible. The mismatch is the accumulated result of decades of decentralized infrastructure development.
+
+This is infrastructure erosion: not a sudden break, but a gradual divergence that only becomes visible when you try to connect the systems. The cost is borne by anyone who wants to analyze these datasets together — which is exactly the analysis you would want to perform if you were studying public health outcomes across Colorado counties.
+
+The standardization work you just did (removing ", CO" and " County") is a technical fix for a governance problem. The fix lives in your notebook; the problem persists in the source systems. See @sec-public-interest for the broader framework.
+:::
+
 ## SQL Functions for Cleaning
 
 Several SQL functions are useful for cleaning operations:
@@ -249,6 +259,57 @@ These four query patterns apply to any table in any database:
 **Inconsistent categories**: `SELECT col, COUNT(*) FROM table GROUP BY col ORDER BY COUNT(*) DESC;`
 
 **Invalid ranges**: `SELECT MIN(col), MAX(col), AVG(col) FROM table;`
+
+## Saving the Cleaned Tables
+
+After validating each dataset, collect the cleaned, analysis-ready versions into a single SQLite database for use in @sec-sql-reshaping. That chapter expects one `deaths` table, one `crime` table, and one `population` table — all in `colorado_public_health.db`, with county names standardized to bare county names (e.g., `Adams`) and all rows validated.
+
+The cleanest approach is to read each table from its source database into a pandas DataFrame, apply the county-name standardization you diagnosed above, and write to the shared database using `to_sql`:
+
+```{python}
+import pandas as pd
+import sqlite3
+
+# Read cleaned tables from their source databases
+conn_deaths = sqlite3.connect('cdc_deaths.db')
+conn_crime = sqlite3.connect('cbi_crime.db')
+conn_pop = sqlite3.connect('population.db')
+
+deaths = pd.read_sql_query("SELECT * FROM deaths", conn_deaths)
+crime = pd.read_sql_query("SELECT * FROM crime", conn_crime)
+population = pd.read_sql_query("SELECT * FROM population", conn_pop)
+
+# Standardize county names to bare format (e.g., "Adams County, CO" -> "Adams")
+deaths['county'] = (deaths['county']
+    .str.replace(r',\s*CO$', '', regex=True)   # remove ", CO"
+    .str.replace(r'\s+County$', '', regex=True) # remove " County"
+    .str.strip()
+)
+
+crime['county'] = (crime['county']
+    .str.replace(r'\s+County$', '', regex=True)
+    .str.strip()
+)
+# population already uses bare county names
+
+# Write to shared database
+conn_ph = sqlite3.connect('colorado_public_health.db')
+deaths.to_sql('deaths', conn_ph, if_exists='replace', index=False)
+crime.to_sql('crime', conn_ph, if_exists='replace', index=False)
+population.to_sql('population', conn_ph, if_exists='replace', index=False)
+
+print("Tables written to colorado_public_health.db:")
+for tbl in ['deaths', 'crime', 'population']:
+    n = pd.read_sql_query(f"SELECT COUNT(*) AS n FROM {tbl}", conn_ph).iloc[0, 0]
+    print(f"  {tbl}: {n:,} rows")
+
+conn_deaths.close(); conn_crime.close(); conn_pop.close(); conn_ph.close()
+```
+
+::: {.callout-tip}
+## Why not write directly from SQL?
+SQLite does not have a built-in cross-database `INSERT INTO ... SELECT FROM` for different `.db` files. The pandas round-trip (read into DataFrame, standardize, write back) is the practical approach for consolidating multiple source databases into one analysis database.
+:::
 
 ## Exercises
 

@@ -1,6 +1,6 @@
 # Project Organization {#sec-projects}
 
-A well-organized project is one you can return to after six months and understand immediately. It is also one that someone else — a collaborator, an instructor, a future employer reviewing your portfolio — can open and navigate without asking you questions. This chapter introduces a simple project structure that scales from a homework assignment to a professional analysis.
+A well-organized project is one you can return to after six months and understand immediately. It is also one that someone else — a collaborator, an instructor, a future employer reviewing your portfolio — can open and navigate without asking you questions. This chapter introduces a simple project structure that scales from a homework assignment to a professional analysis. The terminal commands from @sec-terminal — `mkdir`, `cd`, `ls` — are how you create and navigate this structure from the command line.
 
 ## Why Structure Matters
 
@@ -36,7 +36,7 @@ Be specific. `data.csv` tells you nothing. `colorado-cannabis-sales-by-county-20
 
 ## The README File
 
-Every project should have a `README.md` file in its root directory. This file answers three questions: what is this project about, what data does it use, and how do you run it. A minimal README for a course project might look like this:
+Every project should have a `README.md` file in its root directory. This file answers three questions: what is this project about, what data does it use, and how do you run it. Writing README files and keeping a Known Issues Log are part of the broader documentation practices described in @sec-documentation. A minimal README for a course project might look like this:
 
 ```markdown
 # Cannabis Sales Analysis
@@ -58,7 +58,7 @@ Writing this file takes five minutes and makes your project immediately legible 
 
 ## Working Directories and File Paths in Notebooks
 
-When you open a Jupyter notebook, it runs in the directory where the notebook file lives. If your notebook is in `my_project/notebooks/` and your data is in `my_project/data/raw/`, you need a relative path that goes up one level and then down into `data`:
+When you open a Jupyter notebook, it runs in the directory where the notebook file lives. Your Python environment — and whether commands like `python` and `jupyter` are available from the terminal — must be configured correctly before notebooks will run; see @sec-environments for setup instructions. If your notebook is in `my_project/notebooks/` and your data is in `my_project/data/raw/`, you need a relative path that goes up one level and then down into `data`:
 
 ```python
 df = pd.read_csv('../data/raw/cannabis_sales.csv')
@@ -81,7 +81,7 @@ If you want to explore git, GitHub provides excellent beginner tutorials, and mo
 
 ::: {.callout-note collapse="true"}
 ## Exercise 1: Set up a project
-Create a project directory for this course using the structure described above. Add a `README.md` that describes the project. Download one of the course datasets into `data/raw/`. Create a notebook in `notebooks/` that loads the dataset using a relative path and prints its shape.
+Create a project directory for this course using the structure described above, using the `mkdir` and `cd` commands from @sec-terminal. Add a `README.md` that describes the project. Download one of the course datasets into `data/raw/`. Create a notebook in `notebooks/` that loads the dataset using a relative path and prints its shape.
 :::
 
 ::: {.callout-note collapse="true"}

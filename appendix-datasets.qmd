@@ -153,7 +153,7 @@ Population estimates by county, year, and single year of age (0 through 100). In
 - The first row of the CSV is a metadata header. Use `skiprows=1` in `read_csv`.
 - `countyfips` has leading zeros and should be loaded as a string.
 - The `datatype` column distinguishes historical estimates from projections. Filter to `Estimate` rows for historical analysis.
-- County names use bare names (e.g., `Adams`, not `Adams County`). This format differs from the CDC and CBI datasets and must be standardized before joining.
+- County names use bare names (e.g., `Adams`, not `Adams County`). This format differs from the CDC and CBI datasets and must be standardized before joining. The standardization process and its consequences are demonstrated in @sec-sql-cleaning and @sec-sql-reshaping.
 - Contains a `DtypeWarning` on some columns due to mixed types.
 
 ## CDC WONDER — Underlying Cause of Death
@@ -175,7 +175,7 @@ Colorado mortality counts by county, year, age group, and ICD-10 chapter (broad 
 
 **Known quirks:**
 
-- County names are in the format `'Adams County, CO'`. This must be standardized to match other datasets.
+- County names are in the format `'Adams County, CO'`. This must be standardized to match other datasets; see @sec-sql-cleaning for the cleaning workflow.
 - Death counts below 10 may be suppressed for privacy. The value appears as `Suppressed` rather than a number.
 - `Unreliable` flags appear for counts based on small numbers.
 
@@ -197,7 +197,7 @@ Reported criminal offenses by jurisdiction, date, and offense type.
 
 **Known quirks:**
 
-- County names use the format `'Adams County'` (with " County" suffix but without state abbreviation). Must be standardized before joining with other sources.
+- County names use the format `'Adams County'` (with " County" suffix but without state abbreviation). Must be standardized before joining with other sources; see @sec-sql-cleaning and @sec-sql-reshaping.
 - Jurisdiction names do not always map cleanly to county names — some jurisdictions are municipal police departments rather than county sheriff offices.
 - Multiple NULL patterns across columns; different columns use different conventions for missing data.
 

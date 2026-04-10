@@ -38,6 +38,7 @@ book:
         - ch-hypothesis-testing.qmd
   appendices:
     - appendix-datasets.qmd
+    - appendix-llm-methods.qmd
 
 format:
   html:

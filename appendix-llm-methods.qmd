@@ -1,0 +1,97 @@
+# AI Use Disclosure {#sec-ai-disclosure .unnumbered}
+
+This appendix discloses the role of large language models (LLMs) in producing this book and discusses the methodological, epistemological, and ethical implications of that role. It is written in the spirit of the emerging disclosure standards in scholarly publishing and journalism: not as a legal disclaimer, but as a substantive account that a careful reader can use to evaluate the text.
+
+## Why This Disclosure Exists
+
+When readers encounter a textbook, they make reasonable assumptions: that a named author wrote the sentences, that examples were chosen for pedagogical reasons the author can explain, that errors are the author's errors and can be traced back to a source decision. AI involvement in content production complicates each of these assumptions. This appendix addresses that complication directly.
+
+The standards informing this disclosure include the Artificial Intelligence Disclosure (AID) Framework developed by Weaver [-@weaver2024aid], which adapts the [CRediT contributor taxonomy](https://credit.niso.org/) to AI tool use; the STM Association's recommendations for classifying AI use in manuscript preparation [-@stm2025classification]; and transparency principles from the Associated Press [-@ap2023ai] and journalism research [-@journalistsresource2024audiences] on communicating AI use to audiences. Each of these frameworks emphasizes that disclosure should be specific enough to be informative and honest enough to support independent evaluation.
+
+## Source Materials
+
+This book grew out of five years of course materials developed for INFO 3401: Information Exploration at the University of Colorado Boulder. The source materials that preceded and informed the book include:
+
+- **Jupyter notebooks** — functional, executable notebooks developed semester by semester, containing Python and SQL code, narrative markdown cells, and inline commentary explaining pedagogical choices. These notebooks are the authoritative technical record for every code example in the book.
+- **Lecture slides** — slide decks from recorded class sessions covering conceptual framing, worked examples, and discussion prompts.
+- **Problem sets and assessments** — homework assignments, in-class exercises, and exam questions that informed the exercise structure.
+- **Course discussion records** — anonymized transcripts and notes from office hours and course forums that identified the questions students most frequently asked and the misconceptions they most frequently held.
+
+All datasets used in the book were assembled and documented before the AI-assisted writing process began. The `appendix-datasets.qmd` chapter reflects the author's direct knowledge of each dataset's source, structure, and known quirks accumulated through repeated use in the classroom.
+
+## What LLMs Were Used For
+
+This book was written with assistance from Claude, an LLM developed by Anthropic. Using the AID Framework's activity taxonomy as a guide, the following categories of use apply:
+
+**Writing — Original Draft.** The primary AI contribution was converting source notebook content into book chapter prose. The Jupyter notebooks contained the code, the logic, and often sentence-length explanatory comments; Claude converted these into fully articulated chapter narratives with section structure, transitional prose, and pedagogical framing. The resulting drafts were reviewed, revised, and approved by the author.
+
+**Writing — Review and Editing.** Claude was used to revise specific sections — rewriting chapter introductions when chapters moved in the book's structure, adding bridge paragraphs between sections, and improving transitions. All such revisions were proposed by Claude and approved or further revised by the author.
+
+**Conceptualization.** For content not derived from existing course materials — specifically the public interest data science framework in @sec-public-interest — the author provided a conceptual description and bibliographic pointers, and Claude elaborated this into chapter content. The three dynamics (enclosure, erosion, exemption) and three pillars (openness, oversight, ownership) reflect the author's framework; the examples connecting that framework to course datasets were jointly developed.
+
+**Information Collection.** Claude drew on its training data for several types of content: framing the Load–Clean–Extend–Reshape workflow in plain-language terms, summarizing database concepts, and characterizing statistical methods. Because Claude's training data has a knowledge cutoff and may contain errors, all factual claims about software behavior, statistical properties, and data sources were verified against primary documentation by the author.
+
+**Structural Editing.** Later in the production process, Claude was used to implement structural reorganization decisions — moving chapters between parts of the book, adding cross-references, and redistributing content across chapter boundaries. These changes were specified by the author through iterative review and implemented by Claude as a structured editing task.
+
+The following categories from the AID Framework were **not** applicable or were handled entirely by the author without AI assistance:
+
+- **Data Collection / Execution**: All datasets were identified, downloaded, and documented by the author from primary sources.
+- **Data Analysis**: The analytical approaches demonstrated in the book reflect the author's disciplinary judgment; Claude did not select methods.
+- **Data Curation**: Dataset documentation in the appendix was written by the author.
+- **Visualization**: No AI image or figure generation was used; all visualizations are generated from code.
+
+## What the Author Is Responsible For
+
+The author reviewed every chapter before publication. Responsibility for the book's contents rests with the author in all respects:
+
+- **All code examples** were drawn from or validated against working course notebooks. If a code example produces incorrect output when executed, that is an error the author is accountable for.
+- **All factual claims** about Python, pandas, SQL, and statistical methods were reviewed against primary documentation. LLM-generated factual claims that were not independently verified were removed or corrected.
+- **All pedagogical decisions** — which topics to include, which datasets to use, what constitutes a useful exercise, how to sequence concepts — reflect the author's judgment formed through years of teaching this material.
+- **All framing and interpretation** — the public interest framework, the choice to introduce research questions before technical material, the emphasis on silent errors and validation — reflect the author's intellectual commitments, not defaults produced by an AI system.
+
+## Limitations This Workflow Creates
+
+Readers should be aware of several limitations that follow from AI-assisted prose generation:
+
+**Fluency without correctness.** LLMs produce grammatically coherent, confident-sounding prose even when the underlying claim is wrong. The author reviewed drafts for factual accuracy, but not all errors are catchable on review. If you find a technical error in this book, please report it via the GitHub repository's issue tracker.
+
+**Averaging over sources.** LLMs generate text by drawing on statistical patterns in training data, which means AI-drafted explanations tend toward consensus descriptions rather than precise technical definitions. In some cases — particularly for edge cases in pandas behavior, SQL semantics, or statistical assumptions — the "standard" explanation is subtly wrong in ways that matter for programming. Code cells should always be treated as more authoritative than prose explanations; when they conflict, trust the code.
+
+**Voice consistency.** The book was written across multiple AI-assisted sessions. The prose voice may vary across chapters more than a single-author text written in one sustained effort. The author worked to normalize this in review, but variation may persist.
+
+**Exercise quality.** Exercises were partly generated by Claude and partly drawn from existing course problem sets. AI-generated exercises have been reviewed for correctness but may occasionally have ambiguous instructions or unintended solution paths. If an exercise seems broken, it may be.
+
+**The disclosure chapter is itself AI-assisted.** This appendix was drafted by Claude based on the author's description of the workflow and the disclosure frameworks provided. The author reviewed and revised it. The recursive nature of this situation — an LLM disclosing LLM use — is acknowledged rather than papered over.
+
+## How to Evaluate the Text
+
+Several practices can help you evaluate this book's content given its production method:
+
+**Run the code.** The code cells are the ground truth. Any claim made in prose that can be tested by running code should be tested. The repository includes a `data/` directory with all course datasets; every code example in the book should execute without modification when the working directory is set correctly.
+
+**Compare against primary documentation.** For Python syntax and pandas behavior, the authoritative sources are the [pandas documentation](https://pandas.pydata.org/docs/) and [Python documentation](https://docs.python.org). For SQL semantics, consult the [SQLite documentation](https://www.sqlite.org/docs.html). For statistical methods, consult a statistics textbook. This book's prose explanations should be consistent with those sources; where they diverge, the primary documentation is correct.
+
+**Treat descriptions of tradeoffs skeptically.** LLMs are prone to generating balanced-sounding descriptions that present multiple options as equally valid when one is clearly preferable, or that oversimplify tradeoffs. Claims about when to use one method versus another should be evaluated against additional sources.
+
+**Report errors.** The book's GitHub repository is at <https://github.com/cuinfoscience/Information-Exploration-Book>. Issues can be filed at any time and will be addressed in subsequent revisions. Noting the specific claim, the chapter, and (if applicable) the correct information is the most useful form of error report.
+
+## On Authorship and Transparency
+
+The disclosure frameworks cited at the start of this appendix were designed primarily for journal articles, where questions of authorship carry formal weight — determining credit, accountability, and research integrity. A textbook is a different genre. Its purpose is pedagogical rather than knowledge-claiming; its relationship to originality is different; the standards of accountability are both more and less demanding in different ways.
+
+What this book asserts is not "I, the author, wrote every word." It asserts: "The intellectual framework, pedagogical judgments, source materials, code examples, and dataset expertise in this book are the author's. The prose that communicates them was produced collaboratively with an AI tool, reviewed by the author, and is the author's responsibility." That is a different claim from either "AI wrote this book" or "AI merely cleaned up grammar." It is an honest description of a production process that is becoming common in technical and educational writing and that deserves its own vocabulary — which these emerging frameworks are beginning to provide.
+
+The author's name on the cover reflects intellectual ownership and accountability, not the claim of having typed every sentence. The reader's ability to evaluate that claim depends on disclosures like this one existing and being read.
+
+## References for This Appendix
+
+::: {#refs-ai-disclosure}
+:::
+
+Weaver, K. D. (2024). The Artificial Intelligence Disclosure (AID) Framework: An introduction. *College & Research Libraries News*, 85(9). <https://crln.acrl.org/index.php/crlnews/article/view/26548>
+
+STM Association. (2025). *Recommendations for a classification of AI use in academic manuscript preparation*. <https://stm-assoc.org/document/recommendations-for-a-classification-of-ai-use-in-academic-manuscript-preparation/>
+
+Associated Press. (2023). Standards around generative AI. <https://www.ap.org/the-definitive-source/behind-the-news/standards-around-generative-ai/>
+
+Journalists' Resource. (2024). AI use in news: What audiences want disclosed. <https://journalistsresource.org/media/ai-use-news-what-audiences-disclose/>

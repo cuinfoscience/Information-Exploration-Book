@@ -1,6 +1,8 @@
 # Research Questions and Study Designs {#sec-research-questions}
 
-The previous parts of this book taught you to load, clean, extend, and reshape data. Those are essential mechanical skills. But mechanics alone do not produce insight — you also need to ask the right questions and understand what your data can and cannot tell you. This chapter introduces the conceptual vocabulary for formulating research questions with tabular data, recognizing the structure of the comparisons your data supports, and identifying the limitations that prevent you from drawing conclusions the data does not warrant.
+The technical chapters ahead teach you to load, clean, extend, and reshape data. Those are essential mechanical skills. But mechanics alone do not produce insight — you also need to ask the right questions and understand what your data can and cannot tell you. This chapter introduces the conceptual vocabulary for formulating research questions with tabular data, recognizing the structure of the comparisons your data supports, and identifying the limitations that prevent you from drawing conclusions the data does not warrant.
+
+Reading this chapter first — before writing a line of pandas or SQL — gives you a frame for the technical work ahead. The datasets you will use, and the analyses you will eventually run, are shaped by the questions you are trying to answer.
 
 None of this requires new code. It requires new thinking.
 

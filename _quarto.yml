@@ -17,6 +17,7 @@ book:
         - ch-documentation.qmd
         - ch-environments.qmd
         - ch-errors.qmd
+        - ch-research-questions.qmd
     - part: "Python"
       chapters:
         - ch-py-loading.qmd
@@ -31,7 +32,6 @@ book:
         - ch-sql-reshaping.qmd
     - part: "Analysis"
       chapters:
-        - ch-research-questions.qmd
         - ch-descriptive.qmd
         - ch-visualization.qmd
         - ch-hypothesis-testing.qmd

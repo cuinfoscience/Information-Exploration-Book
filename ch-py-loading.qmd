@@ -38,6 +38,16 @@ Something is wrong. The real column headers appear to be on row 2, not row 0. Th
 
 This is a common pattern with government data — the files are formatted for human reading, not for machine ingestion. Your job is to tell pandas how to read the file correctly.
 
+::: {.callout-note}
+## Public Interest Context: Enclosure by Design
+
+The cannabis sales file is technically public — it is published by a Colorado state agency and freely downloadable. But its formatting serves a different audience than you. The two-row title block, the eight-row footnote section, and the currency-formatted numbers are there because the file was designed for humans reading it in Excel, not for analysts loading it into pandas.
+
+This pattern — public data formatted for display, not for analysis — is common in government publishing. It is a form of enclosure: the data exists, but accessing it programmatically requires significant additional work. That work is unevenly distributed; people with fewer technical resources find it harder to use the same public data.
+
+The `NR` values in the sales columns are a different form of enclosure. The Colorado Department of Revenue suppresses sales figures for counties with fewer than three active licensees, citing privacy protection for those businesses. The policy is legitimate, but the result is that the counties with the least cannabis activity — often smaller, rural counties — are also the ones with the least data. See @sec-public-interest for the broader framework.
+:::
+
 ## The Post-Load Checklist
 
 Before you touch any data, run through this checklist. It takes less than a minute and catches the majority of loading problems.

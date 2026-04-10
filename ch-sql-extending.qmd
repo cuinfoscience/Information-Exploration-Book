@@ -127,6 +127,34 @@ pd.read_sql_query("""
 """, conn)
 ```
 
+### Working with Dates in SQL: `strftime()`
+
+Government datasets often store dates as separate integer columns rather than a single date column. The cannabis sales data stores `month` and `year` as separate integers. SQL can reconstruct a date string from these using `strftime()` and string concatenation.
+
+```{python}
+# First, load the cleaned cannabis data if you have it
+cannabis_conn = sqlite3.connect('boulder_buildings.db')  # reuse same connection
+
+pd.read_sql_query("""
+    SELECT
+        strftime('%Y-Q', year || '-' || printf('%02d', month) || '-01') AS quarter,
+        SUM(retail_sales) AS total_retail,
+        COUNT(DISTINCT county) AS n_counties
+    FROM cannabis_sales
+    WHERE county != 'Total'
+    GROUP BY quarter
+    ORDER BY quarter
+    LIMIT 12;
+""", conn)
+```
+
+`printf('%02d', month)` left-pads the month integer with a zero so that `3` becomes `03`. SQLite's `strftime()` then accepts the reconstructed date string `'YYYY-MM-DD'` and formats it however you need.
+
+::: {.callout-tip}
+## SQLite date functions are string-based
+Unlike PostgreSQL or MySQL, SQLite has no native `DATE` type. Dates are stored as text, integer, or real values, and `strftime()` operates on text in ISO format (`YYYY-MM-DD`). As long as your date strings are in that format, `strftime()` gives you full access to year, month, quarter, day-of-week, and Julian day calculations.
+:::
+
 ## Part 1 Exercises
 
 ::: {.callout-note collapse="true"}

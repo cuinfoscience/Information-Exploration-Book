@@ -121,6 +121,59 @@ print('Decades:')
 print(batting['decade'].value_counts().sort_index())
 ```
 
+### Parsing Dates: Cannabis Sales
+
+Government datasets frequently store dates as separate integer columns — `Month` and `Year` rather than a single date column. The cannabis sales data is a typical example. `pd.to_datetime()` can reconstruct a proper datetime from integer month and year values:
+
+```{python}
+cannabis = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+cannabis.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+cannabis['County'] = cannabis['County'].str.strip()
+for col in ['Medical', 'Retail']:
+    cannabis[col] = pd.to_numeric(
+        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False)
+    )
+cannabis = cannabis[cannabis['County'] != 'Total']
+
+# Construct a date column from integer Month and Year
+cannabis['date'] = pd.to_datetime(
+    cannabis[['Year', 'Month']].assign(Day=1).rename(
+        columns={'Year': 'year', 'Month': 'month'}
+    )
+)
+
+print(cannabis[['Month', 'Year', 'date']].head())
+```
+
+`pd.to_datetime()` accepts a DataFrame with `year`, `month`, and `day` columns. The `.assign(Day=1)` adds a constant day-of-month, and `.rename()` converts the column names to lowercase as required.
+
+Once parsed as a proper datetime, the column unlocks time-series operations — sorting chronologically, computing time differences, and resampling by period:
+
+```{python}
+# Quarterly retail sales, statewide
+quarterly = (
+    cannabis
+    .set_index('date')
+    ['Retail']
+    .resample('QE')
+    .sum()
+)
+
+print(quarterly.tail(8))
+```
+
+::: {.callout-tip}
+## Storing dates as integers is not a mistake
+
+Storing month and year as separate integer columns is a deliberate design in many government systems — it makes SQL filtering straightforward (`WHERE year = 2022`) without requiring date functions. When you encounter this pattern, `pd.to_datetime()` with `assign(Day=1)` is the standard reconstruction approach.
+:::
+
 ## Grouped Summaries
 
 The `groupby()` → `agg()` pattern is the programmatic equivalent of a spreadsheet pivot table. It splits the data into groups, applies an aggregation function to each group, and combines the results.

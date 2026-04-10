@@ -252,3 +252,22 @@ Residential property sales records.
 - `ACCOUNTNO` has trailing whitespace that must be stripped.
 - `SALE_PRICE` contains currency formatting and non-numeric values like `PRIVATE SALE`.
 - Multiple rows per `ACCOUNTNO` (representing different sale transactions over time).
+
+---
+
+::: {.callout-note}
+## Public Interest Context: Exemption
+
+The datasets described in this appendix represent what is publicly available — what agencies have chosen to publish, in the formats they chose to publish it. That is a narrower set than what exists or what would be useful for public accountability.
+
+Noticeably absent from what is publicly available at a useful granularity:
+
+- **Housing displacement records** at the parcel level — public records exist, but parcel-level linkage to eviction or code enforcement actions is rarely published.
+- **Policing data at the incident level** — Colorado requires some reporting, but stop-and-frisk data, use-of-force details, and officer-level records are inconsistently available across jurisdictions.
+- **Detention and incarceration populations** — county jail populations are not systematically published in machine-readable form.
+- **Environmental health data** — air quality monitoring stations cover urban centers but are sparse in rural counties and on Tribal lands.
+
+Exemption — data that does not exist publicly, or is not released — is itself a data quality problem. The questions you cannot answer because the data is missing are often the most important ones to ask.
+
+When you finish an analysis, it is worth asking: what would you study if you had access to data that is not currently available? That question is as analytically important as what you did study. See @sec-public-interest for the broader framework.
+:::

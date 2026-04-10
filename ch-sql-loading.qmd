@@ -54,6 +54,14 @@ The SQL workflow in this chapter depends on the Python workflow from @sec-py-loa
 
 SQLite's `.import` command expects a clean, rectangular CSV with exactly one header row and no aggregate rows. The standard approach is to clean the file in pandas first — applying the same operations from @sec-py-cleaning — and export a clean CSV for SQLite to consume.
 
+::: {.callout-note}
+## Public Interest Context: Enclosure by Interface
+
+The fact that you must clean the cannabis file in pandas before SQLite can import it is not a coincidence. Government datasets are typically published through web portals designed for human download — one file at a time, formatted for spreadsheet users. The data is technically open, but the publishing workflow is optimized for a different kind of user than you.
+
+This is a specific form of enclosure: access is possible, but it requires enough technical skill to navigate the formatting. The more agencies publish machine-readable APIs or consistently formatted CSV files with documented schemas, the more equitably public data can be used. See @sec-public-interest for the broader framework.
+:::
+
 ```{python}
 import pandas as pd
 import numpy as np

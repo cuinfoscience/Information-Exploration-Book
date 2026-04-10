@@ -210,6 +210,16 @@ The fix is to standardize county names to a common format before loading, or to 
 
 County name mismatches across sources are not a quirk of these particular datasets — they are a universal pattern. Any time you join data from different sources on a text key, you must verify that the key values actually match before running the join. The diagnostic pattern is: list the distinct values from each table, compare them, and fix any mismatches before joining.
 
+::: {.callout-note}
+## Public Interest Context: Erosion
+
+The three county name formats — `"Adams County, CO"`, `"Adams County"`, `"Adams"` — come from three Colorado government agencies that built their data systems independently, at different times, with no shared naming authority. No one decided to make them incompatible. The mismatch is the accumulated result of decades of decentralized infrastructure development.
+
+This is infrastructure erosion: not a sudden break, but a gradual divergence that only becomes visible when you try to connect the systems. The cost is borne by anyone who wants to analyze these datasets together — which is exactly the analysis you would want to perform if you were studying public health outcomes across Colorado counties.
+
+The standardization work you just did (removing ", CO" and " County") is a technical fix for a governance problem. The fix lives in your notebook; the problem persists in the source systems. See @sec-public-interest for the broader framework.
+:::
+
 ## SQL Functions for Cleaning
 
 Several SQL functions are useful for cleaning operations:

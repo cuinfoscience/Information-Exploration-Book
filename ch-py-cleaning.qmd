@@ -14,9 +14,97 @@ pd.options.display.max_columns = 100
 import matplotlib.pyplot as plt
 ```
 
-## Loading the Data
+## Completing the Cannabis Load
 
-We will work with Boulder County voter registration data, which arrives as a pipe-delimited text file with a mix of data types, inconsistent categories, and the kinds of quality issues that appear in virtually every real-world dataset.
+Before introducing the voter registration data, we complete the cannabis dataset cleaning started in @sec-py-loading. That chapter used `read_csv` parameters to fix the header, skip footers, and mark `NR` as missing. Four post-load operations remain: fixing column names, stripping whitespace, converting currency strings to numbers, and removing aggregate rows. This dataset is a simple cleaning scenario — each fix can be applied in a single line.
+
+### Fixing column names
+
+The `read_csv` call in @sec-py-loading produced auto-generated integer column names. Replace them with descriptive names:
+
+```{python}
+import pandas as pd
+
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+df.tail()
+```
+
+### Stripping whitespace
+
+County names contain leading or trailing whitespace that would cause join failures later:
+
+```{python}
+df['County'] = df['County'].str.strip()
+```
+
+### Converting currency strings to numbers
+
+The sales columns contain values like `$1,234,567` — dollar signs and commas that prevent numeric operations. The `.str.replace()` method removes them, and `pd.to_numeric()` converts the result:
+
+```{python}
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+df.tail()
+```
+
+::: {.callout-note}
+## The leading-dot style
+Notice the chain of `.str.replace()` calls written on separate lines. This "leading dot" style makes method chains easier to read and debug — you can comment out individual steps to isolate problems.
+:::
+
+### Removing aggregate rows
+
+The dataset includes rows where `County == 'Total'` — monthly statewide totals that would corrupt any county-level analysis:
+
+```{python}
+df = df[df['County'] != 'Total']
+```
+
+### The complete load cell
+
+In a finished notebook, all of these steps belong in a single reproducible cell:
+
+```{python}
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+df['County'] = df['County'].str.strip()
+
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+df = df[df['County'] != 'Total']
+df.tail()
+```
+
+---
+
+## Loading the Voter Registration Data
+
+We now turn to a more complex example. Boulder County voter registration data arrives as a pipe-delimited text file with a mix of data types, inconsistent categories, and the kinds of quality issues that appear in virtually every real-world dataset.
 
 ```{python}
 df = pd.read_csv('boco_voter_data.txt', sep='|')

@@ -250,6 +250,57 @@ These four query patterns apply to any table in any database:
 
 **Invalid ranges**: `SELECT MIN(col), MAX(col), AVG(col) FROM table;`
 
+## Saving the Cleaned Tables
+
+After validating each dataset, collect the cleaned, analysis-ready versions into a single SQLite database for use in @sec-sql-reshaping. That chapter expects one `deaths` table, one `crime` table, and one `population` table — all in `colorado_public_health.db`, with county names standardized to bare county names (e.g., `Adams`) and all rows validated.
+
+The cleanest approach is to read each table from its source database into a pandas DataFrame, apply the county-name standardization you diagnosed above, and write to the shared database using `to_sql`:
+
+```{python}
+import pandas as pd
+import sqlite3
+
+# Read cleaned tables from their source databases
+conn_deaths = sqlite3.connect('cdc_deaths.db')
+conn_crime = sqlite3.connect('cbi_crime.db')
+conn_pop = sqlite3.connect('population.db')
+
+deaths = pd.read_sql_query("SELECT * FROM deaths", conn_deaths)
+crime = pd.read_sql_query("SELECT * FROM crime", conn_crime)
+population = pd.read_sql_query("SELECT * FROM population", conn_pop)
+
+# Standardize county names to bare format (e.g., "Adams County, CO" -> "Adams")
+deaths['county'] = (deaths['county']
+    .str.replace(r',\s*CO$', '', regex=True)   # remove ", CO"
+    .str.replace(r'\s+County$', '', regex=True) # remove " County"
+    .str.strip()
+)
+
+crime['county'] = (crime['county']
+    .str.replace(r'\s+County$', '', regex=True)
+    .str.strip()
+)
+# population already uses bare county names
+
+# Write to shared database
+conn_ph = sqlite3.connect('colorado_public_health.db')
+deaths.to_sql('deaths', conn_ph, if_exists='replace', index=False)
+crime.to_sql('crime', conn_ph, if_exists='replace', index=False)
+population.to_sql('population', conn_ph, if_exists='replace', index=False)
+
+print("Tables written to colorado_public_health.db:")
+for tbl in ['deaths', 'crime', 'population']:
+    n = pd.read_sql_query(f"SELECT COUNT(*) AS n FROM {tbl}", conn_ph).iloc[0, 0]
+    print(f"  {tbl}: {n:,} rows")
+
+conn_deaths.close(); conn_crime.close(); conn_pop.close(); conn_ph.close()
+```
+
+::: {.callout-tip}
+## Why not write directly from SQL?
+SQLite does not have a built-in cross-database `INSERT INTO ... SELECT FROM` for different `.db` files. The pandas round-trip (read into DataFrame, standardize, write back) is the practical approach for consolidating multiple source databases into one analysis database.
+:::
+
 ## Exercises
 
 ::: {.callout-note collapse="true"}

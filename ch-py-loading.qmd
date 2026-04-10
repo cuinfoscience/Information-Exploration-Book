@@ -125,91 +125,16 @@ Notice the pattern above: you load the file, check the result, add a parameter t
 
 In a finished notebook, you would consolidate everything into a single cell. But when you are first working with a new dataset, spread the steps across multiple cells so you can see the effect of each parameter.
 
-## Cleaning During Load vs. After Load
+## What the Parameters Fixed — and What Remains
 
-Some cleaning can happen at load time through `read_csv` parameters (`header`, `skipfooter`, `na_values`). Other cleaning — renaming columns, stripping currency symbols, filtering out aggregate rows — happens after loading.
-
-For the cannabis data, the post-load cleaning involves fixing column names, removing whitespace from county names, converting dollar-formatted strings to numbers, and filtering out the "Total" rows.
-
-### Fixing column names
-
-```{python}
-df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
-df.tail()
-```
-
-### Stripping whitespace
-
-```{python}
-df['County'] = df['County'].str.strip()
-```
-
-### Converting currency strings to numbers
-
-The sales columns contain values like `$1,234,567` — dollar signs and commas that prevent numeric operations. The `.str.replace()` method removes them, and `pd.to_numeric()` converts the result:
-
-```{python}
-for col in ['Medical', 'Retail']:
-    df[col] = pd.to_numeric(
-        df[col]
-        .str.replace('$', '', regex=False)
-        .str.replace(',', '', regex=False)
-    )
-
-df.tail()
-```
+The `read_csv` parameters handle structural problems at the boundary between file and DataFrame: they put the header in the right place, skip rows that are not data, and mark sentinel values as missing. Run the checklist again to see what they accomplished:
 
 ::: {.callout-note}
-## The leading-dot style
-Notice the chain of `.str.replace()` calls written on separate lines. This "leading dot" style makes method chains easier to read and debug — you can comment out individual steps to isolate problems.
+## From loading to cleaning
+The column names, currency formatting, and statewide aggregate rows still need attention. Those are post-load cleaning operations — renaming columns, stripping currency symbols, filtering rows — covered in @sec-py-cleaning, which begins by completing this dataset before moving to more complex cleaning scenarios.
 :::
 
-### Removing aggregate rows
-
-The dataset includes rows where `County == 'Total'` — these are monthly statewide totals that would corrupt any county-level analysis. Remove them with boolean indexing:
-
-```{python}
-df = df[df['County'] != 'Total']
-```
-
-## The Complete Load Cell
-
-In a finished notebook, all of these steps belong in a single cell that someone can run to reproduce the clean DataFrame from the raw file:
-
-```{python}
-# Read in skipping headers, footers, and NRs
-df = pd.read_csv(
-    'colorado_cannabis_sales_by_county.csv',
-    header=2,
-    skipfooter=8,
-    engine='python',
-    na_values=['NR']
-)
-
-# Rename columns
-df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
-
-# Strip random whitespace
-df['County'] = df['County'].str.strip()
-
-# Convert sales volumes to numeric
-for col in ['Medical', 'Retail']:
-    df[col] = pd.to_numeric(
-        df[col]
-        .str.replace('$', '', regex=False)
-        .str.replace(',', '', regex=False)
-    )
-
-# Remove annual totals
-df = df[df['County'] != 'Total']
-
-# Inspect
-df.tail()
-```
-
-## Running the Full Checklist
-
-Now apply the post-load checklist to the cleaned DataFrame:
+## Running the Post-Load Checklist
 
 ```{python}
 print('Shape:', df.shape)

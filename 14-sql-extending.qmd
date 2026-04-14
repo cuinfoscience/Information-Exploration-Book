@@ -1,10 +1,26 @@
 # Extending Data with SQL {#sec-sql-extending}
 
-Loading and cleaning produce reliable tables. Extending transforms those tables into answers. This chapter introduces the SQL tools for computing metrics and testing analytical claims: `GROUP BY` with aggregate functions, subqueries that embed one query inside another, and Common Table Expressions (CTEs) that name intermediate results for clarity and reuse. Together, these tools let you write complex analytical pipelines entirely in SQL — pipelines that are readable, auditable, and reproducible.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Write `GROUP BY` queries using SQLite's [aggregate functions](https://www.sqlite.org/lang_aggfunc.html) (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP_CONCAT`).
+- Distinguish `WHERE` (filters rows before grouping) from `HAVING` (filters groups after aggregation).
+- Use `CASE WHEN` expressions inside aggregates for conditional counting and cross-tabulation.
+- Build [subqueries](https://www.sqlite.org/lang_select.html#subqueries) in `SELECT`, `WHERE`, and `FROM` clauses.
+- Write multi-step analytical pipelines using [Common Table Expressions (CTEs)](https://www.sqlite.org/lang_with.html) with the `WITH ... AS` syntax.
+
+## Why SQL for Extending
+
+Loading and cleaning produce reliable tables. Extending transforms those tables into answers. This chapter introduces the SQL tools for computing metrics and testing analytical claims: `GROUP BY` with [aggregate functions](https://www.sqlite.org/lang_aggfunc.html), [subqueries](https://www.sqlite.org/lang_select.html#subqueries) that embed one query inside another, and [Common Table Expressions (CTEs)](https://www.sqlite.org/lang_with.html) that name intermediate results for clarity and reuse. Together, these tools let you write complex analytical pipelines entirely in SQL — pipelines that are readable, auditable, and reproducible.
 
 The dataset for this chapter is the Boulder County Assessor's buildings file, which contains one row per improvement section recorded for each parcel. It is a rich, messy, real-world dataset with dozens of columns describing building characteristics — year built, square footage, quality grade, heating system, roof type, and more.
 
+CTEs are the single biggest readability upgrade you can make to your SQL. If a query is turning into a wall of nested parentheses, that is a signal to break it apart with `WITH`. Your reviewer — even your future self — will thank you.
+
 ## Setup
+
+This chapter uses Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html), [pandas](https://pandas.pydata.org/docs/), and [numpy](https://numpy.org/doc/stable/).
 
 ```{python}
 import sqlite3
@@ -15,6 +31,11 @@ pd.set_option('display.max_columns', 20)
 pd.set_option('display.max_colwidth', 55)
 pd.set_option('display.float_format', '{:.2f}'.format)
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+`sqlite3` is part of Python's standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+:::
 
 ```{python}
 # Load the CSV, clean, and write to a local SQLite database
@@ -489,3 +510,53 @@ SELECT ... FROM step2;
 ```
 
 CTEs are evaluated once, named for clarity, and discarded after the query completes. Use them whenever a query needs more than one level of aggregation or filtering.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `Error: misuse of aggregate` or non-aggregated columns in SELECT
+**What it means:** Every column in a `SELECT` with `GROUP BY` must either appear in `GROUP BY` or be wrapped in an aggregate function. SQLite enforces this loosely but will return unpredictable values for non-aggregated columns.
+
+**How to fix it:** Add the missing column to `GROUP BY`, or wrap it in `MIN()`, `MAX()`, or another aggregate. If you want a per-group value that is not an aggregate (like a representative name), think about whether you actually want `GROUP BY` or whether a window function / CTE is more appropriate.
+:::
+
+::: {.callout-warning}
+## `AVG()` silently excludes NULL rows
+**What it means:** `AVG(col)` returns the mean of non-NULL values. If many rows have NULL in that column, your average is over a smaller group than you expected.
+
+**How to fix it:** Compare `COUNT(*)` with `COUNT(col)` to see the completeness rate. If you want to treat NULL as zero, use `AVG(COALESCE(col, 0))`. Document the choice in your Known Issues Log either way.
+:::
+
+::: {.callout-warning}
+## A subquery returns more than one row where a scalar is expected
+**What it means:** You used a subquery in a position that expects a single value (`WHERE x > (SELECT ...)`), but the subquery returned multiple rows.
+
+**How to fix it:** Add an aggregate (`AVG`, `MAX`, `MIN`) to the inner query. Or switch to `IN (SELECT ...)` if you meant "any of these values."
+:::
+
+::: {.callout-warning}
+## `strftime` returns NULL
+**What it means:** The input string is not in ISO format (`YYYY-MM-DD`), or the month is stored as `3` instead of `03`.
+
+**How to fix it:** Use `printf('%02d', month)` to zero-pad single-digit months. Double-check the reconstructed string with a `SELECT` before applying `strftime`.
+:::
+
+## Key Takeaways
+
+- `GROUP BY` + aggregates is the SQL equivalent of `df.groupby().agg()`. Same idea, different syntax.
+- `WHERE` filters rows *before* grouping; `HAVING` filters groups *after* aggregation. Getting this order right is half of reading a `GROUP BY` query correctly.
+- `CASE WHEN` inside aggregates is the most powerful pattern in this chapter — it unlocks cross-tabulation, conditional counting, and every other "if-then" summary.
+- Prefer **CTEs** over nested subqueries when a query has more than one level of aggregation. They are easier to read, debug, and modify.
+- SQL queries are declarative: you describe the result, not the procedure. The database engine figures out the execution plan.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on SQL aggregation, subqueries, and CTEs
+
+- **SQLite: Aggregate functions** — [sqlite.org/lang_aggfunc.html](https://www.sqlite.org/lang_aggfunc.html).
+- **SQLite: The SELECT statement** — [sqlite.org/lang_select.html](https://www.sqlite.org/lang_select.html) covers subqueries, `HAVING`, and clause ordering.
+- **SQLite: WITH clause (CTEs)** — [sqlite.org/lang_with.html](https://www.sqlite.org/lang_with.html), including recursive CTEs for hierarchical queries.
+- **SQLite: Date and time functions** — [sqlite.org/lang_datefunc.html](https://www.sqlite.org/lang_datefunc.html) documents `strftime`, `julianday`, and date arithmetic.
+- **Mode SQL Tutorial: Advanced SQL** — [mode.com/sql-tutorial](https://mode.com/sql-tutorial/) includes sections on window functions and optimization that build directly on this chapter's material.
+:::

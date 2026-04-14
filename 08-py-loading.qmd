@@ -1,10 +1,26 @@
 # Loading Data with pandas {#sec-py-loading}
 
-Every analysis begins with loading data — getting information from a file on disk into a pandas DataFrame where you can inspect and manipulate it. This chapter covers the mechanics of loading CSV and Excel files using `pd.read_csv()` and `pd.read_excel()`, the parameters that control how pandas interprets the file, and the post-load inspection routine that catches problems before they propagate into your analysis.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Load CSV and Excel files into a [pandas](https://pandas.pydata.org/docs/) `DataFrame` using [`pd.read_csv()`](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html) and [`pd.read_excel()`](https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html).
+- Control how pandas interprets a file using `header`, `skipfooter`, `na_values`, `sep`, `dtype`, and `encoding`.
+- Run the **post-load checklist** — shape, headers, types, missingness, distributions, duplicates, plausibility, and a quick visual scan — on every new dataset.
+- Diagnose `FileNotFoundError`, `DtypeWarning`, and other loading errors, and choose an appropriate fix.
+- Navigate pandas' documentation using `help()`, the `?` operator, and the online API reference.
+
+## Why Loading Is Harder Than It Looks
+
+Every analysis begins with loading data — getting information from a file on disk into a [pandas](https://pandas.pydata.org/docs/) **DataFrame** where you can inspect and manipulate it. This chapter covers the mechanics of loading CSV and Excel files using [`pd.read_csv()`](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html) and [`pd.read_excel()`](https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html), the parameters that control how pandas interprets the file, and the post-load inspection routine that catches problems before they propagate into your analysis.
 
 Loading data is where most silent errors originate. A column that looks numeric but was loaded as text, a header row mistakenly treated as data, a delimiter that splits values in the wrong places — these problems are invisible unless you actively look for them. The discipline of inspecting data immediately after loading is one of the most valuable habits you will develop in this course.
 
+This chapter builds on the project-organization and terminal skills from @sec-projects and @sec-terminal. If a `pd.read_csv` call fails with `FileNotFoundError`, review those chapters — the fix is almost always a path or working-directory issue.
+
 ## Setup
+
+You will use three libraries in this chapter: [pandas](https://pandas.pydata.org/docs/) for the `DataFrame`, [numpy](https://numpy.org/doc/stable/) for numerical arrays, and [matplotlib](https://matplotlib.org/stable/) for the quick visualization at the end.
 
 ```{python}
 import pandas as pd
@@ -12,9 +28,57 @@ import numpy as np
 import matplotlib.pyplot as plt
 ```
 
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError` on any of these
+
+If you see `ModuleNotFoundError: No module named 'pandas'` (or `numpy`, or `matplotlib`), the package is not installed in the Python environment your notebook is using. Install it with:
+
+```bash
+conda install pandas numpy matplotlib
+```
+
+Or, if you are not using conda:
+
+```bash
+pip install pandas numpy matplotlib
+```
+
+After installing, **restart the Jupyter kernel** (Kernel → Restart) and rerun the import cell. If the error persists, the notebook's kernel is probably pointing at a different environment than the one you installed into — see @sec-environments for how to check `sys.executable` and align the two. Full reference: @sec-errors.
+:::
+
+## How to Read pandas Documentation {#sec-reading-docs}
+
+Before you run your first load, take a minute to learn how to read the documentation. You will come back to the docs constantly — not because you are a beginner, but because experienced data scientists do the same. Nobody memorizes every parameter of `pd.read_csv` (there are more than 30).
+
+There are three ways to access documentation from inside a notebook:
+
+1. **The `?` operator** (IPython / Jupyter only): type `pd.read_csv?` in a cell and run it. A help panel appears with the function's signature and docstring.
+2. **The `help()` function** (works anywhere): `help(pd.read_csv)` prints the same information as text.
+3. **The online docs**: [pandas.pydata.org/docs/reference/api/pandas.read_csv.html](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html) shows the same content formatted for the web, plus examples and cross-references.
+
+A function signature looks like this:
+
+```
+pd.read_csv(filepath_or_buffer, *, sep=NoDefault.no_default, header='infer',
+            names=None, index_col=None, usecols=None, dtype=None,
+            engine=None, ..., encoding=None, skipfooter=0, ...)
+```
+
+The first argument (`filepath_or_buffer`) is **required** — you must pass it. Everything after the `*` is a **keyword argument** — it has a default value and you can leave it out unless you need to change it. The documentation tells you what each parameter does, what types it accepts, and what the default behavior is.
+
+::: {.callout-tip}
+## Docs are a reference, not a tutorial
+Pandas documentation is terse by design. It describes behavior, not motivation. When you are learning a new function, skim the signature and the first paragraph, then jump to the examples at the bottom — that is usually the fastest way to understand what the function does. Come back to the parameter list when you hit a specific problem.
+:::
+
 ## A First Load
 
 The Colorado Department of Revenue publishes monthly cannabis sales by county. The data is distributed as a CSV file originally exported from Excel, which means it has some quirks we need to handle. Let's start with a naive load and see what happens.
+
+::: {.callout-tip}
+## Before you run `pd.read_csv`: where is the file?
+`pd.read_csv('colorado_cannabis_sales_by_county.csv')` looks for the file **in your notebook's current working directory**. If you get a `FileNotFoundError`, the file is not there — the file name is mistyped, the file lives in a subdirectory (`data/raw/colorado_cannabis_sales_by_county.csv`), or your notebook is running in a different folder than you expected. Run `import os; print(os.getcwd())` to confirm where you are. See @sec-errors for a deeper walkthrough of `FileNotFoundError`.
+:::
 
 ```{python}
 df = pd.read_csv('colorado_cannabis_sales_by_county.csv')
@@ -207,6 +271,56 @@ pivot_df.loc['Las Animas'].plot(title='Las Animas County Retail Cannabis Sales b
 | `dtype` | Force column types | `dtype={'zip': str}` |
 | `encoding` | Character encoding | `encoding='latin-1'` |
 | `usecols` | Load only specific columns | `usecols=['County', 'Year', 'Sales']` |
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `FileNotFoundError: [Errno 2] No such file or directory`
+**What it means:** Pandas looked for the file at the path you gave and did not find it.
+
+**How to fix it:** Run `import os; print(os.getcwd())` to see where your notebook is looking. Confirm the file name spelling and extension. Use a relative path like `'../data/raw/filename.csv'` if the file lives in a sibling directory. See @sec-errors.
+:::
+
+::: {.callout-warning}
+## `DtypeWarning: Columns (N) have mixed types`
+**What it means:** Pandas found both numeric and non-numeric values in the same column and fell back to `object` (string) type. Your later arithmetic will silently fail.
+
+**How to fix it:** Inspect the column with `df['col'].value_counts()`. If the mixing comes from a stray header row or footer, set `skiprows` or `skipfooter`. If the column has sentinel codes like `NR` or `-999`, pass them via `na_values`. If you want to force the type, use `dtype={'col': str}` (or `float`, `int`, etc.).
+:::
+
+::: {.callout-warning}
+## `UnicodeDecodeError: 'utf-8' codec can't decode byte`
+**What it means:** The file uses a non-UTF-8 encoding (common in files exported from older Windows software or government systems).
+
+**How to fix it:** Try `encoding='latin-1'` or `encoding='cp1252'` in your `pd.read_csv` call. If you are on the command line, `file my_data.csv` (macOS/Linux) reports the encoding. Re-save the file as UTF-8 if you will use it repeatedly.
+:::
+
+::: {.callout-warning}
+## Numbers import as strings because of `$` or `,`
+**What it means:** A column like `$1,234,567` is stored as text. `df['Retail'] + 100` will concatenate a string rather than add a number.
+
+**How to fix it:** Strip the currency/comma characters, then convert: `df['Retail'] = pd.to_numeric(df['Retail'].str.replace(r'[$,]', '', regex=True), errors='coerce')`. See @sec-py-cleaning for the full pattern.
+:::
+
+## Key Takeaways
+
+- `pd.read_csv` and `pd.read_excel` have dozens of parameters; you rarely need all of them, but knowing `header`, `skipfooter`, `na_values`, `sep`, `dtype`, and `encoding` will cover most real-world files.
+- Run the **post-load checklist** on every new dataset: shape, headers, types, missingness, distributions, duplicates, plausibility, head/tail/sample.
+- Load → inspect → adjust → reload. This iterative pattern is how experienced analysts work with messy files.
+- Loading errors are the easiest class of errors to fix because the diagnostic message is usually precise. When in doubt, read the error, check the docs, and consult @sec-errors.
+- Documentation is a reference, not a tutorial. Get comfortable with `help()`, `?`, and the online API page — they will save you hours over the course.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on loading data with pandas
+
+- **pandas IO tools guide** — [pandas.pydata.org/docs/user_guide/io.html](https://pandas.pydata.org/docs/user_guide/io.html) covers every input/output format pandas supports (CSV, Excel, JSON, Parquet, SQL, and more).
+- **`pd.read_csv` full reference** — [pandas.pydata.org/docs/reference/api/pandas.read_csv.html](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html) is the canonical source on every parameter.
+- **pandas cheat sheet (PDF)** — [pandas.pydata.org/Pandas_Cheat_Sheet.pdf](https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf) is the official one-page quick reference.
+- **Real Python: Reading and Writing CSVs With Pandas** — [realpython.com/pandas-read-write-files/](https://realpython.com/pandas-read-write-files/) is an accessible tutorial with worked examples.
+- **10 Minutes to pandas** — [pandas.pydata.org/docs/user_guide/10min.html](https://pandas.pydata.org/docs/user_guide/10min.html) is the official whirlwind tour. Worth reading every few weeks until every section feels familiar.
+:::
 
 ## Exercises
 

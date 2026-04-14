@@ -1,6 +1,19 @@
 # Reading Error Messages {#sec-errors}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Read a Python **traceback** from the bottom up and identify the error type, error message, and line of your code that caused it.
+- Recognize and respond to the most common Python exceptions: `FileNotFoundError`, `KeyError`, `TypeError`, `ValueError`, `AttributeError`, and `ModuleNotFoundError`.
+- Interpret pandas' `DtypeWarning` and decide whether it indicates a real problem.
+- Apply a systematic five-step debugging process rather than changing things at random.
+
+## Errors Are Information
+
 Error messages are not punishments. They are diagnostic information — often the most useful information you will receive when something goes wrong. Learning to read them carefully and systematically is one of the highest-leverage skills you can develop as a programmer. This chapter teaches you how to extract actionable information from Python error messages rather than treating them as walls of intimidating red text.
+
+If seeing red text on your screen makes your stomach drop, you are in good company. Every programmer feels that at some point. The difference between a beginner and an expert is not that experts stop getting errors — they get plenty — but that they have built the habit of reading what the error actually says before reacting to the feeling of having broken something.
 
 ## Anatomy of a Python Error
 
@@ -109,6 +122,26 @@ When you encounter an error, resist the urge to randomly change things and re-ru
 ::: {.callout-tip}
 ## A mindset shift
 Beginners often feel that getting an error means they did something wrong. Experienced programmers get errors constantly — the difference is that they read the error message, understand what it is telling them, and use it to fix the problem. Errors are information, not failures.
+:::
+
+## Key Takeaways
+
+- **Read from the bottom up.** The last line of a traceback tells you the error type and message. The first "arrow" line (`---->`) tells you which line of your code triggered it.
+- **`FileNotFoundError`, `KeyError`, and `TypeError` account for most of the errors you will encounter in this book.** Build reflex fixes for each.
+- **Reproduce minimally.** If a chained expression fails, break it into single steps so you can see exactly where the break is.
+- **Search the exact error message.** Someone else has almost always hit the same problem before; Stack Overflow is faster than guessing.
+- **Errors are not failures — they are feedback.** The same message that feels like a wall today will feel like a map once you have read a few dozen of them.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on Python errors and debugging
+
+- **Python Built-in Exceptions** — [docs.python.org/3/library/exceptions.html](https://docs.python.org/3/library/exceptions.html) lists every exception type in the standard library with a short description of what triggers it.
+- **Python Errors and Exceptions tutorial** — [docs.python.org/3/tutorial/errors.html](https://docs.python.org/3/tutorial/errors.html) is the official tutorial on handling errors, including `try`/`except`.
+- **The `pdb` debugger** — [docs.python.org/3/library/pdb.html](https://docs.python.org/3/library/pdb.html) documents Python's built-in interactive debugger, which lets you step through code one line at a time.
+- **Real Python: Python Exceptions: An Introduction** — [realpython.com/python-exceptions/](https://realpython.com/python-exceptions/) is an accessible walkthrough with examples.
+- **pandas: Common pitfalls** — [pandas.pydata.org/docs/user_guide/gotchas.html](https://pandas.pydata.org/docs/user_guide/gotchas.html) describes pandas-specific behavior that commonly surprises newcomers.
 :::
 
 ## Exercises

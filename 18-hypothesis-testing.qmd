@@ -1,10 +1,27 @@
 # Hypothesis Testing and Comparisons {#sec-hypothesis-testing}
 
-Descriptive statistics and visualizations tell you what your data looks like. Hypothesis testing tells you whether the patterns you see are likely to be meaningful or whether they could have arisen by chance. This chapter introduces a small set of statistical tests — enough to make principled statements about group differences and variable relationships — and focuses on interpreting results in plain language rather than on statistical theory.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Frame a comparison as a **null hypothesis** vs. an **alternative hypothesis** and explain what a p-value does (and does not) mean.
+- Run an independent and paired [t-test](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html) using [`scipy.stats`](https://docs.scipy.org/doc/scipy/reference/stats.html), and compute **Cohen's d** as an effect-size measure.
+- Run a [chi-square test](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html) of independence on categorical variables, and compute **Cramér's V**.
+- Compute [Pearson](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html) and [Spearman](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html) correlation coefficients and interpret the difference between them.
+- Report statistical results with four elements: what you tested, the result, the test statistic + p-value, and the effect size + interpretation.
+- Recognize when statistical significance does and does not imply practical significance.
+
+## Why Hypothesis Testing
+
+Descriptive statistics and visualizations tell you what your data looks like. [Hypothesis testing](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) tells you whether the patterns you see are likely to be meaningful or whether they could have arisen by chance. This chapter introduces a small set of statistical tests — enough to make principled statements about group differences and variable relationships — and focuses on interpreting results in plain language rather than on statistical theory.
 
 The framework is deliberately simple. You will learn to ask three questions: *Is there a difference between these groups? How strong is the relationship between these variables? Could what I'm seeing be due to random variation?* The tools that answer these questions — t-tests, chi-square tests, and correlation coefficients — cover a large proportion of the exploratory comparisons you will encounter with tabular data.
 
+If you have never worked with p-values before, they can feel counterintuitive at first — the interpretation flips in a way most introductions gloss over. Re-read the interpretation paragraphs slowly, and come back to them after running a few tests yourself. The intuition settles with practice.
+
 ## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), [matplotlib](https://matplotlib.org/stable/), [seaborn](https://seaborn.pydata.org/), and [`scipy.stats`](https://docs.scipy.org/doc/scipy/reference/stats.html).
 
 ```{python}
 import pandas as pd
@@ -17,6 +34,11 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.float_format', '{:.3f}'.format)
 sns.set_style('whitegrid')
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy matplotlib seaborn scipy` (or `pip install pandas numpy matplotlib seaborn scipy`) and restart the Jupyter kernel. `scipy` is the most likely miss if you are coming from a minimal pandas environment. See @sec-environments.
+:::
 
 ## Datasets
 
@@ -324,6 +346,56 @@ When reporting the result of a statistical test, include four elements:
 4. **The effect size and interpretation:** "Cohen's d = 0.07, a small effect. While the difference is statistically significant due to the large sample size, the practical difference of 4 points of batting average is modest."
 
 This pattern — what, result, statistics, interpretation — keeps your reporting honest and complete. It prevents the common mistake of reporting a p-value without context about the magnitude of the effect.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Your p-value is tiny but the effect is invisible
+**What it means:** With a large sample, almost any non-zero difference is "statistically significant." This is a feature of the test, not evidence that the difference matters.
+
+**How to fix it:** Always report **effect size** (Cohen's d, Cramér's V, r) alongside the p-value. Interpret the magnitude in plain language — "a 4-point difference in batting average" — not the p-value in isolation.
+:::
+
+::: {.callout-warning}
+## `ttest_ind` complains about unequal variances or NaN values
+**What it means:** By default `ttest_ind` assumes equal variances and breaks on `NaN`. If one group has much more spread than the other, or if either input has missing values, you will get misleading results or errors.
+
+**How to fix it:** Drop NaNs with `.dropna()` before passing to the test. If variances differ substantially, use `stats.ttest_ind(a, b, equal_var=False)` to run Welch's t-test.
+:::
+
+::: {.callout-warning}
+## Chi-square warns about low expected counts
+**What it means:** The chi-square approximation breaks down when any expected cell count is below 5. The test still runs but the p-value may be unreliable.
+
+**How to fix it:** Collapse rare categories before testing, or use `stats.fisher_exact` for 2×2 tables. The `expected` array returned by `chi2_contingency` tells you which cells are problematic.
+:::
+
+::: {.callout-warning}
+## Pearson r is near zero but the scatter plot shows a clear pattern
+**What it means:** Pearson measures **linear** relationships. A U-shaped or curved pattern can have near-zero Pearson correlation but obvious structure.
+
+**How to fix it:** Visualize first, always. If the pattern is monotonic but curved, switch to Spearman. If the pattern is not monotonic, correlation is not the right tool — consider binning the predictor and comparing means across bins.
+:::
+
+## Key Takeaways
+
+- Every test follows the same structure: state the hypotheses, compute the statistic, interpret the p-value **and the effect size**.
+- A p-value tells you how surprising your data would be under the null hypothesis — not the probability that the null is true.
+- **Statistical significance ≠ practical significance.** Always report effect sizes. Tiny differences can be "significant" with a large enough sample.
+- Pearson for linear, Spearman for monotonic-but-curved, t-test for two groups, chi-square for two categorical variables, paired t-test for repeated measurements on the same entity.
+- Visualize before you test. A scatter plot or histogram catches the problems a p-value cannot.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on statistical inference
+
+- **scipy.stats reference** — [docs.scipy.org/doc/scipy/reference/stats.html](https://docs.scipy.org/doc/scipy/reference/stats.html) covers every test introduced in this chapter and many more.
+- **scipy.stats tutorial** — [docs.scipy.org/doc/scipy/tutorial/stats.html](https://docs.scipy.org/doc/scipy/tutorial/stats.html) walks through distributions, tests, and descriptive statistics.
+- **"Statistical Thinking for the 21st Century" by Russell Poldrack** — free online at [statsthinking21.org](https://statsthinking21.org/). A modern introduction that emphasizes interpretation over mechanics.
+- **ASA Statement on p-values** — [amstat.org](https://www.amstat.org/asa/files/pdfs/P-ValueStatement.pdf) is the American Statistical Association's short, authoritative statement on what p-values mean and do not mean. Two pages; worth a careful read.
+- **statsmodels** — [statsmodels.org](https://www.statsmodels.org/) extends `scipy.stats` with regression, ANOVA, and time-series models. The natural next library after this chapter.
+:::
 
 ## Exercises
 

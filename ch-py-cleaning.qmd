@@ -1,10 +1,27 @@
 # Cleaning Data with pandas {#sec-py-cleaning}
 
-Loading data gets it into your environment. Cleaning data makes it usable. This chapter covers the systematic process of identifying and fixing data quality problems — type mismatches, inconsistent categories, duplicate records, hidden sentinel values, and the ever-present challenge of missing data. The techniques here map directly to operations you may have performed in spreadsheets, but pandas gives you the ability to apply them reproducibly, document them precisely, and scale them to datasets too large for any spreadsheet.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Convert string columns to numeric values using [`pd.to_numeric`](https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html) and interpret the `errors` parameter (`coerce`, `ignore`, `raise`).
+- Normalize text columns using the [pandas `.str` accessor](https://pandas.pydata.org/docs/user_guide/text.html) (`.str.strip()`, `.str.upper()`, `.str.replace()`).
+- Standardize categorical columns using `.replace()` and `.map()`, recognizing when each is appropriate.
+- Detect and handle duplicate rows with [`df.duplicated()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.duplicated.html) and [`df.drop_duplicates()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html).
+- Validate every transformation with before/after `value_counts()` and null-count comparisons.
+- Write reusable cleaning functions that return both the transformed data and a summary of what changed.
+
+## Why Cleaning Is the Work
+
+Loading data gets it into your environment. Cleaning data makes it usable. This chapter covers the systematic process of identifying and fixing data quality problems — type mismatches, inconsistent categories, duplicate records, hidden sentinel values, and the ever-present challenge of missing data. The techniques here map directly to operations you may have performed in spreadsheets, but [pandas](https://pandas.pydata.org/docs/) gives you the ability to apply them reproducibly, document them precisely, and scale them to datasets too large for any spreadsheet.
 
 The central discipline of this chapter is *validation*: after every transformation, you check that the data changed in the way you intended and that nothing was silently lost or corrupted.
 
+If this chapter starts to feel like a lot of moving parts, that is a fair reaction. Data cleaning is not one technique — it is a collection of small patterns that you apply as needed. Expect to reread sections; expect to copy snippets; expect your first attempt at any new dataset to take longer than you thought. This is a normal part of becoming fluent.
+
 ## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), and [matplotlib](https://matplotlib.org/stable/).
 
 ```{python}
 import numpy as np
@@ -13,6 +30,17 @@ import pandas as pd
 pd.options.display.max_columns = 100
 import matplotlib.pyplot as plt
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError` on any of these
+If any of `numpy`, `pandas`, or `matplotlib` is missing, install it with:
+
+```bash
+conda install numpy pandas matplotlib
+```
+
+Or with pip: `pip install numpy pandas matplotlib`. After installing, restart the kernel before re-running the import cell. See @sec-environments for how to check which Python environment your notebook is using.
+:::
 
 ## Completing the Cannabis Load
 
@@ -185,7 +213,7 @@ print('New nulls:', df['RES_CITY'].isna().sum())
 
 ### Common string artifacts
 
-Real-world data contains predictable string problems that survive import and need active cleaning. Extra whitespace includes not just leading and trailing spaces but also non-breaking spaces (Unicode U+00A0), which are common in web-scraped data, and tabs or newlines embedded in fields. Inconsistent punctuation appears as variations like `"Boulder, CO"` vs. `"Boulder CO"` vs. `"Boulder,CO"`, or `"St. Louis"` vs. `"St Louis"` vs. `"Saint Louis"`. Encoding artifacts show up as garbled characters like `"resumÃ©"` (UTF-8 decoded as Latin-1) or `"caf\xc3\xa9"`.
+Real-world data contains predictable string problems that survive import and need active cleaning. Extra whitespace includes more than leading and trailing spaces: it also includes non-breaking spaces (Unicode U+00A0), which are common in web-scraped data, and tabs or newlines embedded in fields. Inconsistent punctuation appears as variations like `"Boulder, CO"` vs. `"Boulder CO"` vs. `"Boulder,CO"`, or `"St. Louis"` vs. `"St Louis"` vs. `"Saint Louis"`. Encoding artifacts show up as garbled characters like `"resumÃ©"` (UTF-8 decoded as Latin-1) or `"caf\xc3\xa9"`.
 
 ```{python}
 # Remove specific characters
@@ -402,6 +430,56 @@ First, it enables reproducibility. Someone else — a colleague, an instructor, 
 Second, it enables accountability. The voter registration data comes from a specific county clerk's office, exported on a specific date. The cleaning decisions you made — which party codes to consolidate, which rows to treat as duplicates, how to handle missing precincts — are your analytical choices, not facts in the data. Documenting them is how you distinguish your interpretation from the original record.
 
 See @sec-public-interest for the broader framework connecting ownership to public interest data practice.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `AttributeError: Can only use .str accessor with string values`
+**What it means:** You called `.str.strip()` (or similar) on a column whose dtype is not `object`. The column was probably loaded as numeric or mixed.
+
+**How to fix it:** Check `df['col'].dtype`. If the column really is strings with one stray number, cast with `.astype(str)` first. If the column is genuinely numeric, you do not need the `.str` accessor at all.
+:::
+
+::: {.callout-warning}
+## `pd.to_numeric` returns all NaN
+**What it means:** Every value in the column failed to parse as a number — usually because a currency symbol or comma is still present.
+
+**How to fix it:** Strip the currency characters first: `df['col'].str.replace(r'[$,]', '', regex=True)`, then call `pd.to_numeric(..., errors='coerce')`. Inspect `df['col'].unique()[:20]` to confirm what values remain.
+:::
+
+::: {.callout-warning}
+## `.map()` turned some values into `NaN`
+**What it means:** `.map()` replaces *every* value using the dictionary — anything not in the dictionary becomes `NaN`. You almost certainly wanted `.replace()`, which only changes the mapped values and leaves the rest alone.
+
+**How to fix it:** If you want to leave unmapped values untouched, switch to `.replace()`. If you want `NaN` as a way to detect unexpected values (a data-quality check), `.map()` is the right tool — document the unmapped values in your Known Issues Log.
+:::
+
+::: {.callout-warning}
+## `drop_duplicates` dropped more (or fewer) rows than expected
+**What it means:** The default compares *all* columns. If you only care about a subset of identifying columns, you need to pass them explicitly.
+
+**How to fix it:** Use `df.drop_duplicates(subset=['VOTER_ID'])`. Always print `df.shape` before and after and inspect the diff. If the drop count surprises you, investigate a few of the dropped rows with `df[df.duplicated(subset=['VOTER_ID'], keep=False)]`.
+:::
+
+## Key Takeaways
+
+- Every real dataset needs cleaning. The problems are predictable: mixed types, sentinel values, whitespace, inconsistent categories, duplicates.
+- **Validate every transformation.** Compare `value_counts()` and null counts before and after. A transformation that silently changes your row count is a bug waiting to surface downstream.
+- Use `.replace()` when you want to leave unmapped values alone; use `.map()` when anything outside your controlled vocabulary should become `NaN`.
+- Write reusable cleaning functions. If you are repeating the same five lines on three columns, that is a signal to abstract.
+- Your Known Issues Log and Data Dictionary are as important as the code itself — they record your analytical judgment so it can be reviewed later.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on data cleaning with pandas
+
+- **pandas: Working with text data** — [pandas.pydata.org/docs/user_guide/text.html](https://pandas.pydata.org/docs/user_guide/text.html) is the canonical reference on the `.str` accessor.
+- **pandas: Working with missing data** — [pandas.pydata.org/docs/user_guide/missing_data.html](https://pandas.pydata.org/docs/user_guide/missing_data.html) covers `NaN`, `NA`, and the nullable integer/boolean types.
+- **pandas: Duplicate labels and duplicated rows** — [pandas.pydata.org/docs/user_guide/duplicates.html](https://pandas.pydata.org/docs/user_guide/duplicates.html) is the reference on dedup APIs.
+- **Real Python: The pandas DataFrame** — [realpython.com/pandas-dataframe/](https://realpython.com/pandas-dataframe/) walks through selection, filtering, and assignment patterns used throughout this chapter.
+- **regex101** — [regex101.com](https://regex101.com/) is an interactive regex tester that explains what each part of a pattern does. Essential when you use `.str.extract()` or `.str.replace()` with regex.
 :::
 
 ## Exercises

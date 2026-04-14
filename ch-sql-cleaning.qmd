@@ -1,6 +1,20 @@
 # Cleaning Data with SQL {#sec-sql-cleaning}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Apply a five-stage Inspect → Clean → Design Schema → Load → Validate workflow to a messy dataset.
+- Write SQL diagnostic queries for missingness, duplicates, inconsistent categories, and invalid ranges.
+- Use [SQLite's built-in string functions](https://www.sqlite.org/lang_corefunc.html) (`TRIM`, `UPPER`, `LOWER`, `REPLACE`) and `CASE WHEN` expressions to clean columns.
+- Diagnose and repair **silent join failures** caused by inconsistent key formatting across agency sources.
+- Consolidate cleaned tables from multiple source databases into a single analysis database using [`DataFrame.to_sql`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html).
+
+## Why SQL for Cleaning
+
 Cleaning data in SQL follows the same logic you learned in pandas — identify missingness, duplicates, inconsistent categories, and invalid ranges — but uses a different set of tools. SQL excels at diagnostic queries: you can characterize problems across an entire table with a single statement, and the declarative syntax makes your logic explicit and auditable. This chapter applies a structured diagnostic framework to three real Colorado government datasets, loads them into a SQLite database, and demonstrates a critical lesson about silent join failures caused by inconsistent key formatting across sources.
+
+The silent join failure in this chapter is the clearest example in the book of a bug that does not look like a bug. A query runs, returns results, and those results are systematically wrong. Reading this chapter carefully will save you days of confusion in your future data work.
 
 ## The Diagnostic Framework
 
@@ -21,6 +35,8 @@ This is the same INSPECT → TRANSFORM → VALIDATE → DOCUMENT workflow from t
 
 ## Setup
 
+This chapter uses Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html) module, [pandas](https://pandas.pydata.org/docs/), and [numpy](https://numpy.org/doc/stable/).
+
 ```{python}
 import sqlite3
 import pandas as pd
@@ -32,6 +48,11 @@ pd.set_option('display.max_colwidth', 55)
 conn = sqlite3.connect('colorado_public_health.db')
 cursor = conn.cursor()
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`. Restart your Jupyter kernel after installing. See @sec-environments.
+:::
 
 ## Datasets
 
@@ -217,7 +238,7 @@ The three county name formats — `"Adams County, CO"`, `"Adams County"`, `"Adam
 
 This is infrastructure erosion: not a sudden break, but a gradual divergence that only becomes visible when you try to connect the systems. The cost is borne by anyone who wants to analyze these datasets together — which is exactly the analysis you would want to perform if you were studying public health outcomes across Colorado counties.
 
-The standardization work you just did (removing ", CO" and " County") is a technical fix for a governance problem. The fix lives in your notebook; the problem persists in the source systems. See @sec-public-interest for the broader framework.
+The standardization work you completed (removing ", CO" and " County") is a technical fix for a governance problem. The fix lives in your notebook; the problem persists in the source systems. See @sec-public-interest for the broader framework.
 :::
 
 ## SQL Functions for Cleaning
@@ -309,6 +330,56 @@ conn_deaths.close(); conn_crime.close(); conn_pop.close(); conn_ph.close()
 ::: {.callout-tip}
 ## Why not write directly from SQL?
 SQLite does not have a built-in cross-database `INSERT INTO ... SELECT FROM` for different `.db` files. The pandas round-trip (read into DataFrame, standardize, write back) is the practical approach for consolidating multiple source databases into one analysis database.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## A join on a text key returns zero rows
+**What it means:** A silent join failure. Your keys look similar but are not identical — often `"Adams"` vs `"Adams County"` vs `"Adams County, CO"`.
+
+**How to fix it:** Run `SELECT DISTINCT county FROM <table> ORDER BY county` on each side of the join. Compare the results. Normalize in pandas (or with SQLite `TRIM`/`REPLACE`) before joining.
+:::
+
+::: {.callout-warning}
+## `TRIM` does not catch some whitespace
+**What it means:** Non-breaking spaces (Unicode `U+00A0`) and tab characters are whitespace to humans but not to SQLite's default `TRIM`. A column can still fail to match after `TRIM` if the whitespace is unusual.
+
+**How to fix it:** Check for unusual whitespace in pandas with `df['col'].str.contains(r'\s', regex=True)` and explicitly replace `\xa0` and other characters before exporting. In SQL, `REPLACE(col, char(160), ' ')` handles non-breaking spaces.
+:::
+
+::: {.callout-warning}
+## `CAST(x AS INTEGER)` returns 0 unexpectedly
+**What it means:** SQLite's `CAST` returns 0 for strings that cannot be parsed. A column with `$1,234` gets stored as text, and `CAST` silently produces zeros.
+
+**How to fix it:** Clean currency/comma characters before loading. In SQLite, chain `CAST(REPLACE(REPLACE(col, '$', ''), ',', '') AS INTEGER)` — but doing the cleanup in pandas first is clearer and easier to audit.
+:::
+
+::: {.callout-warning}
+## `NULL` behaves unexpectedly in conditions
+**What it means:** `NULL = NULL` is `NULL` (not `TRUE`), and `NULL = 'Adams'` is `NULL`. Any row with `NULL` in the compared column is silently excluded.
+
+**How to fix it:** Always use `IS NULL` and `IS NOT NULL` for null checks. Use `COALESCE(col, default)` when you need a default value.
+:::
+
+## Key Takeaways
+
+- Cleaning in SQL follows the same **Inspect → Clean → Validate → Document** rhythm as pandas; only the syntax changes.
+- The four diagnostic categories — missingness, duplicates, inconsistent categories, invalid ranges — are worth running on every new table.
+- **Silent join failures** are the most dangerous SQL bug class. Always run `SELECT DISTINCT` on join keys before joining.
+- SQLite's type system is permissive. Column names and types in your schema do not enforce what is actually stored — audit after every load.
+- When a technical fix (standardizing county names) encodes a governance problem (three agencies, no shared convention), document the fix in your Known Issues Log and the provenance in your Data Dictionary.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on SQL cleaning and SQLite internals
+
+- **SQLite: Core built-in functions** — [sqlite.org/lang_corefunc.html](https://www.sqlite.org/lang_corefunc.html) lists every built-in function (`TRIM`, `UPPER`, `COALESCE`, etc.).
+- **SQLite: Datatypes in SQLite** — [sqlite.org/datatype3.html](https://www.sqlite.org/datatype3.html) explains SQLite's flexible (and sometimes surprising) type system.
+- **SQLite: Expression reference** — [sqlite.org/lang_expr.html](https://www.sqlite.org/lang_expr.html) covers `CASE WHEN`, `IS NULL`, operators, and NULL semantics.
+- **pandas: `to_sql` API** — [pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html) is the reference for writing DataFrames into SQLite.
+- **CDC WONDER help** — [wonder.cdc.gov/wonder/help/main.html](https://wonder.cdc.gov/wonder/help/main.html) documents the suppression rules referenced throughout this chapter.
 :::
 
 ## Exercises

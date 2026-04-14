@@ -1,10 +1,26 @@
 # Reshaping Data with SQL {#sec-sql-reshaping}
 
-This chapter completes the SQL module by joining the three cleaned Colorado public health tables into a single analysis-ready result set — one row per (county, year) — that can support rate calculations and cross-domain comparisons. The chapter is not just about the `JOIN` syntax. It is about the audit discipline that distinguishes a reliable join from a dangerous one: checking cardinality, identifying unmatched records, verifying row counts, and documenting every decision.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Choose the appropriate join type ([`INNER`, `LEFT`, `RIGHT`, `FULL OUTER`](https://www.sqlite.org/syntax/join-operator.html)) for a given analytical question.
+- Audit **cardinality** (grain) in each source table before joining, to prevent row inflation.
+- Use anti-join patterns (`LEFT JOIN ... WHERE IS NULL`) to find records present in one table but not another.
+- Produce a **join-quality report** documenting matched/unmatched records, row counts, totals, and introduced NULLs.
+- Replicate a SQL join in pandas as a cross-check on a complex multi-table analysis.
+
+## Why Joining Demands Discipline
+
+This chapter completes the SQL module by joining the three cleaned Colorado public health tables into a single analysis-ready result set — one row per (county, year) — that can support rate calculations and cross-domain comparisons. The chapter is not only about the `JOIN` syntax. It is about the audit discipline that distinguishes a reliable join from a dangerous one: checking cardinality, identifying unmatched records, verifying row counts, and documenting every decision.
 
 Joining tables is where the most consequential mistakes in data analysis happen — silently. A join that inflates row counts because of unexpected duplicates. A join that drops records because key formats do not match. A left join that introduces hundreds of NULL values you did not anticipate. The only defense is a systematic audit performed at every stage.
 
+This chapter is the culmination of Part III: if you can run a clean, audited, documented three-table join by the end of it, you have the SQL core you need for most analytical work.
+
 ## Setup
+
+This chapter uses Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html), [pandas](https://pandas.pydata.org/docs/), and [numpy](https://numpy.org/doc/stable/).
 
 ```{python}
 import sqlite3
@@ -18,6 +34,16 @@ pd.set_option('display.float_format', '{:.2f}'.format)
 conn = sqlite3.connect('colorado_public_health.db')
 cursor = conn.cursor()
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+:::
+
+::: {.callout-warning}
+## Before you join: verify grain and key formats
+Two quick checks will save you hours. **Grain**: run `SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM <table>`. If the two numbers differ, the table is at a finer grain than the key; aggregate first. **Key formats**: run `SELECT DISTINCT <key> FROM <table>` on every source and eyeball the values. `"Adams"`, `"Adams County"`, and `"Adams County, CO"` will not match each other.
+:::
 
 We are working with the three tables loaded and cleaned in @sec-sql-cleaning: `deaths` (CDC mortality), `crime` (CBI offenses), and `population` (State Demography Office estimates). The county names have been standardized to a common format.
 
@@ -324,11 +350,11 @@ pd.read_sql_query("""
 ::: {.callout-note}
 ## Public Interest Context: Oversight
 
-The join-quality report is not just a technical artifact. It is an audit trail — a structured record of what matched, what was dropped, and why. In a public interest context, this kind of documentation is what oversight looks like in practice.
+The join-quality report is more than a technical artifact. It is an audit trail — a structured record of what matched, what was dropped, and why. In a public interest context, this kind of documentation is what oversight looks like in practice.
 
 Consider what is at stake in this specific join. You are combining mortality data, crime data, and population data to compute per-capita rates for Colorado counties. If your join silently drops rural counties with missing crime records, your rates will only reflect urban counties — and any conclusions you draw about "Colorado counties" will actually only reflect a subset of them.
 
-The join-quality report forces you to document that dropout explicitly: how many counties are missing from each source, which years have complete data, and where NULLs were introduced. A reader of your analysis should be able to evaluate your joins, not just your conclusions. See @sec-public-interest for the broader framework.
+The join-quality report forces you to document that dropout explicitly: how many counties are missing from each source, which years have complete data, and where NULLs were introduced. A reader of your analysis should be able to evaluate your joins — not only your conclusions. See @sec-public-interest for the broader framework.
 :::
 
 Every multi-table analysis should produce a brief report documenting the join. This is the SQL equivalent of the Known Issues Log from @sec-documentation. At minimum, it should cover:
@@ -388,6 +414,56 @@ Use this checklist after every multi-table join:
 | You need only complete cases | INNER JOIN | Drops any row missing from either table |
 | You want to see what is missing from each side | Anti-join pattern | LEFT JOIN + WHERE IS NULL |
 | You need all records from both sides | FULL OUTER JOIN | Not available in SQLite; simulate with UNION |
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Join fan-out (too many rows in the result)
+**What it means:** One or both tables have multiple rows per join key. A many-to-many join explodes: 5 rows × 3 rows for the same county-year = 15 output rows.
+
+**How to fix it:** Run `SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM <table>` on each side. If they differ, aggregate to one-row-per-key before joining. Add the aggregation as a CTE so the fan-out fix is visible in the query.
+:::
+
+::: {.callout-warning}
+## Join returns zero rows despite matching keys
+**What it means:** Silent mismatch — key formats, whitespace, or dtypes differ between the two tables. See @sec-sql-cleaning for the full diagnosis.
+
+**How to fix it:** `SELECT DISTINCT <key> FROM <table>` on each side. Compare the values literally. Use `TRIM`, `UPPER`, or pandas pre-normalization to bring the formats into alignment before the join.
+:::
+
+::: {.callout-warning}
+## `FULL OUTER JOIN` raises `Error: RIGHT and FULL OUTER JOINs are not currently supported`
+**What it means:** Older versions of SQLite (< 3.39, released 2022) do not support `FULL OUTER JOIN`.
+
+**How to fix it:** Upgrade SQLite (`conda install sqlite`), or simulate a `FULL OUTER` with `LEFT JOIN` + `UNION ALL` + the mirror `RIGHT-as-LEFT` join. The pattern is in @sec-sql-reshaping Part 3.
+:::
+
+::: {.callout-warning}
+## All your per-capita rates are NaN for some counties
+**What it means:** Those counties are missing from the population table, so `deaths / NULL` returns `NULL`. The rate is literally undefined, not zero.
+
+**How to fix it:** List the unmatched counties explicitly (anti-join), document the gap in your Known Issues Log, and decide whether to drop those counties from the rate analysis or hand-source the population data.
+:::
+
+## Key Takeaways
+
+- Before joining, audit **grain** (`COUNT(*) vs COUNT(DISTINCT keys)`) and **key format** (`SELECT DISTINCT`). These two checks prevent most join bugs.
+- Aggregate to the target grain *inside a CTE* before joining. Make the aggregation visible in the query.
+- Always produce a **join-quality report**: structure, granularity, cardinality, unmatched records, row counts, totals, NULLs, remaining uncertainty.
+- Cross-check complex joins with a pandas replication. If the two disagree, you learn something; if they agree, your confidence is earned.
+- Silent join failures are the most dangerous SQL bug class. Treat every multi-table join as a claim that needs evidence.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on SQL joins and audit discipline
+
+- **SQLite: Join operators** — [sqlite.org/syntax/join-operator.html](https://www.sqlite.org/syntax/join-operator.html) is the formal grammar.
+- **SQLite: SELECT with joins** — [sqlite.org/lang_select.html](https://www.sqlite.org/lang_select.html) covers join semantics and clause ordering.
+- **Mode: SQL Joins** — [mode.com/sql-tutorial/sql-joins/](https://mode.com/sql-tutorial/sql-joins/) walks through each join type with visual examples.
+- **SQLZoo: Joins tutorial** — [sqlzoo.net/wiki/The_JOIN_operation](https://sqlzoo.net/wiki/The_JOIN_operation) provides interactive practice.
+- **Data Validation: What It Is and Why It Matters** — a Mode blog post at [mode.com/blog/data-validation](https://mode.com/blog/data-validation/) on audit discipline in analytical work.
+:::
 
 ## Exercises
 

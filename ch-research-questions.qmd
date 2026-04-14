@@ -1,5 +1,16 @@
 # Research Questions and Study Designs {#sec-research-questions}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Translate a vague curiosity into a specific, measurable research question using the "outcome across groups / time / conditions" template.
+- Identify the **unit of analysis** for a dataset and recognize common mistakes that flow from misunderstanding it.
+- Distinguish between-subjects from within-subjects comparisons and cross-sectional from longitudinal analyses.
+- Explain why observational data supports associations but not causal claims, and name common confounds in public datasets.
+
+## Why This Chapter Comes Before the Code
+
 The technical chapters ahead teach you to load, clean, extend, and reshape data. Those are essential mechanical skills. But mechanics alone do not produce insight — you also need to ask the right questions and understand what your data can and cannot tell you. This chapter introduces the conceptual vocabulary for formulating research questions with tabular data, recognizing the structure of the comparisons your data supports, and identifying the limitations that prevent you from drawing conclusions the data does not warrant.
 
 Reading this chapter first — before writing a line of pandas or SQL — gives you a frame for the technical work ahead. The datasets you will use, and the analyses you will eventually run, are shaped by the questions you are trying to answer.
@@ -23,7 +34,7 @@ In the Lahman batting data, each row is a player-season-stint: one player's stat
 
 In the Colorado population data, each row is a county-year-age: one county's population for one single year of age in one year. If you sum `totalpopulation` without grouping by county and year first, you will add up every age group and get a number far larger than any county's actual population.
 
-The discipline from Parts II and III — always checking `.shape`, always understanding what a row represents — is not just a cleaning habit. It is the foundation of valid analysis.
+The discipline from Parts II and III — always checking `.shape`, always understanding what a row represents — is more than a cleaning habit. It is the foundation of valid analysis.
 
 | Dataset | Unit of analysis | Common mistake |
 |---------|-----------------|----------------|
@@ -85,7 +96,7 @@ This does not mean observational analysis is useless. It means you must be disci
 | Higher dependency ratio → lower income | Rural counties have both older populations and less economic diversity |
 | More deaths → larger county | Death *counts* scale with population; *rates* are the meaningful comparison |
 
-The last example deserves emphasis. Comparing raw counts across groups of different sizes is one of the most common analytical mistakes. Denver will always have more deaths, more crimes, and more cannabis sales than San Juan County — because Denver has 700,000 people and San Juan has 700. The meaningful comparison is the *rate*: deaths per 100,000 population, crimes per capita, sales per resident. Computing rates requires the population data, which is why the multi-table join in @sec-sql-reshaping is not just a technical exercise — it is an analytical necessity.
+The last example deserves emphasis. Comparing raw counts across groups of different sizes is one of the most common analytical mistakes. Denver will always have more deaths, more crimes, and more cannabis sales than San Juan County — because Denver has 700,000 people and San Juan has 700. The meaningful comparison is the *rate*: deaths per 100,000 population, crimes per capita, sales per resident. Computing rates requires the population data, which is why the multi-table join in @sec-sql-reshaping is more than a technical exercise — it is an analytical necessity.
 
 ## Formulating Your Question
 
@@ -97,6 +108,55 @@ Before writing any analytical code, answer these four questions in a Markdown ce
 4. **What can I conclude vs. what can I only speculate about?** (Association or causation? What confounds exist?)
 
 This takes two minutes and prevents hours of misguided analysis. The remaining chapters in Part IV assume you have done this work before running any code.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Your research question is too broad to answer
+**What it means:** You wrote something like "Is housing broken?" — there is no specific column you can point to as the outcome, and no clear group you are comparing.
+
+**How to fix it:** Rewrite using the "outcome across groups / time / conditions" template. Force yourself to name the specific column that represents the outcome and the specific filter that defines the groups. If you cannot, the question is not yet answerable with the data you have.
+:::
+
+::: {.callout-warning}
+## Your summary statistic does not mean what you think it means
+**What it means:** You computed a mean, median, or sum without accounting for the unit of analysis. Averaging batting averages across player-seasons, or summing population across age groups, gives a number that sounds meaningful but is not.
+
+**How to fix it:** Before any aggregation, write down what a single row represents. Decide whether you need to aggregate to a different unit first. If you are averaging rates, decide whether to weight by the underlying sample size.
+:::
+
+::: {.callout-warning}
+## You compared raw counts across unequal populations
+**What it means:** Denver has more of everything than San Juan County. Conclusions based on raw counts are really conclusions about population size.
+
+**How to fix it:** Convert to per-capita rates before comparing. "Deaths per 100,000 population" is almost always the right denominator for cross-county comparisons.
+:::
+
+::: {.callout-warning}
+## You slipped into causal language
+**What it means:** Your write-up says "X causes Y" when the data only shows that X and Y are correlated.
+
+**How to fix it:** Reread your conclusions and replace causal verbs (*causes*, *leads to*, *drives*) with correlational language (*is associated with*, *tends to co-occur with*). Name at least one plausible confound explicitly so the reader knows you considered it.
+:::
+
+## Key Takeaways
+
+- A good research question names a specific outcome, a specific comparison, and a specific unit of analysis.
+- The **unit of analysis** — what a single row represents — determines which aggregations are meaningful. Checking `.shape` is more than hygiene; it is analytical discipline.
+- Between-subjects vs. within-subjects and cross-sectional vs. longitudinal are two independent distinctions. Know which you are doing before you start.
+- Observational data supports **associations**, not causal claims. Use language that matches what your data can actually show.
+- Per-capita rates, not raw counts, make cross-group comparisons meaningful.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on research questions and study design
+
+- **"A Field Guide to Lies and Statistics" by Daniel Levitin** — an accessible introduction to common statistical fallacies in public reporting.
+- **"Causal Inference: The Mixtape" by Scott Cunningham** — [mixtape.scunning.com](https://mixtape.scunning.com/) is a free textbook on causal inference, written for people with modest math backgrounds.
+- **Data Skeptic podcast** — [dataskeptic.com](https://dataskeptic.com/) regularly discusses study design and the limits of data-driven conclusions.
+- **Investigative Reporters and Editors: Story ideas from data** — [ire.org](https://www.ire.org/) has story-driven examples of good research questions in data journalism.
+:::
 
 ## Exercises
 

@@ -1,5 +1,17 @@
 # Documentation and Markdown {#sec-documentation}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Write basic [Markdown](https://www.markdownguide.org/) — headings, emphasis, lists, links, code blocks, and tables — in notebooks, README files, and GitHub.
+- Structure a notebook with alternating narrative Markdown and code cells using the goal/method/interpretation pattern.
+- Maintain a **Known Issues Log** that records each cleaning decision with problem, fix, impact, and remaining uncertainty.
+- Build a **Data Dictionary** that describes every column, its type, its valid values, and the cleaning applied.
+- Write code comments that explain *why* rather than *what*.
+
+## Why Documentation Matters
+
 The most technically brilliant analysis is worthless if no one — including your future self — can understand what it does or why it does it. Documentation is not an afterthought you add when the work is finished; it is a running record you maintain while the work is happening. This chapter covers the tools and habits that make documentation practical rather than burdensome.
 
 ## Why You Document As You Go
@@ -72,7 +84,7 @@ df.head()
 | year   | int  | Calendar year |
 ```
 
-These few elements cover the vast majority of what you need for data documentation. You do not need to learn the full Markdown specification — just these basics.
+These few elements cover the vast majority of what you need for data documentation. You do not need to learn the full Markdown specification — these basics are enough.
 
 ## Documentation in Jupyter Notebooks
 
@@ -106,7 +118,7 @@ Each entry records four things: the problem, the fix, the impact (especially any
 
 The Known Issues Log is a transparency tool. In public interest data work, publishing your data problems alongside your conclusions is what openness looks like in practice. It is the difference between presenting findings as if they emerged cleanly from perfect data and acknowledging that every real-world dataset has quirks, and that you made judgment calls about how to handle them.
 
-Openness does not mean you must apologize for your data. Every analysis has limitations. It means you make your limitations visible so that readers can evaluate them — and so that you can be held accountable for the decisions you made. A Known Issues Log entry that says "23 rows with `party='OTH'` were excluded because the category is ambiguous" is far more honest and defensible than simply not mentioning the exclusion.
+Openness does not mean you must apologize for your data. Every analysis has limitations. It means you make your limitations visible so that readers can evaluate them — and so that you can be held accountable for the decisions you made. A Known Issues Log entry that says "23 rows with `party='OTH'` were excluded because the category is ambiguous" is far more honest and defensible than leaving the exclusion unmentioned.
 
 See @sec-public-interest for the broader framework connecting openness to public interest data practice.
 :::
@@ -139,7 +151,48 @@ batting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))
 batting['BA'] = batting['H'] / batting['AB']
 ```
 
-A useful heuristic: if the code is straightforward, you do not need a comment. If the code involves a non-obvious decision — why you chose `errors='coerce'` instead of `errors='raise'`, why you filtered to rows with more than 100 at-bats, why you used a left join instead of an inner join — that is worth a comment.
+A useful heuristic: if the code does exactly what it says — `df.head()`, `print(x)` — it does not need a comment. If the code involves a non-obvious decision — why you chose `errors='coerce'` instead of `errors='raise'`, why you filtered to rows with more than 100 at-bats, why you used a left join instead of an inner join — that is worth a comment.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Your Markdown renders as raw text instead of formatted output
+**What it means:** The cell in Jupyter is set to "Code" instead of "Markdown," so the asterisks and pound signs appear literally.
+
+**How to fix it:** Select the cell and press `M` (when in command mode, not edit mode) or use the dropdown at the top of the notebook to switch it to Markdown. Re-run the cell with `Shift+Enter`.
+:::
+
+::: {.callout-warning}
+## Your Known Issues Log gets out of sync with the code
+**What it means:** You cleaned something, then forgot to log it — weeks later you can't tell why your row count changed.
+
+**How to fix it:** Build the habit of writing the log entry *before* running the cleaning cell, not after. The log entry is a plan; the code is the execution.
+:::
+
+::: {.callout-warning}
+## Your notebook is all code with no narrative
+**What it means:** You have a working analysis but no one reading it — including you in three months — can tell what question you were answering or what you concluded.
+
+**How to fix it:** Add a top-level Markdown cell with the research question. Before each section of code, add a one-sentence Markdown cell that states the goal. After each result, add a one-sentence interpretation. You will be surprised how much this helps.
+:::
+
+## Key Takeaways
+
+- Documentation is a habit, not a final step. The Known Issues Log and Data Dictionary are living documents you maintain *while* working.
+- Markdown is tiny — headings, emphasis, lists, links, code blocks, tables — and covers almost everything you need for data documentation.
+- Code comments should explain *why* you made a decision, not *what* a line of code does.
+- A notebook with interleaved narrative and code tells a story. A notebook with only code is a puzzle your future self has to solve.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on documentation and Markdown
+
+- **Markdown Guide** — [markdownguide.org](https://www.markdownguide.org/) is the cleanest reference for the syntax. The "Cheat Sheet" page is worth bookmarking.
+- **GitHub Flavored Markdown Spec** — [github.github.com/gfm/](https://github.github.com/gfm/) documents GitHub's specific Markdown dialect, including task lists and tables.
+- **Jupyter Notebook Markdown cells** — [jupyter-notebook.readthedocs.io](https://jupyter-notebook.readthedocs.io/en/latest/notebook.html#markdown-cells) describes how Markdown is rendered inside notebooks.
+- **"The Practice of Reproducible Research"** — a free collection of case studies at [practicereproducibleresearch.org](https://www.practicereproducibleresearch.org/) shows how working data scientists document their decisions.
+:::
 
 ## Exercises
 

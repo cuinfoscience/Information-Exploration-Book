@@ -1,8 +1,24 @@
 # Reshaping Data with pandas {#sec-py-reshaping}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Convert data between wide and long formats using [`pd.melt`](https://pandas.pydata.org/docs/reference/api/pandas.melt.html), [`pivot`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pivot.html), and [`pivot_table`](https://pandas.pydata.org/docs/reference/api/pandas.pivot_table.html).
+- Stack DataFrames vertically with [`pd.concat`](https://pandas.pydata.org/docs/reference/api/pandas.concat.html), validating row counts and column alignment.
+- Combine tables on shared keys using [`pd.merge`](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) with every join type (`inner`, `left`, `right`, `outer`).
+- Audit merge quality using the `indicator=True` parameter and understand why rows fail to match.
+- Recognize when aggregation must happen *before* a merge to avoid row inflation.
+
+## Why Reshaping Matters
+
 Most analysis questions require data from multiple sources, and those sources rarely arrive in the shape you need. This chapter covers the operations that change the structure of your data: `melt()` to go from wide to long, `pivot()` and `pivot_table()` to go from long to wide, `concat()` to stack DataFrames vertically, and `merge()` to combine tables by matching on shared keys. Each operation carries risks — silent row inflation, dropped records, introduced nulls — that you must audit after every transformation.
 
+Reshaping is where silent bugs love to hide. A merge that silently drops 40% of rows because of mismatched dtypes, a concat that creates duplicate columns because of trailing whitespace in a name, a pivot that aggregates values you did not expect to aggregate — all of these produce confident-looking output that is quietly wrong. Build the habit of auditing after every reshape.
+
 ## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/) and [numpy](https://numpy.org/doc/stable/).
 
 ```{python}
 import pandas as pd
@@ -11,6 +27,11 @@ import numpy as np
 pd.set_option('display.max_columns', None)
 pd.set_option('display.float_format', '{:.3f}'.format)
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+:::
 
 ## Datasets
 
@@ -155,6 +176,13 @@ print(all_eras_labeled['era'].value_counts())
 
 Merging is the most powerful and most dangerous reshaping operation. It combines two DataFrames by matching rows on one or more shared key columns — the programmatic equivalent of VLOOKUP in a spreadsheet, but with support for many-to-many relationships, multiple keys, and all join types.
 
+::: {.callout-warning}
+## Before you merge: check your column names and dtypes
+The most common merge failure is a key that looks identical in both tables but actually differs. `"Adams"` vs `"Adams "`, `"12345"` (string) vs `12345` (int), or a typo in one column — any of these will silently drop rows.
+
+Before merging, run `print(df_left['key'].dtype, df_right['key'].dtype)`. If they differ, cast one side. Then run `set(df_left['key']) - set(df_right['key'])` to see unmatched values on the left, and the reverse for the right.
+:::
+
 ### Step 1: Inspect keys before merging
 
 Before any merge, verify that your keys have the same dtype in both tables and understand the cardinality — is the key unique in each table, or can it repeat?
@@ -284,6 +312,56 @@ team_stats.columns = ['_'.join(col) for col in team_stats.columns]
 team_stats = team_stats.reset_index()
 team_stats.head()
 ```
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Merge returned more rows than expected ("row inflation")
+**What it means:** You merged on keys that were not unique in one or both tables. A many-to-many merge explodes: 3 batting rows × 2 salary rows for the same player-year = 6 output rows.
+
+**How to fix it:** Before merging, run `df.groupby(key_cols).size().max()` on each table. If it is > 1, aggregate to one row per key first. If you genuinely need the many-to-many, document why.
+:::
+
+::: {.callout-warning}
+## Merge silently dropped rows (low match rate)
+**What it means:** One of: (1) column-name mismatch — `County` vs `county`, (2) dtype mismatch — `"2020"` vs `2020`, (3) whitespace or case — `"Adams"` vs `"Adams "` vs `"adams"`, or (4) a legitimate structural gap (salaries start in 1985).
+
+**How to fix it:** Always use `indicator=True`. Inspect `left_only` rows — what years, what keys, what values? Decide whether the gap is legitimate or a bug in your cleaning. Fix the keys upstream if it is a bug.
+:::
+
+::: {.callout-warning}
+## `concat` produced unexpected NaN columns
+**What it means:** One DataFrame has `"County"` and another has `"county"`. Concatenation aligns by column *name*, so each DataFrame contributes its own column and the other rows are `NaN`.
+
+**How to fix it:** Standardize column names before concatenation: `df.columns = df.columns.str.strip().str.lower()`. Compare `set(df1.columns) ^ set(df2.columns)` to see mismatches.
+:::
+
+::: {.callout-warning}
+## `pivot` raises `ValueError: Index contains duplicate entries`
+**What it means:** `pivot()` does not aggregate and cannot pick between competing values. Your source has more than one row per `(index, columns)` pair.
+
+**How to fix it:** Use `pivot_table()` with an `aggfunc`, or aggregate first with `groupby().agg()`. See @sec-py-extending for the three-tools comparison.
+:::
+
+## Key Takeaways
+
+- Reshaping operations are both powerful and dangerous. Audit row counts and column names after every one.
+- **Aggregate before you merge** when the merge key is not unique. Fix row inflation upstream, not downstream.
+- Use `indicator=True` on every merge where correctness matters. The `_merge` column is your quality report.
+- Long format is usually easier for computation; wide format is usually easier for human reading. Know how to convert either direction.
+- `concat` stacks rows; `merge` combines tables on keys. Choose the right tool based on what question you are asking.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on reshaping and merging
+
+- **pandas: Merge, join, concatenate and compare** — [pandas.pydata.org/docs/user_guide/merging.html](https://pandas.pydata.org/docs/user_guide/merging.html) is the canonical reference on combining tables.
+- **pandas: Reshaping and pivot tables** — [pandas.pydata.org/docs/user_guide/reshaping.html](https://pandas.pydata.org/docs/user_guide/reshaping.html) covers `melt`, `pivot`, `pivot_table`, `stack`, `unstack`.
+- **Hadley Wickham: Tidy Data** — [vita.had.co.nz/papers/tidy-data.pdf](https://vita.had.co.nz/papers/tidy-data.pdf) is the foundational paper on long-format ("tidy") data, written for R but conceptually identical in pandas.
+- **Real Python: Combining Data in Pandas With merge(), join(), and concat()** — [realpython.com/pandas-merge-join-and-concat/](https://realpython.com/pandas-merge-join-and-concat/) is an accessible tutorial with worked examples.
+- **Lahman Baseball Database readme** — [github.com/chadwickbureau/baseballdatabank](https://github.com/chadwickbureau/baseballdatabank) documents every table and join key.
+:::
 
 ## Exercises
 

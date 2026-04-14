@@ -1,8 +1,24 @@
 # Extending Data with pandas {#sec-py-extending}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Create derived columns using arithmetic, conditional logic, and [`pd.cut`](https://pandas.pydata.org/docs/reference/api/pandas.cut.html) binning.
+- Parse dates from integer columns using [`pd.to_datetime`](https://pandas.pydata.org/docs/reference/api/pandas.to_datetime.html) and apply time-series operations like resampling.
+- Compute grouped summaries using [`df.groupby()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html) with [`.agg()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.agg.html).
+- Choose between `groupby().agg()`, [`pivot_table`](https://pandas.pydata.org/docs/reference/api/pandas.pivot_table.html), and [`pivot`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pivot.html) based on whether aggregation and reshaping are needed.
+- Distinguish `.agg()` (one row per group) from [`.transform()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.transform.html) (same shape as input) and pick the right tool for a given question.
+
+## Why Extending Matters
+
 Loading and cleaning produce a reliable dataset. Extending transforms that dataset into something that can answer questions. This chapter covers two core operations: creating derived columns from existing data, and computing grouped summaries that collapse many rows into meaningful aggregates. These are the programmatic equivalents of writing formulas and building pivot tables in a spreadsheet — but with the power to handle millions of rows, chain operations together, and reproduce every step exactly.
 
+This chapter assumes you have completed @sec-py-cleaning. The batting and population data used here must be loaded and cleaned before extending.
+
 ## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/) and [numpy](https://numpy.org/doc/stable/).
 
 ```{python}
 import pandas as pd
@@ -11,6 +27,11 @@ import numpy as np
 pd.set_option('display.max_columns', None)
 pd.set_option('display.float_format', '{:.3f}'.format)
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy` (or `pip install pandas numpy`) and restart the Jupyter kernel. See @sec-environments for how to verify your notebook's kernel matches the environment where you installed.
+:::
 
 ## Datasets
 
@@ -185,7 +206,7 @@ print(quarterly.tail(8))
 ::: {.callout-tip}
 ## Storing dates as integers is not a mistake
 
-Storing month and year as separate integer columns is a deliberate design in many government systems — it makes SQL filtering straightforward (`WHERE year = 2022`) without requiring date functions. When you encounter this pattern, `pd.to_datetime()` with `assign(Day=1)` is the standard reconstruction approach.
+Storing month and year as separate integer columns is a deliberate design in many government systems — it makes SQL filtering simple (`WHERE year = 2022`) without requiring date functions. When you encounter this pattern, `pd.to_datetime()` with `assign(Day=1)` is the standard reconstruction approach.
 :::
 
 ## Grouped Summaries
@@ -250,7 +271,7 @@ Pandas offers three tools for creating cross-tabular summaries, and understandin
 |------|------------|----------|
 | `groupby().agg()` | Yes | You need flexibility, named aggregations, or long format for further computation |
 | `pivot_table()` | Yes | You want aggregation and reshaping in one step (closest to an Excel pivot) |
-| `pivot()` | **No** | Data is already one-row-per-key; you just need to reshape |
+| `pivot()` | **No** | Data is already one-row-per-key; you only need to reshape |
 
 ### `groupby().agg()` — long format output
 
@@ -339,6 +360,56 @@ batting['hr_share'] = batting['HR'] / batting['team_total_HR'].replace(0, float(
 ```
 
 Use `transform()` when you want to compute something like "what percentage of team home runs did each player contribute?" — a question that requires both the individual value and the group total on the same row.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `ZeroDivisionError` when computing a rate
+**What it means:** You divided by a column that contains zero. Batting average = hits / at-bats fails when at-bats is 0.
+
+**How to fix it:** Replace the divisor's zeros with `NaN` before dividing: `df['H'] / df['AB'].replace(0, float('nan'))`. This produces `NaN` for undefined cases, which is the correct semantic.
+:::
+
+::: {.callout-warning}
+## `pivot()` raises `ValueError: Index contains duplicate entries`
+**What it means:** `pivot()` does not aggregate — it requires each `(index, columns)` combination to appear exactly once. If your source has multiple rows per combination, `pivot()` cannot decide which value to use.
+
+**How to fix it:** Use `pivot_table()` instead, which takes an `aggfunc` parameter. Or aggregate first with `groupby().agg()` so each combination is unique, then call `pivot()`.
+:::
+
+::: {.callout-warning}
+## `groupby` aggregation produces unexpected NaN
+**What it means:** Groups with all-missing input produce `NaN` in the output, which is easy to misread as a zero.
+
+**How to fix it:** Decide what missing should mean for your question. For counts, `fill_value=0` in `pivot_table` or `.fillna(0)` after aggregation is usually appropriate. For means, leaving `NaN` is often correct — averaging nothing is not zero.
+:::
+
+::: {.callout-warning}
+## Grouped totals do not match the original total
+**What it means:** Either rows were filtered before grouping, or a `groupby` column has `NaN` values (which are excluded by default).
+
+**How to fix it:** Compare `df['col'].sum()` before grouping and `grouped['col'].sum()` after. If they differ, inspect `df['group_col'].isna().sum()`. Use `dropna=False` in `groupby` if you want to keep missing-group rows in the output.
+:::
+
+## Key Takeaways
+
+- Derived columns should be **transparent**: reading the code should tell you exactly how a new value was computed. Avoid magic numbers and undocumented assumptions.
+- `groupby().agg()` → long format; `pivot_table()` → wide format in one step; `pivot()` → reshape only (no aggregation). Pick the tool that matches the question.
+- `.agg()` collapses a group to one row. `.transform()` broadcasts the group result back to every row. Use `.transform()` when the individual value and the group stat need to coexist.
+- Validate every aggregation by comparing totals before and after. Silent row drops — from `NaN` in a groupby key, or from missing data — are the most common source of wrong answers.
+- Binning continuous variables with `pd.cut` is a standard way to turn ages, incomes, or scores into analytically meaningful categories.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on derived columns and grouped summaries
+
+- **pandas: Group by: split-apply-combine** — [pandas.pydata.org/docs/user_guide/groupby.html](https://pandas.pydata.org/docs/user_guide/groupby.html) is the canonical reference on grouped operations.
+- **pandas: Reshaping and pivot tables** — [pandas.pydata.org/docs/user_guide/reshaping.html](https://pandas.pydata.org/docs/user_guide/reshaping.html) compares `pivot`, `pivot_table`, `melt`, and `stack`/`unstack`.
+- **pandas: Time series / date functionality** — [pandas.pydata.org/docs/user_guide/timeseries.html](https://pandas.pydata.org/docs/user_guide/timeseries.html) covers `to_datetime`, resampling, and offsets.
+- **Real Python: pandas GroupBy: Your Guide to Grouping Data** — [realpython.com/pandas-groupby/](https://realpython.com/pandas-groupby/) is an accessible tutorial with real datasets.
+- **Lahman Baseball Database documentation** — [seanlahman.com/baseball-archive/statistics/](https://sabr.org/lahman-database/) explains each statistic used in this chapter.
+:::
 
 ## Exercises
 

@@ -1,10 +1,25 @@
 # Visual Exploration {#sec-visualization}
 
-A well-chosen visualization reveals structure that no table of numbers can convey: the shape of a distribution, the trajectory of a trend, the clustering of groups, the isolation of outliers. This chapter introduces a systematic repertoire of plot types for exploratory data analysis using matplotlib and seaborn, organized by what you are trying to see — distributions, relationships, trends, and comparisons. The goal is not to produce publication-ready graphics (though some of these will be close) but to build visual intuitions that inform your analytical decisions.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Build [matplotlib](https://matplotlib.org/stable/api/index.html) figures using [`plt.subplots`](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html) and annotate them with titles, labels, and reference lines.
+- Visualize distributions with histograms, KDEs, box plots, and [seaborn violin plots](https://seaborn.pydata.org/generated/seaborn.violinplot.html).
+- Explore relationships with scatter plots, [seaborn pair plots](https://seaborn.pydata.org/generated/seaborn.pairplot.html), and [correlation heatmaps](https://seaborn.pydata.org/generated/seaborn.heatmap.html).
+- Plot trends over time with [`sns.lineplot`](https://seaborn.pydata.org/generated/seaborn.lineplot.html), including confidence bands.
+- Use [seaborn's `FacetGrid`](https://seaborn.pydata.org/generated/seaborn.FacetGrid.html) for small-multiple comparisons across groups.
+- Choose the right plot type for a given analytical question.
+
+## Why Visualize
+
+A well-chosen visualization reveals structure that no table of numbers can convey: the shape of a distribution, the trajectory of a trend, the clustering of groups, the isolation of outliers. This chapter introduces a systematic repertoire of plot types for exploratory data analysis using [matplotlib](https://matplotlib.org/stable/api/index.html) and [seaborn](https://seaborn.pydata.org/), organized by what you are trying to see — distributions, relationships, trends, and comparisons. The goal is not to produce publication-ready graphics (though some of these will be close) but to build visual intuitions that inform your analytical decisions.
 
 Every plot in this chapter answers a question. Before writing any plotting code, state the question in a Markdown cell. After producing the plot, write one or two sentences interpreting what it shows. This habit turns exploratory plots from pretty pictures into analytical evidence.
 
 ## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), [matplotlib](https://matplotlib.org/stable/), and [seaborn](https://seaborn.pydata.org/).
 
 ```{python}
 import pandas as pd
@@ -19,6 +34,11 @@ pd.set_option('display.float_format', '{:.3f}'.format)
 sns.set_style('whitegrid')
 sns.set_context('notebook', font_scale=1.1)
 ```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy matplotlib seaborn` (or `pip install pandas numpy matplotlib seaborn`) and restart the Jupyter kernel. `seaborn` depends on `matplotlib`, so if one is missing, the other likely is too. See @sec-environments.
+:::
 
 ## Datasets
 
@@ -376,6 +396,56 @@ plt.show()
 | How has a variable changed over time? | Line plot | Numeric variable + time |
 | How do groups compare on a metric? | Bar chart, grouped bar chart | One numeric + one categorical |
 | How do patterns vary across subgroups? | Faceted plot (small multiples) | Any plot + a grouping variable |
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## The plot is too small or text is overlapping
+**What it means:** The default figure size is often too small for more than a toy example.
+
+**How to fix it:** Pass `figsize=(10, 5)` (or similar) to `plt.subplots()`. Call `plt.tight_layout()` before `plt.show()` to prevent label overlap. For long category labels, rotate with `plt.xticks(rotation=45)`.
+:::
+
+::: {.callout-warning}
+## Seaborn's `ci` parameter is deprecated
+**What it means:** In seaborn 0.12+, `ci=95` was replaced with `errorbar=('ci', 95)` in functions like `lineplot`. Your code may throw a `FutureWarning`.
+
+**How to fix it:** Replace `ci=95` with `errorbar=('ci', 95)`. For no confidence interval, use `errorbar=None` instead of `ci=None`. See [seaborn's release notes](https://seaborn.pydata.org/whatsnew/v0.12.0.html).
+:::
+
+::: {.callout-warning}
+## The plot shows `<Figure size ... Axes: ...>` text instead of a figure
+**What it means:** You used a plotting call that returned the figure/axes object without rendering. This is common when the last expression in a notebook cell is a plot object.
+
+**How to fix it:** End the cell with `plt.show()`, or assign the figure to an underscore: `_ = ax.plot(...)`. Or put the call in a different cell.
+:::
+
+::: {.callout-warning}
+## `FacetGrid` or `hue` does not color the way you expect
+**What it means:** Seaborn infers color order from the column's dtype. Numeric columns get a continuous palette; categorical columns get a discrete one.
+
+**How to fix it:** Cast the column to `str` or `category` before plotting if you want a discrete palette. Or pass an explicit `palette` argument: `palette='Set2'`.
+:::
+
+## Key Takeaways
+
+- Every plot should answer a specific question. Write the question first, the code second, the interpretation third.
+- **Distributions**: histograms, KDEs, box plots, violin plots. **Relationships**: scatter, pairplot, heatmap. **Trends**: line plots. **Comparisons**: bar charts, faceted plots.
+- Seaborn and matplotlib compose. You can start a plot with `sns.` and keep refining it with `ax.` methods.
+- Always label axes, set a title, and include units. A plot without labels is not evidence.
+- Small multiples (faceted plots) beat one crowded plot almost every time.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on visualization
+
+- **matplotlib gallery** — [matplotlib.org/stable/gallery/](https://matplotlib.org/stable/gallery/) is the single best place to find a plot that resembles what you want, with code you can adapt.
+- **seaborn tutorial** — [seaborn.pydata.org/tutorial.html](https://seaborn.pydata.org/tutorial.html) walks through each plot family with realistic datasets.
+- **seaborn API reference** — [seaborn.pydata.org/api.html](https://seaborn.pydata.org/api.html) documents every function.
+- **"Fundamentals of Data Visualization" by Claus Wilke** — free online at [clauswilke.com/dataviz/](https://clauswilke.com/dataviz/). The best modern textbook on designing plots that communicate.
+- **From Data to Viz** — [data-to-viz.com](https://www.data-to-viz.com/) is a decision tree for choosing a plot type based on your data shape.
+:::
 
 ## Exercises
 

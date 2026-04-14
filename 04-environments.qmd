@@ -1,6 +1,18 @@
 # Python Environments {#sec-environments}
 
-When you installed Python — probably through Anaconda — you installed not just the Python interpreter but hundreds of packages that come bundled with it. Pandas, NumPy, Matplotlib, Jupyter, and many others were all placed into a specific directory on your computer. This collection of a Python interpreter and its associated packages is called an **environment**.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Explain what a Python **environment** is and why it matters for reproducibility.
+- Use [conda](https://docs.conda.io/projects/conda/en/stable/commands/index.html) to list, install, and update packages in your active environment.
+- Distinguish between `conda` and `pip` and decide which to use when.
+- Diagnose `ImportError` / `ModuleNotFoundError` by comparing your notebook's kernel to the environment where the package is installed.
+- Verify a working [SQLite](https://www.sqlite.org/cli.html) installation on macOS, Windows, and Linux.
+
+## What an Environment Is
+
+When you installed Python — probably through [Anaconda](https://docs.anaconda.com/) — you installed the Python interpreter along with hundreds of packages that come bundled with it. Pandas, NumPy, Matplotlib, Jupyter, and many others were all placed into a specific directory on your computer. This collection of a Python interpreter and its associated packages is called an **environment**.
 
 Understanding environments matters because the tools in this book depend on specific packages being installed and accessible. When something does not work, the problem is often that the wrong environment is active, that a package is missing, or that two packages have conflicting version requirements. This chapter gives you enough knowledge to diagnose and fix these problems.
 
@@ -112,6 +124,55 @@ conda install -c anaconda sqlite
 ```
 
 Alternatively, download the precompiled binaries from [sqlite.org/download.html](https://www.sqlite.org/download.html), unzip the archive, and add the folder to your system PATH. After editing the PATH, open a new terminal window — the old window will not see the change.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `conda: command not found` (or `'conda' is not recognized`)
+**What it means:** Your terminal cannot find the `conda` executable. On Windows, you are probably in Command Prompt or PowerShell instead of Anaconda Prompt. On macOS/Linux, conda is not on your `PATH`.
+
+**How to fix it:** On Windows, open **Anaconda Prompt** from the Start menu. On macOS/Linux, run the one-time `conda init` command (see the [conda docs](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html)) and restart your terminal.
+:::
+
+::: {.callout-warning}
+## `ModuleNotFoundError: No module named 'pandas'`
+**What it means:** The package is not installed in the environment your notebook is using — which may not be the environment you installed it in.
+
+**How to fix it:** Run `import sys; print(sys.executable)` in a notebook cell. Copy that path. Then in your terminal, confirm that path matches the environment where you installed pandas. If they differ, either install pandas in the notebook's environment or switch the notebook's kernel to the environment that has pandas.
+:::
+
+::: {.callout-warning}
+## A package installed fine but still fails to import
+**What it means:** The running Jupyter kernel was started before the install finished, so it is still pointing at the old environment state.
+
+**How to fix it:** Restart the Jupyter kernel (Kernel → Restart) and re-run your imports. This is one of the most common "ghost" errors and is almost always solved by a kernel restart.
+:::
+
+::: {.callout-warning}
+## Conda is very slow to resolve an install
+**What it means:** Conda is trying to solve a complex dependency graph. For large data-science environments, this can take minutes.
+
+**How to fix it:** Wait. If it still hangs after several minutes, consider using [`mamba`](https://mamba.readthedocs.io/) — a faster drop-in replacement for conda — or install a newer version of conda that uses the `libmamba` solver by default.
+:::
+
+## Key Takeaways
+
+- An **environment** is a specific Python interpreter plus a set of installed packages. Your notebook is always running in some environment; when things break, identifying which one is the first question.
+- Prefer `conda install` for scientific Python packages; fall back to `pip install` when conda does not carry a package.
+- `ImportError` / `ModuleNotFoundError` almost always means "wrong environment" or "kernel not restarted," not "package broken."
+- `sys.executable` inside a notebook is the definitive answer to "which Python am I actually running?"
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on Python environments
+
+- **Conda user guide** — [docs.conda.io/projects/conda/en/stable/user-guide/](https://docs.conda.io/projects/conda/en/stable/user-guide/) is the definitive reference. Start with "Getting started with conda" and "Managing environments."
+- **Pip user guide** — [pip.pypa.io/en/stable/user_guide/](https://pip.pypa.io/en/stable/user_guide/) documents pip for the cases where you need it.
+- **Mamba** — [mamba.readthedocs.io](https://mamba.readthedocs.io/) is a faster, compatible alternative to conda for complex installs.
+- **Real Python: Setting Up Python for Machine Learning on Windows** — [realpython.com/python-windows-machine-learning-setup/](https://realpython.com/python-windows-machine-learning-setup/) is an especially useful walkthrough for Windows users.
+- **Jupyter kernels** — [jupyter.readthedocs.io/en/latest/install/kernels.html](https://jupyter.readthedocs.io/en/latest/install/kernels.html) explains how to register additional kernels for other environments.
+:::
 
 ## Exercises
 

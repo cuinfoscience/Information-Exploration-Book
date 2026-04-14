@@ -1,5 +1,16 @@
 # Public Interest Data Science {#sec-public-interest}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Identify three dynamics — **enclosure**, **erosion**, and **exemption** — that shape what public data looks like and what it omits.
+- Recognize the telltale symptoms of each dynamic in real datasets (title blocks, format mismatches, suppression codes, absent records).
+- Apply the three pillars of public interest practice — **openness**, **oversight**, and **ownership** — using the Known Issues Log, join-quality reports, and Data Dictionary.
+- Frame your analytical conclusions in language that matches what the data can actually support.
+
+## Why This Chapter Matters
+
 Data analysis is never neutral. Every dataset reflects choices about what to count, how to count it, who gets to count, and who is counted. This chapter introduces a framework for thinking about those choices — not to make you suspicious of data, but to make you a more careful reader of it.
 
 The datasets in this book come from government agencies, public records, and open archives. They are about cannabis sales, voter registration, crime, mortality, and population. They are, in a meaningful sense, *about people*. Understanding how they were produced — and what was left out — is part of doing the analysis well.
@@ -48,7 +59,7 @@ When joining tables from different agencies, always audit your key columns befor
 
 The CDC suppression rule is a visible example of exemption by policy. When death counts in a county-year-cause cell are below 10, the CDC reports the value as `"Suppressed"` rather than a number. The stated reason is privacy protection — individuals in a small cell might be identifiable. This is a legitimate concern, but the effect is that the counties with the smallest populations — often rural counties, often with higher rates of specific causes of death — have the most missing data. The places where data would be most informative are the places where data is least available.
 
-Less visible forms of exemption include data that is simply never collected: housing displacement records at the parcel level, detention facility population data, stop-and-frisk incident logs in jurisdictions that do not publish them. These absences are not accidents either. They reflect choices about what is worth measuring and who is worth measuring it for.
+Less visible forms of exemption include data that is never collected at all: housing displacement records at the parcel level, detention facility population data, stop-and-frisk incident logs in jurisdictions that do not publish them. These absences are not accidents either. They reflect choices about what is worth measuring and who is worth measuring it for.
 
 ::: {.callout-note}
 ## What to look for
@@ -63,7 +74,7 @@ Understanding these dynamics does not make data analysis impossible. It makes it
 
 **Openness** means making your data problems visible rather than hiding them. The Known Issues Log introduced in @sec-documentation is a transparency tool: a running record of every quality problem you found, what you decided to do about it, and why.
 
-Publishing a Known Issues Log alongside your analysis lets readers evaluate your decisions rather than simply accepting your conclusions. It also protects you: documenting that you knew about a data problem and addressed it deliberately is very different from having it discovered later as an uncknowledged flaw.
+Publishing a Known Issues Log alongside your analysis lets readers evaluate your decisions rather than taking your conclusions on faith. It also protects you: documenting that you knew about a data problem and addressed it deliberately is very different from having it discovered later as an unacknowledged flaw.
 
 Openness is not about being embarrassed by data problems. Every real-world dataset has them. It is about treating data quality as a fact to communicate rather than a weakness to conceal.
 
@@ -73,7 +84,7 @@ Openness is not about being embarrassed by data problems. Every real-world datas
 
 A join that silently drops 40% of rows because of a county name format mismatch is not a software bug — it is a logical error that produces a confident-looking wrong answer. Oversight practices — checking row counts before and after joins, validating totals, auditing unmatched records — are what prevent silent errors from becoming invisible conclusions.
 
-In a public interest context, the stakes are higher. An analysis of county-level health outcomes that silently drops rural counties is not just technically wrong — it is systematically biased against the populations that are hardest to count.
+In a public interest context, the stakes are higher. An analysis of county-level health outcomes that silently drops rural counties is not only technically wrong — it is systematically biased against the populations that are hardest to count.
 
 ### Ownership — The Data Dictionary
 
@@ -98,7 +109,49 @@ The three pillars are not add-ons — they are woven into the recurring practice
 | `na_values` documentation | Ownership | @sec-py-loading |
 | Documenting why data is missing | Openness | @sec-py-cleaning |
 
-Reading the technical chapters with these pillars in mind transforms a series of data manipulation exercises into a coherent practice. You are not just learning how to rename columns and join tables. You are learning how to be accountable for what you find.
+Reading the technical chapters with these pillars in mind transforms a series of data manipulation exercises into a coherent practice. You are not only learning how to rename columns and join tables. You are learning how to be accountable for what you find.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## You treat missing values as random
+**What it means:** Code that drops NaNs or fills them with a mean assumes the missingness is random. When the missingness is systematic — the CDC suppression rule, for example — that assumption biases your analysis.
+
+**How to fix it:** Before any missing-value imputation, ask *why* the value is missing. Document the answer in your Known Issues Log. Treat policy-driven suppression differently from data-entry omissions.
+:::
+
+::: {.callout-warning}
+## A join silently drops rows because of format mismatches
+**What it means:** You joined two agency tables on `county`, but one uses `"Adams County, CO"` and the other uses `"Adams"`. The result is confident-looking, systematically wrong.
+
+**How to fix it:** Run a join-quality report (@sec-sql-reshaping): compare row counts before and after the join, and list any unmatched keys. Standardize keys in a cleaning step before joining.
+:::
+
+::: {.callout-warning}
+## Your analysis does not account for absent data
+**What it means:** The counties or demographic groups with the most missing rows are often the ones your analysis would most benefit from including. Silence about absence is not the same as representativeness.
+
+**How to fix it:** When you drop or exclude rows, document what was excluded and speculate about what the exclusion means for your conclusions. A limitation section in your writeup is not weakness — it is credibility.
+:::
+
+## Key Takeaways
+
+- Public data is shaped by three recurring dynamics — **enclosure**, **erosion**, and **exemption** — that are invisible until you know to look for them.
+- Three practices — **openness** (Known Issues Log), **oversight** (join-quality reports), and **ownership** (Data Dictionary) — translate awareness into better analysis.
+- The technical habits in this book (inspect before acting, validate after every transform, document your decisions) are not separate from ethics. They are what ethical data practice looks like in code.
+- Good data work makes absent data and uncertain decisions visible, not invisible.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on public interest data practice
+
+- **"Data Feminism" by D'Ignazio and Klein** — a free online edition at [data-feminism.mitpress.mit.edu](https://data-feminism.mitpress.mit.edu/) develops this book's themes at length.
+- **"Weapons of Math Destruction" by Cathy O'Neil** — an accessible survey of how opaque algorithms and missing data harm communities.
+- **Ada Lovelace Institute: Data justice** — [adalovelaceinstitute.org](https://www.adalovelaceinstitute.org/) publishes short, readable reports on data governance and equity.
+- **Investigative Reporters and Editors: Data library** — [ire.org](https://www.ire.org/) has public-interest datasets and story pitches.
+- **CDC WONDER documentation** — [wonder.cdc.gov/wonder/help/main.html](https://wonder.cdc.gov/wonder/help/main.html) documents the suppression rules referenced above.
+:::
 
 ## Exercises
 

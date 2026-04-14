@@ -1,10 +1,24 @@
 # Loading Data with SQL {#sec-sql-loading}
 
-This chapter marks the beginning of a new tool — SQL and the SQLite database engine — applied to the same Load–Clean–Extend–Reshape workflow you already know from pandas. Many of the concepts are identical: you are still loading data from files, inspecting it for problems, checking types and counts, and verifying that nothing went wrong. What changes is the interface: instead of calling Python methods on a DataFrame, you write declarative queries that describe *what* you want, and the database engine figures out *how* to get it.
+## Learning Objectives
 
-SQL (Structured Query Language) has been the standard language for working with databases since the 1970s. You will encounter it in virtually every data-related career. SQLite is a lightweight database engine that stores an entire database in a single file on disk — no server, no installation wizard, no network configuration. This makes it ideal for learning SQL and for working with datasets that fit on a single machine.
+By the end of this chapter, you will be able to:
 
-The workflow in this chapter moves through four stages: orienting to the terminal, creating a database and schema in the SQLite shell, connecting to the database from Python, and running diagnostic queries with `pd.read_sql_query()`.
+- Check that [SQLite](https://www.sqlite.org/cli.html) is installed and create a new `.db` database file from the terminal.
+- Distinguish SQLite dot-commands from SQL statements, and use `.mode`, `.headers`, and `.import` correctly.
+- Write a `CREATE TABLE` schema and load a clean CSV into the table.
+- Connect to a SQLite database from Python using [`sqlite3.connect`](https://docs.python.org/3/library/sqlite3.html#sqlite3.connect) and read query results into a pandas DataFrame with [`pd.read_sql_query`](https://pandas.pydata.org/docs/reference/api/pandas.read_sql_query.html).
+- Write exploratory SQL using `SELECT`, `FROM`, `WHERE`, `GROUP BY`, `ORDER BY`, and `LIMIT`, and translate between SQL and pandas equivalents.
+
+## Why SQL
+
+This chapter marks the beginning of a new tool — [SQL](https://www.sqlite.org/lang.html) and the [SQLite](https://www.sqlite.org/docs.html) database engine — applied to the same Load–Clean–Extend–Reshape workflow you already know from pandas. Many of the concepts are identical: you are still loading data from files, inspecting it for problems, checking types and counts, and verifying that nothing went wrong. What changes is the interface: instead of calling Python methods on a DataFrame, you write declarative queries that describe *what* you want, and the database engine figures out *how* to get it.
+
+SQL (Structured Query Language) has been the standard language for working with databases since the 1970s. You will encounter it in virtually every data-related career. [SQLite](https://www.sqlite.org/docs.html) is a lightweight database engine that stores an entire database in a single file on disk — no server, no installation wizard, no network configuration. This makes it ideal for learning SQL and for working with datasets that fit on a single machine.
+
+The workflow in this chapter moves through four stages: orienting to the terminal, creating a database and schema in the SQLite shell, connecting to the database from Python, and running diagnostic queries with [`pd.read_sql_query()`](https://pandas.pydata.org/docs/reference/api/pandas.read_sql_query.html).
+
+You already know the Load–Clean–Extend–Reshape rhythm from Part II. The goal of this part is translation, not starting over. Most of your intuitions about inspecting data, validating transformations, and documenting decisions carry over — only the syntax changes.
 
 ## Terminal Orientation
 
@@ -49,7 +63,7 @@ The file is created on disk when you first write data to it.
 ::: {.callout-important}
 ## SQL builds on Python
 
-The SQL workflow in this chapter depends on the Python workflow from @sec-py-loading and @sec-py-cleaning. SQLite's `.import` command requires a clean, rectangular CSV — exactly one header row, no aggregate rows, no currency formatting, no merged cells. Real-world government files rarely meet these requirements out of the box. The standard approach is to use pandas to load and clean the raw file first, then export a normalized CSV for SQLite to consume. Students who have not completed @sec-py-loading and @sec-py-cleaning should do so before continuing here.
+The SQL workflow in this chapter depends on the Python workflow from @sec-py-loading and @sec-py-cleaning. SQLite's `.import` command requires a clean, rectangular CSV — exactly one header row, no aggregate rows, no currency formatting, no merged cells. Real-world government files rarely meet these requirements out of the box. The standard approach is to use pandas to load and clean the raw file first, then export a normalized CSV for SQLite to consume. If you have not completed @sec-py-loading and @sec-py-cleaning, do so before continuing here.
 :::
 
 SQLite's `.import` command expects a clean, rectangular CSV with exactly one header row and no aggregate rows. The standard approach is to clean the file in pandas first — applying the same operations from @sec-py-cleaning — and export a clean CSV for SQLite to consume.
@@ -60,6 +74,13 @@ SQLite's `.import` command expects a clean, rectangular CSV with exactly one hea
 The fact that you must clean the cannabis file in pandas before SQLite can import it is not a coincidence. Government datasets are typically published through web portals designed for human download — one file at a time, formatted for spreadsheet users. The data is technically open, but the publishing workflow is optimized for a different kind of user than you.
 
 This is a specific form of enclosure: access is possible, but it requires enough technical skill to navigate the formatting. The more agencies publish machine-readable APIs or consistently formatted CSV files with documented schemas, the more equitably public data can be used. See @sec-public-interest for the broader framework.
+:::
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), and Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html) module.
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+`sqlite3` ships with Python's standard library — if you get `ModuleNotFoundError: No module named 'sqlite3'`, your Python install is unusual (this is very rare). For pandas or numpy, run `conda install pandas numpy` or `pip install pandas numpy` and restart the kernel. See @sec-environments.
 :::
 
 ```{python}
@@ -271,6 +292,56 @@ pd.read_sql_query("""
 | `df['col'].isna().sum()` | `SELECT COUNT(*) FROM table WHERE col IS NULL;` |
 | `df[df['col'] == 'x']` | `SELECT * FROM table WHERE col = 'x';` |
 | `df.sort_values('col')` | `SELECT * FROM table ORDER BY col;` |
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `Error: near "<dot-command>": syntax error`
+**What it means:** You tried to run a dot-command ending with a semicolon, or you tried to run dot-commands inside a `.sql` file.
+
+**How to fix it:** Dot-commands (like `.tables`, `.mode csv`, `.import`) are shell commands — no semicolon. SQL statements (like `SELECT ...;`) always end with a semicolon. They belong in different places.
+:::
+
+::: {.callout-warning}
+## `Error: no such table: cannabis_sales`
+**What it means:** Your connection is pointing at the wrong database file (often a brand-new empty one created accidentally). `sqlite3.connect('cannabis.db')` silently creates an empty file if `cannabis.db` is not in the current directory.
+
+**How to fix it:** Run `print(os.getcwd())` in your notebook. Confirm `cannabis.db` is in that directory. Use an absolute path if necessary. Verify the file has tables with `sqlite3 cannabis.db ".tables"` from the terminal.
+:::
+
+::: {.callout-warning}
+## The header row got imported as data
+**What it means:** You forgot `.headers on` before `.import`, so SQLite treated the first row as data.
+
+**How to fix it:** Run `DELETE FROM <table> WHERE <text_col> = '<header_name>';` to remove the stray row. Then rebuild the workflow with `.headers on` set before `.import`.
+:::
+
+::: {.callout-warning}
+## A numeric column contains `NULL` where you expected numbers
+**What it means:** SQLite does not enforce storage classes strictly — a `TEXT` value in an `INTEGER` column is stored as text unless you pre-cleaned it. If you loaded a CSV with `$1,234` still present, the column is a mix of text and numbers.
+
+**How to fix it:** Clean the CSV in pandas before importing. `.describe()` in pandas and `SELECT MIN(...), MAX(...), COUNT(...)` in SQL will reveal the issue. See @sec-py-cleaning.
+:::
+
+## Key Takeaways
+
+- SQLite is a file-based database: your whole database is one `.db` file. No server, no setup wizard.
+- Always clean CSVs in pandas before `.import`. SQLite expects rectangular, single-header-row data.
+- Dot-commands control the shell; SQL statements operate on data. Know which is which.
+- `pd.read_sql_query(sql, conn)` is the bridge — it returns a pandas `DataFrame`, so every pandas skill you built in Part II still applies.
+- The SQL query structure (`SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT`) appears in a fixed order. Memorize the order; the clauses inside each are flexible.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on SQL and SQLite
+
+- **SQLite documentation** — [sqlite.org/docs.html](https://www.sqlite.org/docs.html) is the canonical reference. Start with "SQL syntax" and "Command-line shell."
+- **Python `sqlite3` module** — [docs.python.org/3/library/sqlite3.html](https://docs.python.org/3/library/sqlite3.html) documents the Python driver.
+- **pandas: `read_sql_query`** — [pandas.pydata.org/docs/reference/api/pandas.read_sql_query.html](https://pandas.pydata.org/docs/reference/api/pandas.read_sql_query.html) is the API reference.
+- **SQLZoo** — [sqlzoo.net](https://sqlzoo.net/) is a free, interactive SQL tutorial that runs in the browser. Highly recommended for drilling query syntax.
+- **Mode's SQL Tutorial** — [mode.com/sql-tutorial/](https://mode.com/sql-tutorial/) walks through SQL with realistic business datasets.
+:::
 
 ## Exercises
 

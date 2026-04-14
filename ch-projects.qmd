@@ -1,8 +1,19 @@
 # Project Organization {#sec-projects}
 
-A well-organized project is one you can return to after six months and understand immediately. It is also one that someone else — a collaborator, an instructor, a future employer reviewing your portfolio — can open and navigate without asking you questions. This chapter introduces a simple project structure that scales from a homework assignment to a professional analysis. The terminal commands from @sec-terminal — `mkdir`, `cd`, `ls` — are how you create and navigate this structure from the command line.
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Organize a data project into `data/raw`, `data/clean`, `notebooks`, and `output` directories that scale from homework to professional work.
+- Apply machine-friendly naming conventions (lowercase, ISO dates, no spaces) to files and folders.
+- Write a minimal `README.md` that tells a future reader what a project is, where its data came from, and how to run it.
+- Write portable relative paths (`../data/raw/...`) in notebooks instead of brittle absolute paths.
 
 ## Why Structure Matters
+
+A well-organized project is one you can return to after six months and understand immediately. It is also one that someone else — a collaborator, an instructor, a future employer reviewing your portfolio — can open and navigate without asking you questions. This chapter introduces a simple project structure that scales from a homework assignment to a professional analysis. The terminal commands from @sec-terminal — `mkdir`, `cd`, `ls` — are how you create and navigate this structure from the command line.
+
+## The Problem Good Structure Prevents
 
 When you first start working with data, everything tends to end up in one folder: the raw data files, the cleaned versions, the notebooks, the outputs, and the half-finished experiments. This works until it doesn't. The moment you have two versions of a dataset and cannot remember which one you cleaned, or you overwrite your raw data with a transformed version, you have a problem that no amount of technical skill can fix.
 
@@ -73,9 +84,50 @@ If `pd.read_csv()` gives you a `FileNotFoundError`, the problem is almost always
 
 ## Version Control (A Brief Preview)
 
-As your projects grow, you will benefit from a version control system like **git**, which tracks every change you make to every file and lets you revert to any previous state. Git is beyond the scope of this book, but knowing it exists shapes how you organize your work. The project structure described above — with raw data separated from outputs, and a README explaining the project — is designed to work naturally with version control.
+As your projects grow, you will benefit from a version control system like **[git](https://git-scm.com/doc)**, which tracks every change you make to every file and lets you revert to any previous state. Git is beyond the scope of this book, but knowing it exists shapes how you organize your work. The project structure described above — with raw data separated from outputs, and a README explaining the project — is designed to work naturally with version control.
 
-If you want to explore git, GitHub provides excellent beginner tutorials, and most data science courses cover it in depth. For now, the discipline of keeping raw data untouched and documenting your workflow in notebooks gives you many of the same benefits.
+If you want to explore git, [GitHub's Git Handbook](https://docs.github.com/en/get-started/using-git) and the free [Pro Git book](https://git-scm.com/book/en/v2) are excellent starting points. For now, the discipline of keeping raw data untouched and documenting your workflow in notebooks gives you many of the same benefits.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `FileNotFoundError` in a notebook that used to work
+**What it means:** Your notebook's working directory changed, or the file moved. The relative path you wrote no longer resolves.
+
+**How to fix it:** Run `import os; print(os.getcwd())` in the notebook. Confirm the notebook is running from where you expect. If the working directory is wrong, either move the notebook back into `notebooks/` or update the relative path.
+:::
+
+::: {.callout-warning}
+## You accidentally overwrote a raw data file
+**What it means:** A cell that was meant to save a cleaned version wrote back to the `raw/` file, and the original is lost.
+
+**How to fix it:** This is why raw data stays read-only. Re-download from the original source. From now on, always save cleaned outputs to `data/clean/` (or `output/`), and never reuse the same variable name for input and output files.
+:::
+
+::: {.callout-warning}
+## Two datasets have the same short name
+**What it means:** You downloaded `data.csv` from two different sources and one overwrote the other, or you cannot remember which is which.
+
+**How to fix it:** Rename both with descriptive, dated names (`cannabis-sales-2024.csv`, `voter-registration-2024.csv`) and add a line in your README explaining each source. Treat the original filename from the publisher as a starting point, not a final answer.
+:::
+
+## Key Takeaways
+
+- Separate `raw/` from `clean/` and never modify raw data in place. Treat the raw files as evidence.
+- Descriptive, machine-friendly filenames (lowercase, ISO dates, no spaces) prevent small frustrations from compounding into lost time.
+- A five-minute README makes your project legible to a future version of yourself and anyone else who opens it.
+- Use relative paths (`../data/raw/file.csv`) so your notebook runs on any computer with the same structure.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Project organization and reproducible analysis
+
+- **Cookiecutter Data Science** — [drivendata.github.io/cookiecutter-data-science/](https://drivendata.github.io/cookiecutter-data-science/) is a widely-used project template that scales up from the structure in this chapter.
+- **Good Enough Practices in Scientific Computing** — [plos.org](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510) is a short paper describing minimum viable reproducibility practices. Worth reading.
+- **GitHub Docs: using Git** — [docs.github.com/get-started/using-git](https://docs.github.com/en/get-started/using-git) is the friendliest gateway into version control.
+- **Markdown Guide** — [markdownguide.org](https://www.markdownguide.org/) documents the syntax for `README.md` files.
+:::
 
 ## Exercises
 

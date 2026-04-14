@@ -1,10 +1,21 @@
 # The Terminal and File System {#sec-terminal}
 
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Open a terminal on macOS, Windows, and Linux, and identify the prompt and working directory.
+- Navigate a file system using `pwd`, `ls`, and `cd`, and distinguish between relative and absolute paths.
+- Create, move, copy, and inspect files from the command line.
+- Diagnose `command not found` errors by reasoning about the system `PATH`.
+
+## Why the Terminal Matters
+
 Every graphical application you use — Jupyter Notebook, VS Code, Excel, your file manager — is a visual wrapper around operations that happen in the terminal. When you double-click a file to open it, your operating system is running a command. When you save a file, it is writing bytes to a location on disk. Learning to use the terminal directly gives you access to the same operations without the graphical middleman, which matters for three practical reasons.
 
-First, many data tools — including SQLite, git, and package managers — are designed to be used from the terminal. You will encounter them throughout this book and throughout your career. Second, terminal commands are scriptable: you can record a sequence of steps in a file and replay them exactly, which makes your workflow reproducible. Third, when something goes wrong in a graphical tool, the terminal is often the only way to diagnose the problem.
+First, many data tools — including [SQLite](https://www.sqlite.org/cli.html), [git](https://git-scm.com/docs), and package managers like [conda](https://docs.conda.io/projects/conda/en/stable/commands/index.html) — are designed to be used from the terminal. You will encounter them throughout this book and throughout your career. Second, terminal commands are scriptable: you can record a sequence of steps in a file and replay them exactly, which makes your workflow reproducible. Third, when something goes wrong in a graphical tool, the terminal is often the only way to diagnose the problem.
 
-This chapter introduces the small set of terminal commands you will use repeatedly in this book. You do not need to memorize them — you need to understand what they do so you can look them up when you need them.
+This chapter introduces the small set of terminal commands you will use repeatedly in this book. You do not need to memorize them — you need to understand what they do so you can look them up when you need them. If the terminal feels intimidating at first, that is completely normal. You are learning a new interface to your own computer, and the fluency comes with repetition.
 
 ## Opening a Terminal
 
@@ -110,6 +121,47 @@ The directory you navigate to in your terminal is your **working directory** for
 ::: {.callout-warning}
 ## The most common Windows mistake
 After installing a new tool or editing your PATH, you must open a **new** terminal window. The old window will not see the change.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `command not found` or `'cd' is not recognized`
+**What it means:** The shell cannot find the program you typed. Either you are on the wrong operating system's equivalent command (`ls` on Windows Command Prompt does not exist — use `dir`), the program is not installed, or it is installed but not on your `PATH`.
+
+**How to fix it:** Confirm you are using the correct command for your OS. If a tool you installed is missing, close and reopen your terminal. If that does not work, re-read the install instructions — most tools print the `PATH` line you need to add at the end of their installer output.
+:::
+
+::: {.callout-warning}
+## `No such file or directory`
+**What it means:** The file or folder name you typed does not exist relative to your current working directory.
+
+**How to fix it:** Run `pwd` (or `cd` with no arguments on Windows) to confirm where you are. Then run `ls` (or `dir`) to see what is actually in the folder. Spelling and capitalization matter — `Documents` and `documents` are different on Mac and Linux.
+:::
+
+::: {.callout-warning}
+## `Permission denied`
+**What it means:** Your user account does not have the rights to read, write, or execute the target. This is most common when you try to modify system folders or files created by another user.
+
+**How to fix it:** Avoid using `sudo` reflexively — stay in your home directory (`~` on Mac/Linux, `%USERPROFILE%` on Windows) for your own projects. If you genuinely need to change a system file's permissions, learn what you are doing first; breaking system permissions can render your machine unbootable.
+:::
+
+## Key Takeaways
+
+- The terminal is a text interface to the same operations your graphical tools perform. It is not advanced or scary — it is just a different surface.
+- `pwd`, `ls`, and `cd` are the navigation triad. Build reflex memory for these three commands before worrying about anything else.
+- Paths can be **relative** (from where you are) or **absolute** (from the root of the file system). Know which you are using.
+- `command not found` almost always means the program is not on your `PATH`, not that it is missing. Open a fresh terminal after any install.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on the terminal
+
+- **The Missing Semester of Your CS Education (MIT)** — [missing.csail.mit.edu](https://missing.csail.mit.edu/) is an excellent free course on the terminal, shell scripting, and developer tooling.
+- **Bash cheat sheet** — [devhints.io/bash](https://devhints.io/bash) is a compact reference for common shell commands.
+- **Windows PowerShell basics** — [learn.microsoft.com/powershell](https://learn.microsoft.com/en-us/powershell/scripting/learn/ps101/01-getting-started) is the official starting guide.
+- **SQLite command-line shell** — [sqlite.org/cli.html](https://www.sqlite.org/cli.html) documents `sqlite3` from the terminal, which you will use in @sec-sql-loading.
 :::
 
 ## Exercises

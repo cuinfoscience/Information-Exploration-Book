@@ -142,7 +142,7 @@ This takes two minutes and prevents hours of misguided analysis. The remaining c
 ## Key Takeaways
 
 - A good research question names a specific outcome, a specific comparison, and a specific unit of analysis.
-- The **unit of analysis** — what a single row represents — determines which aggregations are meaningful. Checking `.shape` is not just hygiene; it is analytical discipline.
+- The **unit of analysis** — what a single row represents — determines which aggregations are meaningful. Checking `.shape` is more than hygiene; it is analytical discipline.
 - Between-subjects vs. within-subjects and cross-sectional vs. longitudinal are two independent distinctions. Know which you are doing before you start.
 - Observational data supports **associations**, not causal claims. Use language that matches what your data can actually show.
 - Per-capita rates, not raw counts, make cross-group comparisons meaningful.

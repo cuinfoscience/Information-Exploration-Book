@@ -84,7 +84,7 @@ df.head()
 | year   | int  | Calendar year |
 ```
 
-These few elements cover the vast majority of what you need for data documentation. You do not need to learn the full Markdown specification — just these basics.
+These few elements cover the vast majority of what you need for data documentation. You do not need to learn the full Markdown specification — these basics are enough.
 
 ## Documentation in Jupyter Notebooks
 
@@ -118,7 +118,7 @@ Each entry records four things: the problem, the fix, the impact (especially any
 
 The Known Issues Log is a transparency tool. In public interest data work, publishing your data problems alongside your conclusions is what openness looks like in practice. It is the difference between presenting findings as if they emerged cleanly from perfect data and acknowledging that every real-world dataset has quirks, and that you made judgment calls about how to handle them.
 
-Openness does not mean you must apologize for your data. Every analysis has limitations. It means you make your limitations visible so that readers can evaluate them — and so that you can be held accountable for the decisions you made. A Known Issues Log entry that says "23 rows with `party='OTH'` were excluded because the category is ambiguous" is far more honest and defensible than simply not mentioning the exclusion.
+Openness does not mean you must apologize for your data. Every analysis has limitations. It means you make your limitations visible so that readers can evaluate them — and so that you can be held accountable for the decisions you made. A Known Issues Log entry that says "23 rows with `party='OTH'` were excluded because the category is ambiguous" is far more honest and defensible than leaving the exclusion unmentioned.
 
 See @sec-public-interest for the broader framework connecting openness to public interest data practice.
 :::

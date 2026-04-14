@@ -2,7 +2,7 @@
 
 This book teaches you how to use information to identify interesting real-world problems and generate insight. You will learn to find, collect, assemble, and organize data to inspire new questions, make predictions, generate deliverables, and work toward solutions. Along the way, you will develop the practical skills of exploratory data analysis using [Python](https://www.python.org/doc/) and [SQL](https://www.sqlite.org/lang.html) — two tools that appear in virtually every data-oriented career.
 
-If the word "exploratory" feels a little abstract, that is intentional. Real analysis is rarely linear. You load data, discover it is messier than you expected, go back to clean it, realize you need a different angle, and iterate. This book teaches that rhythm — not just the individual techniques, but the habits of mind that turn a pile of rows into a defensible conclusion.
+If the word "exploratory" feels a little abstract, that is intentional. Real analysis is rarely linear. You load data, discover it is messier than you expected, go back to clean it, realize you need a different angle, and iterate. This book teaches that rhythm — not only the individual techniques, but the habits of mind that turn a pile of rows into a defensible conclusion.
 
 ## Who This Book Is For
 

@@ -148,7 +148,7 @@ After installing a new tool or editing your PATH, you must open a **new** termin
 
 ## Key Takeaways
 
-- The terminal is a text interface to the same operations your graphical tools perform. It is not advanced or scary — it is just a different surface.
+- The terminal is a text interface to the same operations your graphical tools perform. It is not advanced or scary — it is a different surface for actions you already know.
 - `pwd`, `ls`, and `cd` are the navigation triad. Build reflex memory for these three commands before worrying about anything else.
 - Paths can be **relative** (from where you are) or **absolute** (from the root of the file system). Know which you are using.
 - `command not found` almost always means the program is not on your `PATH`, not that it is missing. Open a fresh terminal after any install.

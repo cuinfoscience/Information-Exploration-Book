@@ -347,7 +347,7 @@ team_stats.head()
 
 - Reshaping operations are both powerful and dangerous. Audit row counts and column names after every one.
 - **Aggregate before you merge** when the merge key is not unique. Fix row inflation upstream, not downstream.
-- Use `indicator=True` on every non-trivial merge. The `_merge` column is your quality report.
+- Use `indicator=True` on every merge where correctness matters. The `_merge` column is your quality report.
 - Long format is usually easier for computation; wide format is usually easier for human reading. Know how to convert either direction.
 - `concat` stacks rows; `merge` combines tables on keys. Choose the right tool based on what question you are asking.
 

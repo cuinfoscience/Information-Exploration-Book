@@ -1,6 +1,18 @@
 # Datasets {#sec-datasets}
 
-This appendix describes every dataset used in the book, including its source, structure, key columns, and known quirks. All datasets are available in the accompanying GitHub repository.
+## What This Appendix Covers
+
+This appendix is the reference you come back to whenever you need to remember how a dataset is structured or what its known quirks are. For every dataset used in the book, the entry below lists:
+
+- **Source** (publishing agency) and URL
+- **Filename** in the course repository
+- **Chapters** where the dataset is used
+- **Structure** — what each row represents and the full column list with types
+- **Known quirks** — the gotchas you need to handle before analysis
+
+The "Known quirks" block for each dataset is your per-dataset troubleshooting guide. Read it before loading the file for the first time; return to it whenever a new error surprises you.
+
+All datasets are available in the accompanying GitHub repository.
 
 ## Colorado Cannabis Sales by County
 
@@ -270,4 +282,20 @@ Noticeably absent from what is publicly available at a useful granularity:
 Exemption — data that does not exist publicly, or is not released — is itself a data quality problem. The questions you cannot answer because the data is missing are often the most important ones to ask.
 
 When you finish an analysis, it is worth asking: what would you study if you had access to data that is not currently available? That question is as analytically important as what you did study. See @sec-public-interest for the broader framework.
+:::
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Data-source portals referenced in this book
+
+- **Colorado Department of Revenue — Marijuana Sales Reports** — [cdor.colorado.gov](https://cdor.colorado.gov/data-and-reports/marijuana-data/marijuana-sales-reports)
+- **Boulder County Clerk and Recorder** — [bouldercounty.gov/elections](https://bouldercounty.gov/elections/maps-and-data/data-access/)
+- **Sean Lahman's Baseball Archive** — [sabr.org/lahman-database](https://sabr.org/lahman-database/) and [Chadwick Bureau's maintained copy on GitHub](https://github.com/chadwickbureau/baseballdatabank)
+- **Colorado State Demography Office** — [demography.dola.colorado.gov](https://demography.dola.colorado.gov/assets/html/sdodata.html)
+- **CDC WONDER** — [wonder.cdc.gov](https://wonder.cdc.gov/ucd-icd10.html) and [WONDER help](https://wonder.cdc.gov/wonder/help/main.html)
+- **Colorado Bureau of Investigation Crime Statistics** — [coloradocrimestats.state.co.us](https://coloradocrimestats.state.co.us/)
+- **Boulder County Assessor** — [bouldercounty.gov/property-and-land/assessor](https://bouldercounty.gov/property-and-land/assessor/data-download/)
+
+Finding new datasets: [Data.gov](https://data.gov/) aggregates federal sources, [CO Information Marketplace](https://data.colorado.gov/) publishes Colorado state data, and your local city/county usually has an open-data portal. When evaluating a new source, always check what is published, when it was last updated, and what machine-readable formats are available.
 :::

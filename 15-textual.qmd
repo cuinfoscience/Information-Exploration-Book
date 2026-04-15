@@ -1,0 +1,320 @@
+# Unstructured Text Data {#sec-textual}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Preprocess raw text using [NLTK](https://www.nltk.org/): tokenize, remove stopwords, and apply stemming or lemmatization.
+- Convert text into numerical features using **bag-of-words** and **TF-IDF** representations.
+- Compute **word frequency distributions**, **lexical diversity**, and simple **sentiment scores**.
+- Build a reusable text-preprocessing pipeline that takes raw documents to cleaned tokens.
+- Recognize how text archives relate to the public interest — and what it means when those archives disappear.
+
+## Why Text Data Matters
+
+Most of the world's data is text. Court filings, municipal meeting minutes, legislative transcripts, scientific papers, social media posts, news articles, novel manuscripts, survey free-response answers, and customer reviews are all text data. If you only know how to work with numbers and categories, you are walking past the majority of the information that exists.
+
+Text is also messy in ways that tabular data usually isn't. The same meaning can be expressed in hundreds of ways. Punctuation, capitalization, and spelling drift constantly. The structure — sentence, paragraph, section — is implicit. Turning raw text into something a model or statistic can work with is its own skill, and that's what this chapter teaches.
+
+[NLTK](https://www.nltk.org/) (the Natural Language Toolkit) is a classic, beginner-friendly Python library for text analysis. It's not the fastest tool — [spaCy](https://spacy.io/) and [Hugging Face](https://huggingface.co/docs/transformers/) are what production teams use today — but NLTK is unbeatable for learning the concepts because it exposes every step in the pipeline.
+
+If text preprocessing feels fiddly right now, that's expected. The satisfying click comes once you run a pipeline on a real corpus and see meaningful patterns pop out the other end.
+
+## Setup
+
+You'll use [NLTK](https://www.nltk.org/) for tokenization and classic NLP operations, [pandas](https://pandas.pydata.org/docs/) for the DataFrames that hold your corpus, and [scikit-learn](https://scikit-learn.org/)'s [`TfidfVectorizer`](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html) for TF-IDF.
+
+```{python}
+#| eval: false
+import nltk
+import pandas as pd
+
+# First-time setup: download the small corpora NLTK needs
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('vader_lexicon')
+```
+
+::: {.callout-tip collapse="true"}
+## If you get an `ImportError` or `ModuleNotFoundError`
+
+This means the library isn't installed in your current Python environment. Run this in a new cell:
+
+`!pip install nltk scikit-learn`
+
+Then restart your kernel (Kernel → Restart) and run the import cell again. If you're using Anaconda, try `conda install -c conda-forge nltk scikit-learn` instead.
+:::
+
+::: {.callout-warning}
+## `nltk.download()` downloads to your home directory
+The `nltk.download()` calls above fetch small corpora and pre-trained resources from the internet. If you're on a restricted network, the call may hang; see the NLTK docs for offline installation. You only need to run these once per environment — NLTK caches the data locally.
+:::
+
+## Loading and Inspecting Text
+
+Text data arrives in many containers. A single `.txt` file (a novel, a speech); a folder of text files (a corpus); a DataFrame with a text column (tweets, reviews); a compressed archive (court filings, Wikipedia dumps). The first step is always to get the text into a list of strings, one per document.
+
+```{python}
+#| eval: false
+with open('data/inaugural/2021-biden.txt', encoding='utf-8') as f:
+    text = f.read()
+
+print(f'Document length: {len(text):,} characters')
+print(text[:500])
+```
+
+Notice the `encoding='utf-8'` argument. Text files can arrive in many encodings (UTF-8, Latin-1, Windows-1252), and picking the wrong one produces garbled characters. UTF-8 is the modern default; fall back to `'latin-1'` or `'cp1252'` for older files.
+
+## Text Pre-processing
+
+Pre-processing turns raw text into a sequence of normalized tokens that downstream tools can use. The standard pipeline has five steps: tokenization, lowercasing, punctuation removal, stopword removal, and stemming or lemmatization.
+
+### Tokenization
+
+**Tokenization** splits a string into individual words (tokens). NLTK's `word_tokenize` handles punctuation and contractions better than a plain `text.split()`.
+
+```{python}
+#| eval: false
+from nltk.tokenize import word_tokenize, sent_tokenize
+
+tokens = word_tokenize(text)
+print('First 20 tokens:', tokens[:20])
+print('Total tokens:', len(tokens))
+```
+
+You can also split into sentences with `sent_tokenize` — useful when sentence boundaries matter (summarization, sentiment analysis).
+
+### Case normalization and punctuation
+
+Most analyses treat `"The"` and `"the"` as the same word. Lowercase everything, then filter out pure punctuation:
+
+```{python}
+#| eval: false
+tokens = [t.lower() for t in tokens if t.isalpha()]
+print('After normalization:', tokens[:20])
+```
+
+The `isalpha()` check drops tokens that are not entirely letters — punctuation, numbers, and mixed strings all go. Adjust if numbers matter for your question.
+
+### Stopword removal
+
+**Stopwords** are common words like "the," "and," "of" that carry little topical meaning. NLTK ships with stopword lists for dozens of languages:
+
+```{python}
+#| eval: false
+from nltk.corpus import stopwords
+
+stop = set(stopwords.words('english'))
+tokens = [t for t in tokens if t not in stop]
+print('After stopwords:', tokens[:20])
+```
+
+Stopword removal is a judgment call, not a rule. For authorship attribution or stylistic analysis, stopwords are the most useful tokens — do not remove them. For topic modeling and TF-IDF, removing them usually improves results.
+
+### Stemming vs. lemmatization
+
+Both operations reduce inflected forms to a base form, but differently. **Stemming** chops off endings with simple rules — fast but sometimes crude (`"running"` → `"run"`, but `"better"` → `"better"`). **Lemmatization** uses a dictionary to find the canonical form (`"better"` → `"good"`). Lemmatization is slower but more linguistically principled.
+
+```{python}
+#| eval: false
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+print('Stemmed:', [stemmer.stem(t) for t in ['running', 'runs', 'ran', 'better']])
+print('Lemmatized (verbs):', [lemmatizer.lemmatize(t, pos='v') for t in ['running', 'runs', 'ran']])
+```
+
+Pick one and document the choice. Mixing stemming and lemmatization across a project gives inconsistent results.
+
+## Vectorizing Text
+
+Most downstream tools — classifiers, clustering algorithms, similarity searches — expect numeric input. You need to turn each document into a vector of numbers. Two classic approaches:
+
+### Bag-of-words
+
+**Bag-of-words** represents each document as a vector of word counts. Word order is discarded, so a document is just a multiset of tokens. Crude but surprisingly effective.
+
+### TF-IDF
+
+**TF-IDF** (term frequency × inverse document frequency) is a weighted refinement. Each term's weight in a document is its frequency in that document, scaled *down* by how common it is across the whole corpus. Words that appear everywhere (even after stopword removal) get low weights; words that appear in a few documents but repeatedly get high weights.
+
+The scikit-learn implementation hides the messy details:
+
+```{python}
+#| eval: false
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+corpus = [
+    'data science is the study of data',
+    'public interest data journalism uncovers hidden stories',
+    'machine learning is a branch of artificial intelligence',
+]
+
+vectorizer = TfidfVectorizer(stop_words='english')
+tfidf = vectorizer.fit_transform(corpus)
+
+tfidf_df = pd.DataFrame(
+    tfidf.toarray(),
+    columns=vectorizer.get_feature_names_out()
+)
+print(tfidf_df.round(2))
+```
+
+Each row is a document; each column is a unique term; each cell is the TF-IDF weight. The matrix is usually sparse (most cells are zero), and scikit-learn stores it efficiently as a sparse matrix.
+
+Take a moment to appreciate what you just did: you turned three sentences into a numeric matrix you can now run clustering, classification, or similarity metrics on.
+
+## Text Metrics
+
+Before any advanced modeling, compute a few descriptive statistics about your corpus.
+
+### Word frequency
+
+```{python}
+#| eval: false
+from collections import Counter
+
+freq = Counter(tokens)
+print('Most common tokens:')
+for word, count in freq.most_common(20):
+    print(f'  {word}: {count}')
+```
+
+This is the text analog of `.value_counts()`. Eyeball the top 20: are the most common tokens meaningful, or do they reveal a preprocessing step you missed?
+
+### Lexical diversity
+
+**Lexical diversity** is the ratio of unique tokens to total tokens — how varied the vocabulary is.
+
+```{python}
+#| eval: false
+diversity = len(set(tokens)) / len(tokens)
+print(f'Lexical diversity: {diversity:.3f}')
+```
+
+High diversity (close to 1) suggests a document with a wide vocabulary; low diversity (close to 0) suggests heavy repetition.
+
+### Sentiment
+
+NLTK's **VADER** sentiment analyzer is a rule-based tool tuned for short, informal English (reviews, tweets). It returns compound scores from -1 (most negative) to +1 (most positive).
+
+```{python}
+#| eval: false
+from nltk.sentiment import SentimentIntensityAnalyzer
+
+sia = SentimentIntensityAnalyzer()
+score = sia.polarity_scores('This chapter makes NLP feel approachable.')
+print(score)
+```
+
+VADER is a good starting point, not a final answer. Modern transformer-based sentiment models outperform it on most benchmarks. Use VADER when you need transparency and speed; reach for [Hugging Face](https://huggingface.co/docs/transformers/) when you need accuracy.
+
+## Working with Real Text Data
+
+Two friendly sources for practicing:
+
+- **[Project Gutenberg](https://www.gutenberg.org/)** — tens of thousands of public-domain books in plain text. Great for stylistic analysis, topic modeling, and comparative literature.
+- **NLTK built-in corpora** — `nltk.corpus.inaugural` (US inaugural addresses, 1789–present), `nltk.corpus.gutenberg` (a selection of classics), and `nltk.corpus.reuters` (news articles by category).
+
+Here's a small pipeline that loads every inaugural address, tokenizes it, and computes word counts per president:
+
+```{python}
+#| eval: false
+from nltk.corpus import inaugural
+
+rows = []
+for fileid in inaugural.fileids():
+    year = int(fileid[:4])
+    president = fileid[5:-4]
+    words = [w.lower() for w in inaugural.words(fileid) if w.isalpha()]
+    rows.append({
+        'year': year,
+        'president': president,
+        'n_tokens': len(words),
+        'n_unique': len(set(words)),
+    })
+
+inaugurals = pd.DataFrame(rows)
+print(inaugurals.head())
+print(inaugurals[['n_tokens', 'n_unique']].describe())
+```
+
+You're now in familiar pandas territory — group by year ranges, correlate with external data, build a plot. Text analysis is not a separate universe; it's a pipeline that feeds tokens into the tools you already know.
+
+## Public Interest Context: Disappearing Records
+
+Text archives are eroding. News sites shutter and take their archives down. Social media platforms lock or delete posts. Court records and municipal meeting minutes live on fragile PDF scrolls behind county-specific search interfaces. Link rot — the slow disappearance of URLs — is a known, measured phenomenon in academic citation analysis.
+
+At the same time, the text records of public life that remain are often the only evidence of how institutions behaved. Municipal meeting minutes document when a zoning change was proposed. Legislative transcripts record who said what on the floor. Court filings record every motion in a case. When these text records are intact and searchable, accountability journalism and civic research are possible. When they rot or go behind paywalls, accountability becomes harder.
+
+Text analysis skills connect directly to this landscape: the ability to scrape, preserve, and analyze text archives is a public interest skill. Projects like the [Internet Archive](https://archive.org/), [DocumentCloud](https://www.documentcloud.org/), and [OpenStates](https://openstates.org/) exist precisely because the default is erosion.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concepts of **erosion** and **ownership** introduced in [Chapter 4](04-public-interest.qmd). Text archives erode unless someone invests in preserving them; text-analysis skills help turn those fragile records into evidence that can inform public debate.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `LookupError: Resource punkt not found`
+**What it means:** You tried to tokenize before downloading NLTK's tokenizer data.
+
+**How to fix it:** Run `nltk.download('punkt')` once, then rerun your tokenizer call. The same pattern applies for `stopwords`, `wordnet`, and `vader_lexicon`.
+:::
+
+::: {.callout-warning}
+## `UnicodeDecodeError` when reading a text file
+**What it means:** The file is not UTF-8 encoded. Common for older files from Windows systems.
+
+**How to fix it:** Try `encoding='latin-1'` or `encoding='cp1252'` when calling `open()`. If in doubt, use `chardet` (`pip install chardet`) to detect the encoding programmatically.
+:::
+
+::: {.callout-warning}
+## TF-IDF weights look suspicious or all zero
+**What it means:** Your corpus is too small for meaningful IDF weights (TF-IDF is designed for dozens to millions of documents), or your preprocessing stripped too many terms.
+
+**How to fix it:** Check the vocabulary size: `print(len(vectorizer.vocabulary_))`. If it's near zero, loosen `min_df` and `max_df`. For corpora smaller than ~20 documents, raw counts may be more informative than TF-IDF.
+:::
+
+::: {.callout-warning}
+## Stemming turns meaningful words into nonsense (`"university"` → `"univers"`)
+**What it means:** You're using a stemmer when lemmatization would preserve meaning better.
+
+**How to fix it:** Switch to `WordNetLemmatizer`. Pass the correct part-of-speech tag (`pos='v'` for verbs, `pos='n'` for nouns) to get the best results.
+:::
+
+## Key Takeaways
+
+- Text preprocessing is a pipeline: tokenize, normalize, filter, stem or lemmatize. Document every step in your Known Issues Log.
+- Bag-of-words and TF-IDF turn text into numbers. Once vectorized, every tool you know from numeric data is available.
+- Descriptive text metrics — word frequency, lexical diversity, sentiment — are the equivalent of `.describe()` for text.
+- NLTK is a teaching tool and a reliable workhorse; reach for spaCy and Hugging Face when you need speed or modern accuracy.
+- Public interest text work exists because text archives erode. Preserving and analyzing them is part of accountability infrastructure.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on text analysis
+
+- **NLTK documentation** — [nltk.org/](https://www.nltk.org/) is the canonical reference.
+- **NLTK Book** — [nltk.org/book/](https://www.nltk.org/book/) is a free, book-length tutorial that develops from first principles.
+- **Real Python: NLTK tutorial** — [realpython.com/nltk-nlp-python/](https://realpython.com/nltk-nlp-python/) is an accessible walkthrough.
+- **spaCy** — [spacy.io/](https://spacy.io/) is the production-oriented successor, with fast pretrained models for tagging and entity recognition.
+- **Hugging Face Transformers** — [huggingface.co/docs/transformers/](https://huggingface.co/docs/transformers/) is where modern embedding-based NLP lives.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Inaugural address corpus
+Load all US inaugural addresses with `nltk.corpus.inaugural`. Compute per-address token counts, unique-word counts, and lexical diversity. Build a pandas DataFrame with one row per address. Which president used the largest vocabulary? Is there a trend over time? Produce a simple line plot of lexical diversity by year.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: TF-IDF on a small corpus of your choice
+Pick five to ten short documents you care about — news articles on a topic, social media posts from a hashtag, song lyrics by one artist. Build a TF-IDF matrix and look at the top 5 highest-weighted terms in each document. Do the top terms feel representative? What does this tell you about the corpus? Document your preprocessing choices in a short Known Issues Log entry.
+:::

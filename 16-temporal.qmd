@@ -1,0 +1,294 @@
+# Time Series Data {#sec-temporal}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Parse dates and reshape a DataFrame into a proper time series indexed by a [`DatetimeIndex`](https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html).
+- Identify **trend**, **seasonality**, **stationarity**, and **autocorrelation** in a series, and visualize each with [`plot_acf`](https://www.statsmodels.org/stable/generated/statsmodels.graphics.tsaplots.plot_acf.html) and [`seasonal_decompose`](https://www.statsmodels.org/stable/generated/statsmodels.tsa.seasonal.seasonal_decompose.html).
+- Fit an **ARIMA** model with [`statsmodels`](https://www.statsmodels.org/) and produce a forecast with confidence intervals.
+- Use [Prophet](https://facebook.github.io/prophet/) as a higher-level forecasting tool when automation is more important than fine control.
+- Load real economic data from [FRED](https://fred.stlouisfed.org/), [World Bank Open Data](https://data.worldbank.org/), and [IMF Data](https://www.imf.org/en/Data).
+
+## Why Time Series Data Matters
+
+Most policy questions are time-series questions. Is unemployment rising or falling? When did housing prices take off? Did the new policy reduce overdose deaths, and if so, when? Time series data — a value measured repeatedly over time — is the backbone of how agencies, newsrooms, and researchers track change.
+
+This chapter covers the skills you need to work with time series: parsing dates, decomposing a series into trend and seasonality, diagnosing autocorrelation, and producing simple forecasts. You'll start with [statsmodels](https://www.statsmodels.org/), which is already installed in most Python environments and gives you direct access to the underlying components of a forecast. Then you'll meet [Prophet](https://facebook.github.io/prophet/), which automates many of the same choices and is worth reaching for when you want a working forecast fast.
+
+If this chapter feels dense, that's expected. Time series has its own vocabulary — stationarity, differencing, ACF, PACF — that takes a few passes to internalize. Keep the definitions close and rerun the examples with different series until the intuition settles.
+
+## Setup
+
+You'll use [pandas](https://pandas.pydata.org/docs/) for date handling, [statsmodels](https://www.statsmodels.org/) for decomposition and ARIMA, and [matplotlib](https://matplotlib.org/stable/) for plotting.
+
+```{python}
+#| eval: false
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.arima.model import ARIMA
+```
+
+::: {.callout-tip collapse="true"}
+## If you get an `ImportError` or `ModuleNotFoundError`
+
+This means the library isn't installed in your current Python environment. Run this in a new cell:
+
+`!pip install statsmodels`
+
+Then restart your kernel (Kernel → Restart) and run the import cell again. If you're using Anaconda, try `conda install -c conda-forge statsmodels` instead.
+:::
+
+## Time Series Concepts
+
+Four concepts recur throughout time-series analysis. Learn the names now; the implementations follow.
+
+**Trend** is the long-run direction of the series — slowly rising, slowly falling, or flat.
+
+**Seasonality** is a recurring pattern that repeats at a fixed period — monthly retail sales peaking in December, hourly traffic peaking at rush hour, annual birth rates peaking in summer.
+
+**Stationarity** is the property that the series' mean and variance do not change over time. Most real series are *not* stationary as-is; many models require stationarity and use **differencing** (subtracting the previous value) to achieve it.
+
+**Autocorrelation** is the correlation between a series and a lagged version of itself. A strong correlation at lag 12 in monthly data signals an annual seasonal pattern.
+
+## Building a Proper Time Series
+
+A pandas DataFrame becomes a time series when its index is a `DatetimeIndex`. The first step is always: parse the date column, set it as the index, and sort.
+
+```{python}
+#| eval: false
+unrate = pd.read_csv('data/UNRATE.csv')
+unrate['DATE'] = pd.to_datetime(unrate['DATE'])
+unrate = unrate.set_index('DATE').sort_index()
+
+print(unrate.head())
+print('Index type:', type(unrate.index))
+print('Date range:', unrate.index.min(), '→', unrate.index.max())
+```
+
+::: {.callout-warning}
+## Check your frequency
+A time series has a *frequency*: monthly (`'MS'` = month start, `'ME'` = month end), quarterly (`'QS'`), daily (`'D'`), etc. Some statsmodels functions need to know the frequency explicitly. After setting the index, run `unrate.asfreq('MS')` to assert a monthly-start frequency and fill any gaps with `NaN`. If the result has unexpected NaN rows, there are missing months you need to address.
+:::
+
+## Visualizing a Time Series
+
+Before any modeling, plot the series. Eyeballing the trend, seasonality, and outliers prevents a lot of downstream confusion.
+
+```{python}
+#| eval: false
+fig, ax = plt.subplots(figsize=(10, 4))
+ax.plot(unrate.index, unrate['UNRATE'])
+ax.set_title('US Unemployment Rate (monthly)')
+ax.set_ylabel('Unemployment rate (%)')
+ax.axhline(unrate['UNRATE'].mean(), color='gray', linestyle='--', alpha=0.5, label='Mean')
+ax.legend()
+plt.tight_layout()
+plt.show()
+```
+
+The line plot is usually enough to see the big picture. Recessions show up as sharp spikes; multi-year cycles are visible at a glance. Compare what you see to the known economic history of the series — the 2008 financial crisis and the 2020 COVID shock should be obvious.
+
+## Decomposition
+
+**Seasonal decomposition** splits the observed series into three components: trend, seasonal, and residual. The additive model assumes `observed = trend + seasonal + residual`; the multiplicative model assumes the three components multiply.
+
+```{python}
+#| eval: false
+decomp = seasonal_decompose(unrate['UNRATE'], model='additive', period=12)
+
+fig = decomp.plot()
+fig.set_size_inches(10, 8)
+plt.tight_layout()
+plt.show()
+```
+
+You get four panels: the original series, the extracted trend, the seasonal component, and the residuals. If the seasonal pattern looks messy or meaningless, try `period=4` for quarterly data or `period=7` for weekly.
+
+## Autocorrelation and Differencing
+
+The **autocorrelation function (ACF)** plots the correlation between the series and its lagged versions. A slowly decaying ACF suggests a strong trend (non-stationary); sharp peaks at regular lags suggest seasonality.
+
+```{python}
+#| eval: false
+fig, axes = plt.subplots(2, 1, figsize=(10, 6))
+plot_acf(unrate['UNRATE'].dropna(), ax=axes[0], lags=48, title='ACF: Unemployment rate')
+plot_pacf(unrate['UNRATE'].dropna(), ax=axes[1], lags=48, title='PACF: Unemployment rate')
+plt.tight_layout()
+plt.show()
+```
+
+To make a non-stationary series stationary, take the **first difference** (each observation minus its predecessor):
+
+```{python}
+#| eval: false
+diff = unrate['UNRATE'].diff().dropna()
+
+fig, ax = plt.subplots(figsize=(10, 3))
+ax.plot(diff.index, diff)
+ax.set_title('First-differenced unemployment rate')
+plt.tight_layout()
+plt.show()
+```
+
+The differenced series should have no obvious trend and a roughly constant variance. If one difference isn't enough, you can difference again.
+
+## Forecasting with ARIMA
+
+**ARIMA** — AutoRegressive Integrated Moving Average — is the classic statistical forecasting model. It has three parameters, written `(p, d, q)`:
+
+- `p` — number of autoregressive lags
+- `d` — number of differences applied
+- `q` — number of moving-average lags
+
+Picking good `(p, d, q)` is part art, part ritual. Start with `(1, 1, 1)` as a baseline, then use ACF/PACF plots and information criteria (AIC, BIC) to refine.
+
+```{python}
+#| eval: false
+model = ARIMA(unrate['UNRATE'], order=(1, 1, 1))
+fit = model.fit()
+print(fit.summary())
+```
+
+The summary lists coefficient estimates, standard errors, and fit statistics. Non-significant coefficients (p > 0.05) suggest you can simplify the model.
+
+To forecast the next 24 months:
+
+```{python}
+#| eval: false
+forecast = fit.get_forecast(steps=24)
+mean = forecast.predicted_mean
+ci = forecast.conf_int(alpha=0.05)
+
+fig, ax = plt.subplots(figsize=(10, 4))
+ax.plot(unrate.index, unrate['UNRATE'], label='Observed')
+ax.plot(mean.index, mean, label='Forecast')
+ax.fill_between(ci.index, ci.iloc[:, 0], ci.iloc[:, 1], alpha=0.2, label='95% CI')
+ax.legend()
+ax.set_title('Unemployment rate — 24-month forecast')
+plt.tight_layout()
+plt.show()
+```
+
+The shaded band is the 95% confidence interval. The further out you forecast, the wider the band — that's the model's honesty about its own uncertainty.
+
+Take a moment to appreciate what you just did: you parsed a monthly series, diagnosed its structure, fit an ARIMA model, and produced a forecast with confidence bands in fewer than twenty lines of code.
+
+## Advanced: Forecasting with Prophet
+
+[Prophet](https://facebook.github.io/prophet/) (originally from Meta/Facebook) is a higher-level forecasting tool. It automates most of the decisions ARIMA asks you to make — seasonality, trend changepoints, holidays — and exposes a scikit-learn-style `fit`/`predict` API. You give up some control; you gain speed.
+
+Prophet expects a specific DataFrame format: a column `ds` (the date) and a column `y` (the value).
+
+```{python}
+#| eval: false
+from prophet import Prophet
+
+df = unrate.reset_index().rename(columns={'DATE': 'ds', 'UNRATE': 'y'})
+
+m = Prophet(yearly_seasonality=True, weekly_seasonality=False, daily_seasonality=False)
+m.fit(df)
+
+future = m.make_future_dataframe(periods=24, freq='MS')
+forecast = m.predict(future)
+m.plot(forecast)
+plt.title('Prophet forecast: unemployment rate')
+plt.show()
+```
+
+The `m.plot_components(forecast)` call splits the fit into trend and seasonal components — useful for presenting to non-technical stakeholders.
+
+::: {.callout-warning}
+## Prophet installation
+
+Prophet requires a working C++ compiler and the `cmdstan` library, which can make installation tricky — especially on Windows. If `pip install prophet` fails, try `conda install -c conda-forge prophet`. If that also fails, the statsmodels ARIMA approach above will serve you well for this course. See the [Prophet installation guide](https://facebook.github.io/prophet/docs/installation.html) for troubleshooting.
+:::
+
+When do you pick Prophet over ARIMA? Prophet is a good default for daily or sub-daily data with strong seasonality, for series with obvious changepoints (COVID is the canonical example), and when you need a working forecast in a meeting tomorrow. ARIMA is a better default when you need to understand every component of the model, when your data is short, or when your stakeholders expect statistical reporting (coefficients, p-values).
+
+## Working with Real Economic Data
+
+Three reliable, free sources:
+
+- **[FRED](https://fred.stlouisfed.org/)** — Federal Reserve Economic Data. Thousands of US macroeconomic series (unemployment, CPI, GDP, interest rates). Free CSV downloads, or use the FRED API (see @sec-structured).
+- **[World Bank Open Data](https://data.worldbank.org/)** — country-level economic, health, and education indicators for ~200 countries from 1960 onward.
+- **[IMF Data](https://www.imf.org/en/Data)** — international financial statistics, balance of payments, government finance.
+
+Each publishes CSV files with different date formats. Always check the first few rows to see how the publisher encoded dates, missing values, and frequency metadata. FRED uses a single `DATE` column; the World Bank uses a wide format with one column per year that you'll need to `melt` into long format.
+
+## Public Interest Context: Broken Continuity
+
+Time series depend on continuity. Monthly unemployment can only be compared across decades if the Bureau of Labor Statistics kept collecting it the same way, publishing it on the same schedule, defining "unemployed" the same way. When agencies change methodology — as the Census Bureau did for the American Community Survey, or as the CDC did during COVID-19 — the continuity needed for oversight breaks down. A break in a data series is also a break in public accountability.
+
+Some breaks are honest: new measurement technology, more granular categories. Some are less so: politically contested series that are discontinued, renamed, or reclassified under budget pressure. When you work with a long-running government series, it's worth asking: what changed along the way, and whose story does the gap hide?
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concepts of **erosion** and **oversight** introduced in [Chapter 4](04-public-interest.qmd). A time series breaks whenever methodology or funding changes — and those breaks erode the continuity that oversight depends on.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `ValueError: Inferred frequency None from passed values does not conform to passed frequency`
+**What it means:** There are missing dates in your index, or the index is not monotonically increasing.
+
+**How to fix it:** Run `df = df.asfreq('MS')` (or whatever frequency fits). Check for gaps with `df[df['value'].isna()]`. Fill gaps with `.ffill()`, `.interpolate()`, or by imputing from a known baseline.
+:::
+
+::: {.callout-warning}
+## ARIMA fit produces warnings about non-stationarity
+**What it means:** The `d` parameter is too low — your series is not yet stationary after the number of differences you specified.
+
+**How to fix it:** Plot the differenced series. If it still has a trend, increase `d` to 2. Use the Augmented Dickey-Fuller test (`statsmodels.tsa.stattools.adfuller`) to test stationarity formally.
+:::
+
+::: {.callout-warning}
+## Prophet forecast looks wildly wrong on short series
+**What it means:** Prophet expects at least a year of data to detect yearly seasonality. On shorter series it falls back on trend alone, which can overshoot.
+
+**How to fix it:** Turn off seasonality components that aren't supported by your data: `Prophet(yearly_seasonality=False, weekly_seasonality=False)`. Consider ARIMA instead — it's more conservative on small samples.
+:::
+
+::: {.callout-warning}
+## Decomposition returns blank trend at the edges
+**What it means:** `seasonal_decompose` uses a centered moving average, which requires observations on both sides. The first and last `period/2` points have NaN trend values.
+
+**How to fix it:** This is expected behavior. Drop the NaN rows, or use a two-sided rolling mean with `min_periods` to get edge estimates.
+:::
+
+## Key Takeaways
+
+- A time series is a DataFrame with a `DatetimeIndex`. Parse, set, and sort the index before anything else.
+- Trend, seasonality, stationarity, autocorrelation — the four concepts to get comfortable with. Visualize each one.
+- ARIMA gives you fine control; Prophet gives you automation. Pick based on what your audience expects and how much time you have.
+- Always plot your forecast alongside the observed data with a confidence band. A forecast without uncertainty is a dangerous graph.
+- Long government time series are public infrastructure. Methodology breaks matter.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on time series analysis
+
+- **statsmodels time-series analysis** — [statsmodels.org/stable/tsa.html](https://www.statsmodels.org/stable/tsa.html) is the canonical reference.
+- **Prophet documentation** — [facebook.github.io/prophet/docs/quick_start.html](https://facebook.github.io/prophet/docs/quick_start.html) has a clear walk-through.
+- **sktime** — [sktime.net/](https://www.sktime.net/) is a unified interface to many forecasting algorithms (classical, ML, deep learning).
+- **"Forecasting: Principles and Practice" by Hyndman & Athanasopoulos** — free online at [otexts.com/fpp3/](https://otexts.com/fpp3/). Uses R, but the concepts transfer directly.
+- **FRED** — [fred.stlouisfed.org/](https://fred.stlouisfed.org/) is the single best source of US economic time series for teaching and analysis.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Decompose a FRED series
+Download a monthly FRED series of your choice (e.g., `CPIAUCSL` for CPI, `HOUST` for housing starts, `RSAFS` for retail sales). Set up the time-series DataFrame, run `seasonal_decompose` with an additive model and period=12, and interpret the four panels in a paragraph. Does the seasonal component match your prior intuition about the series?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Compare ARIMA and Prophet forecasts
+Using the same FRED series from Exercise 1, fit an ARIMA(1,1,1) model and produce a 12-month forecast with confidence bands. Then fit a Prophet model and produce a 12-month forecast. Overlay both forecasts on the same plot. Where do they agree? Where do they differ? Write a short paragraph explaining which forecast you would trust more and why. If Prophet fails to install, discuss which choices ARIMA required you to make that Prophet would have automated.
+:::

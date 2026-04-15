@@ -12,32 +12,33 @@ book:
     - index.qmd
     - part: "Foundations"
       chapters:
-        - ch-terminal.qmd
-        - ch-projects.qmd
-        - ch-documentation.qmd
-        - ch-environments.qmd
-        - ch-errors.qmd
-        - ch-research-questions.qmd
-        - ch-public-interest.qmd
+        - 01-terminal.qmd
+        - 02-projects.qmd
+        - 03-documentation.qmd
+        - 04-environments.qmd
+        - 05-errors.qmd
+        - 06-research-questions.qmd
+        - 07-public-interest.qmd
     - part: "Python"
       chapters:
-        - ch-py-loading.qmd
-        - ch-py-cleaning.qmd
-        - ch-py-extending.qmd
-        - ch-py-reshaping.qmd
+        - 08-py-loading.qmd
+        - 09-py-cleaning.qmd
+        - 10-py-extending.qmd
+        - 11-py-reshaping.qmd
     - part: "SQL"
       chapters:
-        - ch-sql-loading.qmd
-        - ch-sql-cleaning.qmd
-        - ch-sql-extending.qmd
-        - ch-sql-reshaping.qmd
+        - 12-sql-loading.qmd
+        - 13-sql-cleaning.qmd
+        - 14-sql-extending.qmd
+        - 15-sql-reshaping.qmd
     - part: "Analysis"
       chapters:
-        - ch-descriptive.qmd
-        - ch-visualization.qmd
-        - ch-hypothesis-testing.qmd
+        - 16-descriptive.qmd
+        - 17-visualization.qmd
+        - 18-hypothesis-testing.qmd
   appendices:
     - appendix-datasets.qmd
+    - appendix-llm-methods.qmd
     - appendix-next-steps.qmd
 
 format:

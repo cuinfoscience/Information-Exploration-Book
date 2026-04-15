@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Public Interest Data Science – Information Exploration</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./08-py-loading.html" rel="next">
+<link href="./06-research-questions.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-abfa4615eba2ed0d4bb7fb949ed9c296.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-terminal.html">Foundations</a></li><li class="breadcrumb-item"><a href="./07-public-interest.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Public Interest Data Science</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Information Exploration</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/cuinfoscience/Information-Exploration-Book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Foundations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-terminal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Terminal and File System</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-projects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Project Organization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Documentation and Markdown</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-environments.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Python Environments</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-errors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Reading Error Messages</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-research-questions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Research Questions and Study Designs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-public-interest.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Public Interest Data Science</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Python</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-py-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Loading Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-py-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Cleaning Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-py-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Extending Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-py-reshaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Reshaping Data with pandas</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">SQL</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-sql-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Loading Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-sql-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Cleaning Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-sql-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Extending Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-sql-reshaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-descriptive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-datasets.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Datasets</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-llm-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AI Use Disclosure</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-next-steps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Where to Go Next</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">7.1</span> Learning Objectives</a></li>
+  <li><a href="#why-this-chapter-matters" id="toc-why-this-chapter-matters" class="nav-link" data-scroll-target="#why-this-chapter-matters"><span class="header-section-number">7.2</span> Why This Chapter Matters</a></li>
+  <li><a href="#three-dynamics-that-shape-public-data" id="toc-three-dynamics-that-shape-public-data" class="nav-link" data-scroll-target="#three-dynamics-that-shape-public-data"><span class="header-section-number">7.3</span> Three Dynamics That Shape Public Data</a>
+  <ul class="collapse">
+  <li><a href="#enclosure-data-designed-for-humans-not-machines" id="toc-enclosure-data-designed-for-humans-not-machines" class="nav-link" data-scroll-target="#enclosure-data-designed-for-humans-not-machines"><span class="header-section-number">7.3.1</span> Enclosure: Data Designed for Humans, Not Machines</a></li>
+  <li><a href="#erosion-infrastructure-decay-made-concrete" id="toc-erosion-infrastructure-decay-made-concrete" class="nav-link" data-scroll-target="#erosion-infrastructure-decay-made-concrete"><span class="header-section-number">7.3.2</span> Erosion: Infrastructure Decay Made Concrete</a></li>
+  <li><a href="#exemption-what-data-does-not-exist" id="toc-exemption-what-data-does-not-exist" class="nav-link" data-scroll-target="#exemption-what-data-does-not-exist"><span class="header-section-number">7.3.3</span> Exemption: What Data Does Not Exist</a></li>
+  </ul></li>
+  <li><a href="#three-pillars-of-public-interest-data-practice" id="toc-three-pillars-of-public-interest-data-practice" class="nav-link" data-scroll-target="#three-pillars-of-public-interest-data-practice"><span class="header-section-number">7.4</span> Three Pillars of Public Interest Data Practice</a>
+  <ul class="collapse">
+  <li><a href="#openness-the-known-issues-log" id="toc-openness-the-known-issues-log" class="nav-link" data-scroll-target="#openness-the-known-issues-log"><span class="header-section-number">7.4.1</span> Openness — The Known Issues Log</a></li>
+  <li><a href="#oversight-the-join-quality-report" id="toc-oversight-the-join-quality-report" class="nav-link" data-scroll-target="#oversight-the-join-quality-report"><span class="header-section-number">7.4.2</span> Oversight — The Join-Quality Report</a></li>
+  <li><a href="#ownership-the-data-dictionary" id="toc-ownership-the-data-dictionary" class="nav-link" data-scroll-target="#ownership-the-data-dictionary"><span class="header-section-number">7.4.3</span> Ownership — The Data Dictionary</a></li>
+  </ul></li>
+  <li><a href="#how-these-pillars-appear-in-this-book" id="toc-how-these-pillars-appear-in-this-book" class="nav-link" data-scroll-target="#how-these-pillars-appear-in-this-book"><span class="header-section-number">7.5</span> How These Pillars Appear in This Book</a></li>
+  <li><a href="#common-issues-in-this-chapter" id="toc-common-issues-in-this-chapter" class="nav-link" data-scroll-target="#common-issues-in-this-chapter"><span class="header-section-number">7.6</span> Common Issues in This Chapter</a></li>
+  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways"><span class="header-section-number">7.7</span> Key Takeaways</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">7.8</span> Further Reading</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">7.9</span> Exercises</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/07-public-interest.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-terminal.html">Foundations</a></li><li class="breadcrumb-item"><a href="./07-public-interest.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Public Interest Data Science</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span id="sec-public-interest" class="quarto-section-identifier"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Public Interest Data Science</span></span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">7.1</span> Learning Objectives</h2>
+<p>By the end of this chapter, you will be able to:</p>
+<ul>
+<li>Identify three dynamics — <strong>enclosure</strong>, <strong>erosion</strong>, and <strong>exemption</strong> — that shape what public data looks like and what it omits.</li>
+<li>Recognize the telltale symptoms of each dynamic in real datasets (title blocks, format mismatches, suppression codes, absent records).</li>
+<li>Apply the three pillars of public interest practice — <strong>openness</strong>, <strong>oversight</strong>, and <strong>ownership</strong> — using the Known Issues Log, join-quality reports, and Data Dictionary.</li>
+<li>Frame your analytical conclusions in language that matches what the data can actually support.</li>
+</ul>
+</section>
+<section id="why-this-chapter-matters" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="why-this-chapter-matters"><span class="header-section-number">7.2</span> Why This Chapter Matters</h2>
+<p>Data analysis is never neutral. Every dataset reflects choices about what to count, how to count it, who gets to count, and who is counted. This chapter introduces a framework for thinking about those choices — not to make you suspicious of data, but to make you a more careful reader of it.</p>
+<p>The datasets in this book come from government agencies, public records, and open archives. They are about cannabis sales, voter registration, crime, mortality, and population. They are, in a meaningful sense, <em>about people</em>. Understanding how they were produced — and what was left out — is part of doing the analysis well.</p>
+</section>
+<section id="three-dynamics-that-shape-public-data" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="three-dynamics-that-shape-public-data"><span class="header-section-number">7.3</span> Three Dynamics That Shape Public Data</h2>
+<p>Public data is shaped by three recurring dynamics that appear, in different forms, in nearly every dataset you will work with in this book.</p>
+<section id="enclosure-data-designed-for-humans-not-machines" class="level3" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="enclosure-data-designed-for-humans-not-machines"><span class="header-section-number">7.3.1</span> Enclosure: Data Designed for Humans, Not Machines</h3>
+<p><strong>Enclosure</strong> happens when data that is technically public is formatted in ways that make it difficult to use programmatically. The data exists, but accessing it requires significant effort — and that effort is unevenly distributed.</p>
+<p>The Colorado cannabis sales file is a clear example. It is published by a state agency and available to download, but it arrives as an Excel export with a two-row title block at the top, eight footnote rows at the bottom, and sales figures formatted as currency strings (<code>$1,234,567</code>). None of this matters if you are reading the spreadsheet in Excel. All of it matters if you are trying to load it into pandas.</p>
+<p>The CDC WONDER database is a more extreme example. Mortality data is available, but it must be requested through a web form that limits what you can query at once. The results are delivered as HTML tables — not CSV files, not an API — which means extracting the data requires additional parsing steps that are not documented or supported.</p>
+<p>These are not accidents. They are the result of publishing workflows optimized for human readers in browsers and spreadsheets. The practical effect is that the people who can most easily use this data are those with the technical skills to work around its formatting — a form of enclosure through interface design.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What to look for
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When you load a new dataset, the problems you encounter in the first few cells — extra header rows, currency strings, aggregated totals, merged cells — are often symptoms of enclosure. The dataset was designed for a different audience than you.</p>
+</div>
+</div>
+</section>
+<section id="erosion-infrastructure-decay-made-concrete" class="level3" data-number="7.3.2">
+<h3 data-number="7.3.2" class="anchored" data-anchor-id="erosion-infrastructure-decay-made-concrete"><span class="header-section-number">7.3.2</span> Erosion: Infrastructure Decay Made Concrete</h3>
+<p><strong>Erosion</strong> happens when data infrastructure degrades over time, typically because no single agency is responsible for maintaining consistency across systems.</p>
+<p>The county name mismatch in the course datasets is a concrete example. Three Colorado government agencies each publish data about Colorado counties:</p>
+<ul>
+<li>The CDC WONDER database formats county names as <code>"Adams County, CO"</code>.</li>
+<li>The Colorado Bureau of Investigation uses <code>"Adams County"</code>.</li>
+<li>The Colorado State Demography Office uses bare names: <code>"Adams"</code>.</li>
+</ul>
+<p>No one decided that these formats should differ. They are the accumulated result of three agencies building their own systems, at different times, with different conventions and no coordination mandate. The mismatch is invisible until you try to join the tables — at which point it silently drops every row, because <code>"Adams County, CO"</code> does not equal <code>"Adams County"</code> does not equal <code>"Adams"</code>.</p>
+<p>This is infrastructure erosion made concrete: a technical inconvenience that embodies a real governance problem. The cost is borne by anyone who tries to analyze these datasets together — which is exactly the analysis you would want to do if you were studying, say, the relationship between crime rates, death rates, and population in Colorado counties.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What to look for
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When joining tables from different agencies, always audit your key columns before joining. <code>SELECT DISTINCT county FROM deaths ORDER BY county;</code> run against all three tables will immediately reveal format mismatches that would otherwise produce a silent empty result.</p>
+</div>
+</div>
+</section>
+<section id="exemption-what-data-does-not-exist" class="level3" data-number="7.3.3">
+<h3 data-number="7.3.3" class="anchored" data-anchor-id="exemption-what-data-does-not-exist"><span class="header-section-number">7.3.3</span> Exemption: What Data Does Not Exist</h3>
+<p><strong>Exemption</strong> is the hardest dynamic to see, because it involves absence rather than presence. It happens when data that would be useful for public accountability is not collected, not retained, or not released.</p>
+<p>The CDC suppression rule is a visible example of exemption by policy. When death counts in a county-year-cause cell are below 10, the CDC reports the value as <code>"Suppressed"</code> rather than a number. The stated reason is privacy protection — individuals in a small cell might be identifiable. This is a legitimate concern, but the effect is that the counties with the smallest populations — often rural counties, often with higher rates of specific causes of death — have the most missing data. The places where data would be most informative are the places where data is least available.</p>
+<p>Less visible forms of exemption include data that is never collected at all: housing displacement records at the parcel level, detention facility population data, stop-and-frisk incident logs in jurisdictions that do not publish them. These absences are not accidents either. They reflect choices about what is worth measuring and who is worth measuring it for.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What to look for
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When a column has missing values, ask why. <code>"Suppressed"</code> in the CDC data is not a data quality problem — it is a policy decision. Understanding <em>why</em> data is missing is different from knowing <em>that</em> it is missing, and it matters for how you handle it analytically and how you communicate about it.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="three-pillars-of-public-interest-data-practice" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="three-pillars-of-public-interest-data-practice"><span class="header-section-number">7.4</span> Three Pillars of Public Interest Data Practice</h2>
+<p>Understanding these dynamics does not make data analysis impossible. It makes it more honest. Three practices, which appear throughout this book, help translate awareness into better work.</p>
+<section id="openness-the-known-issues-log" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="openness-the-known-issues-log"><span class="header-section-number">7.4.1</span> Openness — The Known Issues Log</h3>
+<p><strong>Openness</strong> means making your data problems visible rather than hiding them. The Known Issues Log introduced in <a href="03-documentation.html" class="quarto-xref"><span>Chapter 3</span></a> is a transparency tool: a running record of every quality problem you found, what you decided to do about it, and why.</p>
+<p>Publishing a Known Issues Log alongside your analysis lets readers evaluate your decisions rather than taking your conclusions on faith. It also protects you: documenting that you knew about a data problem and addressed it deliberately is very different from having it discovered later as an unacknowledged flaw.</p>
+<p>Openness is not about being embarrassed by data problems. Every real-world dataset has them. It is about treating data quality as a fact to communicate rather than a weakness to conceal.</p>
+</section>
+<section id="oversight-the-join-quality-report" class="level3" data-number="7.4.2">
+<h3 data-number="7.4.2" class="anchored" data-anchor-id="oversight-the-join-quality-report"><span class="header-section-number">7.4.2</span> Oversight — The Join-Quality Report</h3>
+<p><strong>Oversight</strong> means auditing your data pipelines to catch silent failures. The join-quality report introduced in <a href="15-sql-reshaping.html" class="quarto-xref"><span>Chapter 15</span></a> is an audit trail: a structured check of what matched, what was dropped, and whether the result is plausible.</p>
+<p>A join that silently drops 40% of rows because of a county name format mismatch is not a software bug — it is a logical error that produces a confident-looking wrong answer. Oversight practices — checking row counts before and after joins, validating totals, auditing unmatched records — are what prevent silent errors from becoming invisible conclusions.</p>
+<p>In a public interest context, the stakes are higher. An analysis of county-level health outcomes that silently drops rural counties is not only technically wrong — it is systematically biased against the populations that are hardest to count.</p>
+</section>
+<section id="ownership-the-data-dictionary" class="level3" data-number="7.4.3">
+<h3 data-number="7.4.3" class="anchored" data-anchor-id="ownership-the-data-dictionary"><span class="header-section-number">7.4.3</span> Ownership — The Data Dictionary</h3>
+<p><strong>Ownership</strong> means tracking provenance: where data came from, who collected it, when it was accessed, and what decisions were made about it. The Data Dictionary introduced in <a href="03-documentation.html" class="quarto-xref"><span>Chapter 3</span></a> is a provenance record.</p>
+<p>Provenance matters for reproducibility — someone else should be able to reconstruct your analysis from the same sources. It also matters for accountability. Knowing that a dataset comes from the Colorado Department of Revenue’s Marijuana Enforcement Division, downloaded on a specific date from a specific URL, is different from knowing only that you “got the cannabis data from the state.”</p>
+<p>In an era of frequently updated government datasets, provenance records also let you know whether your analysis is based on data that has since been revised or retracted.</p>
+</section>
+</section>
+<section id="how-these-pillars-appear-in-this-book" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="how-these-pillars-appear-in-this-book"><span class="header-section-number">7.5</span> How These Pillars Appear in This Book</h2>
+<p>The three pillars are not add-ons — they are woven into the recurring practices that appear in every chapter of this book.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 44%">
+<col style="width: 17%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Recurring practice</th>
+<th>Pillar</th>
+<th>Where introduced</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Known Issues Log</td>
+<td>Openness</td>
+<td><a href="03-documentation.html" class="quarto-xref"><span>Chapter 3</span></a></td>
+</tr>
+<tr class="even">
+<td>Data Dictionary</td>
+<td>Ownership</td>
+<td><a href="03-documentation.html" class="quarto-xref"><span>Chapter 3</span></a></td>
+</tr>
+<tr class="odd">
+<td>Post-load checklist</td>
+<td>Openness</td>
+<td><a href="08-py-loading.html" class="quarto-xref"><span>Chapter 8</span></a></td>
+</tr>
+<tr class="even">
+<td>Validate after every transformation</td>
+<td>Oversight</td>
+<td>throughout</td>
+</tr>
+<tr class="odd">
+<td>Join-quality report</td>
+<td>Oversight</td>
+<td><a href="15-sql-reshaping.html" class="quarto-xref"><span>Chapter 15</span></a></td>
+</tr>
+<tr class="even">
+<td>County name standardization</td>
+<td>Oversight (erosion response)</td>
+<td><a href="13-sql-cleaning.html" class="quarto-xref"><span>Chapter 13</span></a></td>
+</tr>
+<tr class="odd">
+<td><code>na_values</code> documentation</td>
+<td>Ownership</td>
+<td><a href="08-py-loading.html" class="quarto-xref"><span>Chapter 8</span></a></td>
+</tr>
+<tr class="even">
+<td>Documenting why data is missing</td>
+<td>Openness</td>
+<td><a href="09-py-cleaning.html" class="quarto-xref"><span>Chapter 9</span></a></td>
+</tr>
+</tbody>
+</table>
+<p>Reading the technical chapters with these pillars in mind transforms a series of data manipulation exercises into a coherent practice. You are not only learning how to rename columns and join tables. You are learning how to be accountable for what you find.</p>
+</section>
+<section id="common-issues-in-this-chapter" class="level2" data-number="7.6">
+<h2 data-number="7.6" class="anchored" data-anchor-id="common-issues-in-this-chapter"><span class="header-section-number">7.6</span> Common Issues in This Chapter</h2>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>You treat missing values as random
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> Code that drops NaNs or fills them with a mean assumes the missingness is random. When the missingness is systematic — the CDC suppression rule, for example — that assumption biases your analysis.</p>
+<p><strong>How to fix it:</strong> Before any missing-value imputation, ask <em>why</em> the value is missing. Document the answer in your Known Issues Log. Treat policy-driven suppression differently from data-entry omissions.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>A join silently drops rows because of format mismatches
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> You joined two agency tables on <code>county</code>, but one uses <code>"Adams County, CO"</code> and the other uses <code>"Adams"</code>. The result is confident-looking, systematically wrong.</p>
+<p><strong>How to fix it:</strong> Run a join-quality report (<a href="15-sql-reshaping.html" class="quarto-xref"><span>Chapter 15</span></a>): compare row counts before and after the join, and list any unmatched keys. Standardize keys in a cleaning step before joining.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Your analysis does not account for absent data
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> The counties or demographic groups with the most missing rows are often the ones your analysis would most benefit from including. Silence about absence is not the same as representativeness.</p>
+<p><strong>How to fix it:</strong> When you drop or exclude rows, document what was excluded and speculate about what the exclusion means for your conclusions. A limitation section in your writeup is not weakness — it is credibility.</p>
+</div>
+</div>
+</section>
+<section id="key-takeaways" class="level2" data-number="7.7">
+<h2 data-number="7.7" class="anchored" data-anchor-id="key-takeaways"><span class="header-section-number">7.7</span> Key Takeaways</h2>
+<ul>
+<li>Public data is shaped by three recurring dynamics — <strong>enclosure</strong>, <strong>erosion</strong>, and <strong>exemption</strong> — that are invisible until you know to look for them.</li>
+<li>Three practices — <strong>openness</strong> (Known Issues Log), <strong>oversight</strong> (join-quality reports), and <strong>ownership</strong> (Data Dictionary) — translate awareness into better analysis.</li>
+<li>The technical habits in this book (inspect before acting, validate after every transform, document your decisions) are not separate from ethics. They are what ethical data practice looks like in code.</li>
+<li>Good data work makes absent data and uncertain decisions visible, not invisible.</li>
+</ul>
+</section>
+<section id="further-reading" class="level2" data-number="7.8">
+<h2 data-number="7.8" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">7.8</span> Further Reading</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>📚 Going deeper on public interest data practice
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>“Data Feminism” by D’Ignazio and Klein</strong> — a free online edition at <a href="https://data-feminism.mitpress.mit.edu/">data-feminism.mitpress.mit.edu</a> develops this book’s themes at length.</li>
+<li><strong>“Weapons of Math Destruction” by Cathy O’Neil</strong> — an accessible survey of how opaque algorithms and missing data harm communities.</li>
+<li><strong>Ada Lovelace Institute: Data justice</strong> — <a href="https://www.adalovelaceinstitute.org/">adalovelaceinstitute.org</a> publishes short, readable reports on data governance and equity.</li>
+<li><strong>Investigative Reporters and Editors: Data library</strong> — <a href="https://www.ire.org/">ire.org</a> has public-interest datasets and story pitches.</li>
+<li><strong>CDC WONDER documentation</strong> — <a href="https://wonder.cdc.gov/wonder/help/main.html">wonder.cdc.gov/wonder/help/main.html</a> documents the suppression rules referenced above.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="7.9">
+<h2 data-number="7.9" class="anchored" data-anchor-id="exercises"><span class="header-section-number">7.9</span> Exercises</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 1: Identify the dynamic
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For each of the following data problems, identify which dynamic (enclosure, erosion, or exemption) it represents and explain your reasoning:</p>
+<ol type="1">
+<li>A county health department publishes monthly reports as PDF scans of printed tables.</li>
+<li>Two state agencies use different ZIP code formats — one includes the ZIP+4 suffix, the other does not — making it impossible to join their records directly.</li>
+<li>A police department publishes use-of-force data only in aggregate, not at the incident level.</li>
+<li>A state unemployment database uses <code>999</code> to indicate “not applicable” in some columns and <code>null</code> in others.</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 2: The absent dataset
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Look at the datasets described in <a href="appendix-datasets.html" class="quarto-xref"><span>Appendix A</span></a>. For each dataset, identify one question you would like to answer that the dataset cannot answer — either because the relevant data is not collected, is suppressed, or is not in this dataset. For each gap, suggest what additional data source might fill it and whether that source is likely to be publicly available.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 3: Known Issues Log entry
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Load the Colorado cannabis sales dataset as described in <a href="08-py-loading.html" class="quarto-xref"><span>Chapter 8</span></a>. Write a Known Issues Log entry for the suppressed <code>NR</code> values in the sales columns. Your entry should document: (1) what the problem is, (2) which rows are affected, (3) what you decided to do about it, and (4) why that decision is defensible.</p>
+</div>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./06-research-questions.html" class="pagination-link" aria-label="Research Questions and Study Designs">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Research Questions and Study Designs</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./08-py-loading.html" class="pagination-link" aria-label="Loading Data with pandas">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Loading Data with pandas</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Public Interest Data Science {#sec-public-interest}</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Learning Objectives</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you will be able to:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Identify three dynamics — **enclosure**, **erosion**, and **exemption** — that shape what public data looks like and what it omits.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Recognize the telltale symptoms of each dynamic in real datasets (title blocks, format mismatches, suppression codes, absent records).</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Apply the three pillars of public interest practice — **openness**, **oversight**, and **ownership** — using the Known Issues Log, join-quality reports, and Data Dictionary.</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Frame your analytical conclusions in language that matches what the data can actually support.</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why This Chapter Matters</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>Data analysis is never neutral. Every dataset reflects choices about what to count, how to count it, who gets to count, and who is counted. This chapter introduces a framework for thinking about those choices — not to make you suspicious of data, but to make you a more careful reader of it.</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>The datasets in this book come from government agencies, public records, and open archives. They are about cannabis sales, voter registration, crime, mortality, and population. They are, in a meaningful sense, *about people*. Understanding how they were produced — and what was left out — is part of doing the analysis well.</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">## Three Dynamics That Shape Public Data</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>Public data is shaped by three recurring dynamics that appear, in different forms, in nearly every dataset you will work with in this book.</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">### Enclosure: Data Designed for Humans, Not Machines</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>**Enclosure** happens when data that is technically public is formatted in ways that make it difficult to use programmatically. The data exists, but accessing it requires significant effort — and that effort is unevenly distributed.</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>The Colorado cannabis sales file is a clear example. It is published by a state agency and available to download, but it arrives as an Excel export with a two-row title block at the top, eight footnote rows at the bottom, and sales figures formatted as currency strings (<span class="in">`$1,234,567`</span>). None of this matters if you are reading the spreadsheet in Excel. All of it matters if you are trying to load it into pandas.</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>The CDC WONDER database is a more extreme example. Mortality data is available, but it must be requested through a web form that limits what you can query at once. The results are delivered as HTML tables — not CSV files, not an API — which means extracting the data requires additional parsing steps that are not documented or supported.</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>These are not accidents. They are the result of publishing workflows optimized for human readers in browsers and spreadsheets. The practical effect is that the people who can most easily use this data are those with the technical skills to work around its formatting — a form of enclosure through interface design.</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="fu">## What to look for</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>When you load a new dataset, the problems you encounter in the first few cells — extra header rows, currency strings, aggregated totals, merged cells — are often symptoms of enclosure. The dataset was designed for a different audience than you.</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="fu">### Erosion: Infrastructure Decay Made Concrete</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>**Erosion** happens when data infrastructure degrades over time, typically because no single agency is responsible for maintaining consistency across systems.</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>The county name mismatch in the course datasets is a concrete example. Three Colorado government agencies each publish data about Colorado counties:</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The CDC WONDER database formats county names as <span class="in">`"Adams County, CO"`</span>.</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The Colorado Bureau of Investigation uses <span class="in">`"Adams County"`</span>.</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The Colorado State Demography Office uses bare names: <span class="in">`"Adams"`</span>.</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>No one decided that these formats should differ. They are the accumulated result of three agencies building their own systems, at different times, with different conventions and no coordination mandate. The mismatch is invisible until you try to join the tables — at which point it silently drops every row, because <span class="in">`"Adams County, CO"`</span> does not equal <span class="in">`"Adams County"`</span> does not equal <span class="in">`"Adams"`</span>.</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>This is infrastructure erosion made concrete: a technical inconvenience that embodies a real governance problem. The cost is borne by anyone who tries to analyze these datasets together — which is exactly the analysis you would want to do if you were studying, say, the relationship between crime rates, death rates, and population in Colorado counties.</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="fu">## What to look for</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>When joining tables from different agencies, always audit your key columns before joining. <span class="in">`SELECT DISTINCT county FROM deaths ORDER BY county;`</span> run against all three tables will immediately reveal format mismatches that would otherwise produce a silent empty result.</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu">### Exemption: What Data Does Not Exist</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>**Exemption** is the hardest dynamic to see, because it involves absence rather than presence. It happens when data that would be useful for public accountability is not collected, not retained, or not released.</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>The CDC suppression rule is a visible example of exemption by policy. When death counts in a county-year-cause cell are below 10, the CDC reports the value as <span class="in">`"Suppressed"`</span> rather than a number. The stated reason is privacy protection — individuals in a small cell might be identifiable. This is a legitimate concern, but the effect is that the counties with the smallest populations — often rural counties, often with higher rates of specific causes of death — have the most missing data. The places where data would be most informative are the places where data is least available.</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>Less visible forms of exemption include data that is never collected at all: housing displacement records at the parcel level, detention facility population data, stop-and-frisk incident logs in jurisdictions that do not publish them. These absences are not accidents either. They reflect choices about what is worth measuring and who is worth measuring it for.</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="fu">## What to look for</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>When a column has missing values, ask why. <span class="in">`"Suppressed"`</span> in the CDC data is not a data quality problem — it is a policy decision. Understanding *why* data is missing is different from knowing *that* it is missing, and it matters for how you handle it analytically and how you communicate about it.</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="fu">## Three Pillars of Public Interest Data Practice</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>Understanding these dynamics does not make data analysis impossible. It makes it more honest. Three practices, which appear throughout this book, help translate awareness into better work.</span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a><span class="fu">### Openness — The Known Issues Log</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>**Openness** means making your data problems visible rather than hiding them. The Known Issues Log introduced in @sec-documentation is a transparency tool: a running record of every quality problem you found, what you decided to do about it, and why.</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>Publishing a Known Issues Log alongside your analysis lets readers evaluate your decisions rather than taking your conclusions on faith. It also protects you: documenting that you knew about a data problem and addressed it deliberately is very different from having it discovered later as an unacknowledged flaw.</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>Openness is not about being embarrassed by data problems. Every real-world dataset has them. It is about treating data quality as a fact to communicate rather than a weakness to conceal.</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="fu">### Oversight — The Join-Quality Report</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>**Oversight** means auditing your data pipelines to catch silent failures. The join-quality report introduced in @sec-sql-reshaping is an audit trail: a structured check of what matched, what was dropped, and whether the result is plausible.</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>A join that silently drops 40% of rows because of a county name format mismatch is not a software bug — it is a logical error that produces a confident-looking wrong answer. Oversight practices — checking row counts before and after joins, validating totals, auditing unmatched records — are what prevent silent errors from becoming invisible conclusions.</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>In a public interest context, the stakes are higher. An analysis of county-level health outcomes that silently drops rural counties is not only technically wrong — it is systematically biased against the populations that are hardest to count.</span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ownership — The Data Dictionary</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>**Ownership** means tracking provenance: where data came from, who collected it, when it was accessed, and what decisions were made about it. The Data Dictionary introduced in @sec-documentation is a provenance record.</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>Provenance matters for reproducibility — someone else should be able to reconstruct your analysis from the same sources. It also matters for accountability. Knowing that a dataset comes from the Colorado Department of Revenue's Marijuana Enforcement Division, downloaded on a specific date from a specific URL, is different from knowing only that you "got the cannabis data from the state."</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>In an era of frequently updated government datasets, provenance records also let you know whether your analysis is based on data that has since been revised or retracted.</span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a><span class="fu">## How These Pillars Appear in This Book</span></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>The three pillars are not add-ons — they are woven into the recurring practices that appear in every chapter of this book.</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Recurring practice <span class="pp">|</span> Pillar <span class="pp">|</span> Where introduced <span class="pp">|</span></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------------------|--------|-----------------|</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Known Issues Log <span class="pp">|</span> Openness <span class="pp">|</span> @sec-documentation <span class="pp">|</span></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Data Dictionary <span class="pp">|</span> Ownership <span class="pp">|</span> @sec-documentation <span class="pp">|</span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Post-load checklist <span class="pp">|</span> Openness <span class="pp">|</span> @sec-py-loading <span class="pp">|</span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Validate after every transformation <span class="pp">|</span> Oversight <span class="pp">|</span> throughout <span class="pp">|</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Join-quality report <span class="pp">|</span> Oversight <span class="pp">|</span> @sec-sql-reshaping <span class="pp">|</span></span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> County name standardization <span class="pp">|</span> Oversight (erosion response) <span class="pp">|</span> @sec-sql-cleaning <span class="pp">|</span></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`na_values`</span> documentation <span class="pp">|</span> Ownership <span class="pp">|</span> @sec-py-loading <span class="pp">|</span></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Documenting why data is missing <span class="pp">|</span> Openness <span class="pp">|</span> @sec-py-cleaning <span class="pp">|</span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>Reading the technical chapters with these pillars in mind transforms a series of data manipulation exercises into a coherent practice. You are not only learning how to rename columns and join tables. You are learning how to be accountable for what you find.</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common Issues in This Chapter</span></span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## You treat missing values as random</span></span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>**What it means:** Code that drops NaNs or fills them with a mean assumes the missingness is random. When the missingness is systematic — the CDC suppression rule, for example — that assumption biases your analysis.</span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>**How to fix it:** Before any missing-value imputation, ask *why* the value is missing. Document the answer in your Known Issues Log. Treat policy-driven suppression differently from data-entry omissions.</span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a><span class="fu">## A join silently drops rows because of format mismatches</span></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a>**What it means:** You joined two agency tables on <span class="in">`county`</span>, but one uses <span class="in">`"Adams County, CO"`</span> and the other uses <span class="in">`"Adams"`</span>. The result is confident-looking, systematically wrong.</span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>**How to fix it:** Run a join-quality report (@sec-sql-reshaping): compare row counts before and after the join, and list any unmatched keys. Standardize keys in a cleaning step before joining.</span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a><span class="fu">## Your analysis does not account for absent data</span></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a>**What it means:** The counties or demographic groups with the most missing rows are often the ones your analysis would most benefit from including. Silence about absence is not the same as representativeness.</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a>**How to fix it:** When you drop or exclude rows, document what was excluded and speculate about what the exclusion means for your conclusions. A limitation section in your writeup is not weakness — it is credibility.</span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Takeaways</span></span>
+<span id="cb1-138"><a href="#cb1-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-139"><a href="#cb1-139" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Public data is shaped by three recurring dynamics — **enclosure**, **erosion**, and **exemption** — that are invisible until you know to look for them.</span>
+<span id="cb1-140"><a href="#cb1-140" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Three practices — **openness** (Known Issues Log), **oversight** (join-quality reports), and **ownership** (Data Dictionary) — translate awareness into better analysis.</span>
+<span id="cb1-141"><a href="#cb1-141" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The technical habits in this book (inspect before acting, validate after every transform, document your decisions) are not separate from ethics. They are what ethical data practice looks like in code.</span>
+<span id="cb1-142"><a href="#cb1-142" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Good data work makes absent data and uncertain decisions visible, not invisible.</span>
+<span id="cb1-143"><a href="#cb1-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-144"><a href="#cb1-144" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further Reading</span></span>
+<span id="cb1-145"><a href="#cb1-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-146"><a href="#cb1-146" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb1-147"><a href="#cb1-147" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📚 Going deeper on public interest data practice</span></span>
+<span id="cb1-148"><a href="#cb1-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-149"><a href="#cb1-149" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**"Data Feminism" by D'Ignazio and Klein** — a free online edition at <span class="co">[</span><span class="ot">data-feminism.mitpress.mit.edu</span><span class="co">](https://data-feminism.mitpress.mit.edu/)</span> develops this book's themes at length.</span>
+<span id="cb1-150"><a href="#cb1-150" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**"Weapons of Math Destruction" by Cathy O'Neil** — an accessible survey of how opaque algorithms and missing data harm communities.</span>
+<span id="cb1-151"><a href="#cb1-151" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Ada Lovelace Institute: Data justice** — <span class="co">[</span><span class="ot">adalovelaceinstitute.org</span><span class="co">](https://www.adalovelaceinstitute.org/)</span> publishes short, readable reports on data governance and equity.</span>
+<span id="cb1-152"><a href="#cb1-152" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Investigative Reporters and Editors: Data library** — <span class="co">[</span><span class="ot">ire.org</span><span class="co">](https://www.ire.org/)</span> has public-interest datasets and story pitches.</span>
+<span id="cb1-153"><a href="#cb1-153" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**CDC WONDER documentation** — <span class="co">[</span><span class="ot">wonder.cdc.gov/wonder/help/main.html</span><span class="co">](https://wonder.cdc.gov/wonder/help/main.html)</span> documents the suppression rules referenced above.</span>
+<span id="cb1-154"><a href="#cb1-154" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-155"><a href="#cb1-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-156"><a href="#cb1-156" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb1-157"><a href="#cb1-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-158"><a href="#cb1-158" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb1-159"><a href="#cb1-159" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 1: Identify the dynamic</span></span>
+<span id="cb1-160"><a href="#cb1-160" aria-hidden="true" tabindex="-1"></a>For each of the following data problems, identify which dynamic (enclosure, erosion, or exemption) it represents and explain your reasoning:</span>
+<span id="cb1-161"><a href="#cb1-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>A county health department publishes monthly reports as PDF scans of printed tables.</span>
+<span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Two state agencies use different ZIP code formats — one includes the ZIP+4 suffix, the other does not — making it impossible to join their records directly.</span>
+<span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>A police department publishes use-of-force data only in aggregate, not at the incident level.</span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>A state unemployment database uses <span class="in">`999`</span> to indicate "not applicable" in some columns and <span class="in">`null`</span> in others.</span>
+<span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb1-169"><a href="#cb1-169" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2: The absent dataset</span></span>
+<span id="cb1-170"><a href="#cb1-170" aria-hidden="true" tabindex="-1"></a>Look at the datasets described in @sec-datasets. For each dataset, identify one question you would like to answer that the dataset cannot answer — either because the relevant data is not collected, is suppressed, or is not in this dataset. For each gap, suggest what additional data source might fill it and whether that source is likely to be publicly available.</span>
+<span id="cb1-171"><a href="#cb1-171" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb1-172"><a href="#cb1-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-173"><a href="#cb1-173" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb1-174"><a href="#cb1-174" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 3: Known Issues Log entry</span></span>
+<span id="cb1-175"><a href="#cb1-175" aria-hidden="true" tabindex="-1"></a>Load the Colorado cannabis sales dataset as described in @sec-py-loading. Write a Known Issues Log entry for the suppressed <span class="in">`NR`</span> values in the sales columns. Your entry should document: (1) what the problem is, (2) which rows are affected, (3) what you decided to do about it, and (4) why that decision is defensible.</span>
+<span id="cb1-176"><a href="#cb1-176" aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/07-public-interest.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>

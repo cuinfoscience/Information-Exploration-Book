@@ -1,0 +1,424 @@
+# Reshaping Data with pandas {#sec-py-reshaping}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Convert data between wide and long formats using [`pd.melt`](https://pandas.pydata.org/docs/reference/api/pandas.melt.html), [`pivot`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pivot.html), and [`pivot_table`](https://pandas.pydata.org/docs/reference/api/pandas.pivot_table.html).
+- Stack DataFrames vertically with [`pd.concat`](https://pandas.pydata.org/docs/reference/api/pandas.concat.html), validating row counts and column alignment.
+- Combine tables on shared keys using [`pd.merge`](https://pandas.pydata.org/docs/reference/api/pandas.merge.html) with every join type (`inner`, `left`, `right`, `outer`).
+- Audit merge quality using the `indicator=True` parameter and understand why rows fail to match.
+- Recognize when aggregation must happen *before* a merge to avoid row inflation.
+
+## Why Reshaping Matters
+
+Most analysis questions require data from multiple sources, and those sources rarely arrive in the shape you need. This chapter covers the operations that change the structure of your data: `melt()` to go from wide to long, `pivot()` and `pivot_table()` to go from long to wide, `concat()` to stack DataFrames vertically, and `merge()` to combine tables by matching on shared keys. Each operation carries risks — silent row inflation, dropped records, introduced nulls — that you must audit after every transformation.
+
+Reshaping is where silent bugs love to hide. A merge that silently drops 40% of rows because of mismatched dtypes, a concat that creates duplicate columns because of trailing whitespace in a name, a pivot that aggregates values you did not expect to aggregate — all of these produce confident-looking output that is quietly wrong. Build the habit of auditing after every reshape.
+
+## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/) and [numpy](https://numpy.org/doc/stable/).
+
+```{python}
+import pandas as pd
+import numpy as np
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.float_format', '{:.3f}'.format)
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+:::
+
+## Datasets
+
+This chapter continues with the Lahman Baseball Database and Colorado population data from @sec-py-extending, and adds two new Lahman tables — Salaries and People — to demonstrate multi-table merging.
+
+```{python}
+batting = pd.read_csv('Batting.csv')
+
+# Derived columns from previous chapter
+batting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))
+batting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']
+batting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))
+batting['HBP'] = batting['HBP'].fillna(0)
+batting['SF'] = batting['SF'].fillna(0)
+batting['OBP'] = (
+    (batting['H'] + batting['BB'] + batting['HBP'])
+    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF'])
+    .replace(0, float('nan'))
+)
+batting['OPS'] = batting['OBP'] + batting['SLG']
+batting['decade'] = (batting['yearID'] // 10) * 10
+
+print('Batting shape:', batting.shape)
+```
+
+```{python}
+salaries = pd.read_csv('Salaries.csv')
+print('Salaries shape:', salaries.shape)
+print('Year range:', salaries['yearID'].min(), '–', salaries['yearID'].max())
+```
+
+```{python}
+people = pd.read_csv('People.csv')
+print('People shape:', people.shape)
+people[['playerID', 'nameFirst', 'nameLast', 'birthYear', 'birthState']].head()
+```
+
+## Wide vs. Long Format
+
+The same data can be represented in two fundamentally different shapes.
+
+**Wide format** has one row per entity and multiple columns for repeated measurements. A table of HR by decade with teams as rows and decades as columns is wide format.
+
+**Long format** (also called "tidy" format) has one row per observation. The same HR data in long format has one row per (team, decade) combination, with a single column for the HR value.
+
+Neither format is inherently better. Wide format is easier for humans to read as a cross-tab. Long format is easier for computation — `groupby()`, `merge()`, and plotting functions generally expect long format. The skill is knowing how to convert between the two.
+
+## `melt()`: Wide to Long
+
+The `melt()` function unpivots a wide DataFrame into long format. You specify which columns stay as identifiers (`id_vars`) and which columns get "melted" into a single key-value pair (`value_vars`).
+
+```{python}
+# Build a wide pivot first
+c0 = batting['yearID'] >= 1900
+c1 = batting['yearID'] < 2020
+batting_modern = batting[c0 & c1].copy()
+
+hr_wide = batting_modern.pivot_table(
+    index='decade',
+    columns='teamID',
+    values='HR',
+    aggfunc='sum'
+).reset_index()
+hr_wide.columns.name = None
+
+print('Wide shape:', hr_wide.shape)
+```
+
+```{python}
+team_cols = [c for c in hr_wide.columns if c != 'decade']  # all columns except the ID column
+
+hr_long = hr_wide.melt(
+    id_vars=['decade'],        # columns that stay as identifiers (not melted)
+    value_vars=team_cols,      # columns to unpivot into rows (one row per team per decade)
+    var_name='teamID',         # name for the new column that holds the old column headers
+    value_name='total_HR'      # name for the new column that holds the old cell values
+)
+
+print('Long shape:', hr_long.shape)
+# Expected: one row per (decade × team) combination
+print('Expected rows:', hr_wide.shape[0], '×', len(team_cols), '=', hr_wide.shape[0] * len(team_cols))
+```
+
+After melting, some rows will contain `NaN` — a team that did not exist in a given decade. Always drop or flag these:
+
+```{python}
+hr_clean = hr_long.dropna(subset=['total_HR'])
+print('After dropping NaN:', hr_clean.shape)
+```
+
+The power of long format is that it enables further computation that would be awkward in wide format:
+
+```{python}
+# League-wide mean HR per team by decade — easy in long, awkward in wide
+league_avg = (
+    hr_clean
+    .groupby('decade')['total_HR']
+    .agg(n_teams='count', mean_HR='mean', max_HR='max')
+    .reset_index()
+)
+
+league_avg.set_index('decade')['mean_HR'].plot(title='Mean Team HR by Decade')
+```
+
+## `concat()`: Stacking DataFrames
+
+The `concat()` function appends rows from multiple DataFrames into one. This is the programmatic equivalent of copy-pasting rows across Excel sheets. Use it when you have multiple files with the same columns — annual exports, regional splits, or train/test splits.
+
+```{python}
+dead_ball = batting[batting['yearID'] < 1920].copy()
+live_ball = batting[(batting['yearID'] >= 1920) & (batting['yearID'] < 1970)].copy()
+modern = batting[batting['yearID'] >= 1970].copy()
+
+frames = [dead_ball, live_ball, modern]
+# ignore_index=True resets the row index to 0, 1, 2, ... in the combined result.
+# Without it, each DataFrame keeps its original index, creating a non-unique index
+# that can cause subtle bugs later (e.g., .loc[0] returns multiple rows).
+all_eras = pd.concat(frames, ignore_index=True)
+
+print('Shape after concat:', all_eras.shape)
+print('Row count matches original?', all_eras.shape[0] == batting.shape[0])
+```
+
+::: {.callout-warning}
+## The validation pattern after `concat()`
+Always check three things after concatenating: (1) row count equals the sum of input row counts, (2) no new `NaN` columns appeared (column name mismatches create them silently), and (3) no unexpected duplicates from overlapping date ranges.
+:::
+
+### Tracking provenance with `keys`
+
+When files come from different sources, use the `keys` parameter to record which file each row came from:
+
+```{python}
+era_labels = ['Dead Ball (<1920)', 'Live Ball (1920-1969)', 'Modern (1970+)']
+
+all_eras_labeled = pd.concat(
+    frames,
+    keys=era_labels,
+    ignore_index=False
+).reset_index(level=0).rename(columns={'level_0': 'era'})
+
+print(all_eras_labeled['era'].value_counts())
+```
+
+## `merge()`: Combining Tables by Key
+
+Merging is the most powerful and most dangerous reshaping operation. It combines two DataFrames by matching rows on one or more shared key columns — the programmatic equivalent of VLOOKUP in a spreadsheet, but with support for many-to-many relationships, multiple keys, and all join types.
+
+::: {.callout-warning}
+## Before you merge: check your column names and dtypes
+The most common merge failure is a key that looks identical in both tables but actually differs. `"Adams"` vs `"Adams "`, `"12345"` (string) vs `12345` (int), or a typo in one column — any of these will silently drop rows.
+
+Before merging, run `print(df_left['key'].dtype, df_right['key'].dtype)`. If they differ, cast one side. Then run `set(df_left['key']) - set(df_right['key'])` to see unmatched values on the left, and the reverse for the right.
+:::
+
+### Step 1: Inspect keys before merging
+
+Before any merge, verify that your keys have the same dtype in both tables and understand the cardinality — is the key unique in each table, or can it repeat?
+
+```{python}
+print('Batting playerID dtype:', batting['playerID'].dtype)
+print('Salaries playerID dtype:', salaries['playerID'].dtype)
+print()
+print('Batting: max rows per playerID+yearID:',
+      batting.groupby(['playerID', 'yearID']).size().max(),
+      '(>1 means multi-stint seasons)')
+print('Salaries: max rows per playerID+yearID:',
+      salaries.groupby(['playerID', 'yearID']).size().max())
+```
+
+The batting table has players with multiple rows per season — players traded mid-year get one row per team. This means a merge on `playerID + yearID` alone could produce multiple matches. The solution is to aggregate batting to one row per player-season first:
+
+```{python}
+batting_season = (
+    batting
+    .groupby(['playerID', 'yearID'])
+    .agg(
+        AB=('AB', 'sum'), H=('H', 'sum'), TB=('TB', 'sum'),
+        BB=('BB', 'sum'), HBP=('HBP', 'sum'), SF=('SF', 'sum'),
+        HR=('HR', 'sum'), G=('G', 'sum')
+    )
+    .reset_index()
+)
+
+# Recompute rates on aggregated totals
+batting_season['BA'] = batting_season['H'] / batting_season['AB'].replace(0, float('nan'))
+batting_season['SLG'] = batting_season['TB'] / batting_season['AB'].replace(0, float('nan'))
+batting_season['OPS'] = batting_season['BA'] + batting_season['SLG']  # simplified
+
+print('Aggregated shape:', batting_season.shape, '(one row per player-season)')
+```
+
+### Step 2: Merge with `indicator=True`
+
+The `indicator=True` parameter adds a `_merge` column that shows whether each row matched in both tables, only in the left, or only in the right:
+
+```{python}
+bat_sal = pd.merge(
+    left=batting_season,
+    right=salaries[['playerID', 'yearID', 'salary']],
+    on=['playerID', 'yearID'],  # match rows where both playerID AND yearID agree
+    how='left',      # LEFT JOIN: keep all rows from batting_season; add salary where available
+    indicator=True   # add a '_merge' column showing each row's match status
+)
+
+print('Before merge:', batting_season.shape[0], 'rows')
+# Row count should NOT change for a left merge — every batting row stays, salary is added alongside
+print('After merge:', bat_sal.shape[0], 'rows')
+print()
+print('Merge audit:')
+# 'both' = matched in both tables | 'left_only' = in batting but not salaries | 'right_only' = vice versa
+print(bat_sal['_merge'].value_counts())
+print(f'\nMatch rate: {(bat_sal["_merge"] == "both").mean():.1%}')
+```
+
+### Step 3: Understand unmatched rows
+
+```{python}
+unmatched = bat_sal[bat_sal['_merge'] == 'left_only']
+print('Unmatched year range:', unmatched['yearID'].min(), '–', unmatched['yearID'].max())
+```
+
+The Lahman salary data begins in 1985. All seasons before that have no salary information — this is a structural gap in the data, not an error in the merge. Understanding *why* rows do not match is as important as knowing *that* they do not match.
+
+### Adding biographical data
+
+```{python}
+bio_cols = ['playerID', 'nameFirst', 'nameLast', 'birthYear', 'birthState', 'birthCountry']
+people_slim = people[bio_cols].copy()
+
+bat_sal_bio = pd.merge(bat_sal, people_slim, on='playerID', how='left')
+
+print('Shape after adding bio:', bat_sal_bio.shape)
+print('Missing nameFirst:', bat_sal_bio['nameFirst'].isna().sum())
+```
+
+## Applied Analysis: Salary and Performance
+
+With a merged dataset, you can answer questions that required data from multiple tables.
+
+```{python}
+# Filter to salary era with meaningful at-bats
+qualified = bat_sal_bio[
+    (bat_sal_bio['yearID'] >= 1985) &
+    (bat_sal_bio['AB'] >= 200) &
+    (bat_sal_bio['salary'].notna())
+].copy()
+
+qualified['sal_decile'] = pd.qcut(
+    qualified['salary'], q=10,
+    labels=['D1 (Lowest)', 'D2', 'D3', 'D4', 'D5',
+            'D6', 'D7', 'D8', 'D9', 'D10 (Highest)']
+)
+
+perf_by_salary = (
+    qualified
+    .groupby('sal_decile', observed=True)[['BA', 'SLG']]
+    .agg('mean')
+    .round(3)
+)
+
+print('Mean batting stats by salary decile:')
+perf_by_salary
+```
+
+## MultiIndex: When Groups Become the Index
+
+After `groupby().agg()` on multiple columns, pandas returns a MultiIndex — a hierarchical index that can be confusing if you are not expecting it. The most common solution is to call `.reset_index()` immediately to flatten it back to regular columns:
+
+```{python}
+# Without reset_index — produces a MultiIndex
+team_stats = (
+    batting_modern
+    .groupby(['decade', 'teamID'])[['HR', 'BA']]
+    .agg(['mean', 'sum'])
+)
+
+print('MultiIndex columns:', team_stats.columns[:4])
+```
+
+```{python}
+# Flatten MultiIndex columns: join each (metric, agg_func) tuple with '_'
+# e.g., ('HR', 'mean') → 'HR_mean', ('BA', 'sum') → 'BA_sum'
+team_stats.columns = ['_'.join(col) for col in team_stats.columns]
+# reset_index() moves the groupby keys (decade, teamID) from index back into columns
+team_stats = team_stats.reset_index()
+team_stats.head()
+```
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Merge returned more rows than expected ("row inflation")
+**What it means:** You merged on keys that were not unique in one or both tables. A many-to-many merge explodes: 3 batting rows × 2 salary rows for the same player-year = 6 output rows.
+
+**How to fix it:** Before merging, run `df.groupby(key_cols).size().max()` on each table. If it is > 1, aggregate to one row per key first. If you genuinely need the many-to-many, document why.
+:::
+
+::: {.callout-warning}
+## Merge silently dropped rows (low match rate)
+**What it means:** One of: (1) column-name mismatch — `County` vs `county`, (2) dtype mismatch — `"2020"` vs `2020`, (3) whitespace or case — `"Adams"` vs `"Adams "` vs `"adams"`, or (4) a legitimate structural gap (salaries start in 1985).
+
+**How to fix it:** Always use `indicator=True`. Inspect `left_only` rows — what years, what keys, what values? Decide whether the gap is legitimate or a bug in your cleaning. Fix the keys upstream if it is a bug.
+:::
+
+::: {.callout-warning}
+## `concat` produced unexpected NaN columns
+**What it means:** One DataFrame has `"County"` and another has `"county"`. Concatenation aligns by column *name*, so each DataFrame contributes its own column and the other rows are `NaN`.
+
+**How to fix it:** Standardize column names before concatenation: `df.columns = df.columns.str.strip().str.lower()`. Compare `set(df1.columns) ^ set(df2.columns)` to see mismatches.
+:::
+
+::: {.callout-warning}
+## `pivot` raises `ValueError: Index contains duplicate entries`
+**What it means:** `pivot()` does not aggregate and cannot pick between competing values. Your source has more than one row per `(index, columns)` pair.
+
+**How to fix it:** Use `pivot_table()` with an `aggfunc`, or aggregate first with `groupby().agg()`. See @sec-py-extending for the three-tools comparison.
+:::
+
+## Key Takeaways
+
+- Reshaping operations are both powerful and dangerous. Audit row counts and column names after every one.
+- **Aggregate before you merge** when the merge key is not unique. Fix row inflation upstream, not downstream.
+- Use `indicator=True` on every merge where correctness matters. The `_merge` column is your quality report.
+- Long format is usually easier for computation; wide format is usually easier for human reading. Know how to convert either direction.
+- `concat` stacks rows; `merge` combines tables on keys. Choose the right tool based on what question you are asking.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on reshaping and merging
+
+- **pandas: Merge, join, concatenate and compare** — [pandas.pydata.org/docs/user_guide/merging.html](https://pandas.pydata.org/docs/user_guide/merging.html) is the canonical reference on combining tables.
+- **pandas: Reshaping and pivot tables** — [pandas.pydata.org/docs/user_guide/reshaping.html](https://pandas.pydata.org/docs/user_guide/reshaping.html) covers `melt`, `pivot`, `pivot_table`, `stack`, `unstack`.
+- **Hadley Wickham: Tidy Data** — [vita.had.co.nz/papers/tidy-data.pdf](https://vita.had.co.nz/papers/tidy-data.pdf) is the foundational paper on long-format ("tidy") data, written for R but conceptually identical in pandas.
+- **Real Python: Combining Data in Pandas With merge(), join(), and concat()** — [realpython.com/pandas-merge-join-and-concat/](https://realpython.com/pandas-merge-join-and-concat/) is an accessible tutorial with worked examples.
+- **Lahman Baseball Database readme** — [github.com/chadwickbureau/baseballdatabank](https://github.com/chadwickbureau/baseballdatabank) documents every table and join key.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Melt and validate
+Take the wide dependency ratio table from @sec-py-extending (counties as rows, age bands as columns). Melt it back to long format. Verify that the population totals match between the wide and long versions.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+age_band_cols = ['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)']
+
+long_2020 = wide_2020.melt(
+    id_vars=['county'],
+    value_vars=age_band_cols,
+    var_name='age_band',
+    value_name='pop'
+)
+
+print('Wide sum:', wide_2020[age_band_cols].sum().sum())
+print('Long sum:', long_2020['pop'].sum())
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Merge with audit
+Merge the Lahman `Teams.csv` table onto the batting data using `teamID` and `yearID` as keys. Use `indicator=True` and report the match rate. How many batting rows have no corresponding team record?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+teams = pd.read_csv('Teams.csv')
+
+bat_team = pd.merge(
+    batting,
+    teams[['teamID', 'yearID', 'name', 'W', 'L']],
+    on=['teamID', 'yearID'],
+    how='left',
+    indicator=True
+)
+
+print(bat_team['_merge'].value_counts())
+print(f'\nMatch rate: {(bat_team["_merge"] == "both").mean():.1%}')
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Colorado-born player analysis
+Using the merged `bat_sal_bio` DataFrame, find all player-seasons where `birthState == 'CO'` and `AB >= 100`. Who are the top 10 Colorado-born players by career OPS?
+:::

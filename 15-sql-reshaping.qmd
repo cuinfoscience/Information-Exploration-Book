@@ -1,0 +1,589 @@
+# Reshaping Data with SQL {#sec-sql-reshaping}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Choose the appropriate join type ([`INNER`, `LEFT`, `RIGHT`, `FULL OUTER`](https://www.sqlite.org/syntax/join-operator.html)) for a given analytical question.
+- Audit **cardinality** (grain) in each source table before joining, to prevent row inflation.
+- Use anti-join patterns (`LEFT JOIN ... WHERE IS NULL`) to find records present in one table but not another.
+- Produce a **join-quality report** documenting matched/unmatched records, row counts, totals, and introduced NULLs.
+- Replicate a SQL join in pandas as a cross-check on a complex multi-table analysis.
+
+## Why Joining Demands Discipline
+
+This chapter completes the SQL module by joining the three cleaned Colorado public health tables into a single analysis-ready result set — one row per (county, year) — that can support rate calculations and cross-domain comparisons. The chapter is not only about the `JOIN` syntax. It is about the audit discipline that distinguishes a reliable join from a dangerous one: checking cardinality, identifying unmatched records, verifying row counts, and documenting every decision.
+
+Joining tables is where the most consequential mistakes in data analysis happen — silently. A join that inflates row counts because of unexpected duplicates. A join that drops records because key formats do not match. A left join that introduces hundreds of NULL values you did not anticipate. The only defense is a systematic audit performed at every stage.
+
+This chapter is the culmination of Part III: if you can run a clean, audited, documented three-table join by the end of it, you have the SQL core you need for most analytical work.
+
+## Setup
+
+This chapter uses Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html), [pandas](https://pandas.pydata.org/docs/), and [numpy](https://numpy.org/doc/stable/).
+
+```{python}
+import sqlite3
+import pandas as pd
+import numpy as np
+
+pd.set_option('display.max_columns', 20)
+pd.set_option('display.max_colwidth', 55)
+pd.set_option('display.float_format', '{:.2f}'.format)
+
+conn = sqlite3.connect('colorado_public_health.db')
+cursor = conn.cursor()
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+:::
+
+::: {.callout-warning}
+## Before you join: verify grain and key formats
+Two quick checks will save you hours. **Grain**: run `SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM <table>`. If the two numbers differ, the table is at a finer grain than the key; aggregate first. **Key formats**: run `SELECT DISTINCT <key> FROM <table>` on every source and eyeball the values. `"Adams"`, `"Adams County"`, and `"Adams County, CO"` will not match each other.
+:::
+
+We are working with the three tables loaded and cleaned in @sec-sql-cleaning: `deaths` (CDC mortality), `crime` (CBI offenses), and `population` (State Demography Office estimates). The county names have been standardized to a common format.
+
+## Part 1: Join Type Review
+
+SQL supports four join types. Each determines what happens to rows that exist in one table but not the other.
+
+| Join type | Keeps | Use when |
+|-----------|-------|----------|
+| `INNER JOIN` | Only rows that match in both tables | You want complete cases only |
+| `LEFT JOIN` | All rows from the left table; NULLs where the right has no match | You want to preserve the left table and add information where available |
+| `RIGHT JOIN` | All rows from the right table; NULLs where the left has no match | Less common; same as LEFT JOIN with tables swapped |
+| `FULL OUTER JOIN` | All rows from both tables; NULLs on both sides where no match | You want to see everything, including mismatches (not supported in SQLite) |
+
+For most analytical work, you will use `LEFT JOIN` (to preserve a base table and enrich it) or `INNER JOIN` (when you only want records present in all sources). The choice between them is a decision you must document — it determines which records appear in your analysis.
+
+### Toy example
+
+To build intuition, consider two tiny tables:
+
+```{python}
+pd.read_sql_query("""
+    WITH left_t AS (
+        SELECT 'Adams' AS county, 100 AS deaths UNION ALL
+        SELECT 'Boulder', 200 UNION ALL
+        SELECT 'Denver', 300
+    ),
+    right_t AS (
+        SELECT 'Adams' AS county, 5000 AS pop UNION ALL
+        SELECT 'Boulder', 3000 UNION ALL
+        SELECT 'Costilla', 400
+    )
+    SELECT l.county AS l_county, l.deaths, r.county AS r_county, r.pop
+    FROM left_t l
+    LEFT JOIN right_t r ON l.county = r.county;
+""", conn)
+```
+
+Denver appears with NULL population (no match in the right table). Costilla does not appear at all (it is only in the right table, and this is a LEFT JOIN). An INNER JOIN would drop Denver entirely.
+
+## Part 2: Cardinality Auditing
+
+Before joining, you must understand the **grain** of each table — what combination of columns uniquely identifies a row — and verify that each table has exactly one row per key value. Joining tables with unexpected duplicates causes **fan-out**: row counts explode silently.
+
+### Grain of each table
+
+```{python}
+# Compare total_rows vs distinct_keys for each table:
+# If total_rows > distinct_keys, the table has multiple rows per (county, year)
+# — meaning it is at a finer grain, and you must aggregate before joining.
+# county || '-' || year concatenates the two columns into a single string key
+# (e.g., 'Adams-2020') so DISTINCT can count unique combinations.
+pd.read_sql_query("""
+    SELECT 'deaths' AS tbl,
+           COUNT(*) AS total_rows,
+           COUNT(DISTINCT county || '-' || year) AS distinct_keys
+    FROM deaths
+    UNION ALL
+    SELECT 'crime',
+           COUNT(*),
+           COUNT(DISTINCT county || '-' || year)
+    FROM crime
+    UNION ALL
+    SELECT 'population',
+           COUNT(*),
+           COUNT(DISTINCT county || '-' || year)
+    FROM population;
+""", conn)
+```
+
+If `total_rows` exceeds `distinct_keys`, the table has multiple rows per (county, year) — which means it is at a finer grain than county-year. You must aggregate it down to county-year before joining, or the join will create duplicates.
+
+### Demonstrating fan-out
+
+```{python}
+# If deaths has multiple rows per county-year (e.g., one per age group),
+# joining directly to population creates duplicates
+pd.read_sql_query("""
+    SELECT d.county, d.year, COUNT(*) AS n_rows
+    FROM deaths d
+    JOIN population p ON d.county = p.county AND d.year = p.year
+    GROUP BY d.county, d.year
+    HAVING n_rows > 1
+    LIMIT 5;
+""", conn)
+```
+
+## Part 3: Unmatched Record Audit
+
+Before joining, check which key values exist in one table but not the other. This tells you how many rows will get NULL values (in a LEFT JOIN) or be dropped entirely (in an INNER JOIN).
+
+### Anti-join: counties in one table but not another
+
+An anti-join finds records in one table that have no match in the other. SQL does not have a dedicated anti-join keyword, but you can achieve it with `LEFT JOIN ... WHERE right.key IS NULL` or with `NOT IN`:
+
+```{python}
+# Counties in deaths that are NOT in population
+pd.read_sql_query("""
+    SELECT DISTINCT d.county
+    FROM deaths d
+    LEFT JOIN (SELECT DISTINCT county FROM population) p
+        ON d.county = p.county
+    WHERE p.county IS NULL
+    ORDER BY d.county;
+""", conn)
+```
+
+If this returns rows, those counties will have NULL population values after joining — which means you cannot compute rates for them. This is essential information to document.
+
+### Full cross-table mismatch audit
+
+```{python}
+pd.read_sql_query("""
+    WITH death_counties AS (SELECT DISTINCT county FROM deaths),
+         crime_counties AS (SELECT DISTINCT county FROM crime),
+         pop_counties AS (SELECT DISTINCT county FROM population)
+    SELECT
+        COALESCE(d.county, c.county, p.county) AS county,
+        CASE WHEN d.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_deaths,
+        CASE WHEN c.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_crime,
+        CASE WHEN p.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_pop
+    FROM death_counties d
+    FULL OUTER JOIN crime_counties c ON d.county = c.county
+    FULL OUTER JOIN pop_counties p ON COALESCE(d.county, c.county) = p.county
+    ORDER BY county;
+""", conn)
+```
+
+::: {.callout-note}
+SQLite does not support `FULL OUTER JOIN`. To simulate it, take a `LEFT JOIN` in both directions and combine the results with `UNION ALL`, then deduplicate. In practice, for the county-level audit, the most straightforward approach is to build a reference list of all distinct counties and left-join each source table to it:
+
+```sql
+-- Create a reference list of every county from any source
+-- Then left-join each source to see which ones appear where
+WITH all_counties AS (
+    SELECT DISTINCT county FROM deaths
+    UNION
+    SELECT DISTINCT county FROM crime
+    UNION
+    SELECT DISTINCT county FROM population
+)
+SELECT
+    a.county,
+    CASE WHEN d.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_deaths,
+    CASE WHEN c.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_crime,
+    CASE WHEN p.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_pop
+FROM all_counties a
+LEFT JOIN (SELECT DISTINCT county FROM deaths) d ON a.county = d.county
+LEFT JOIN (SELECT DISTINCT county FROM crime)  c ON a.county = c.county
+LEFT JOIN (SELECT DISTINCT county FROM population) p ON a.county = p.county
+ORDER BY a.county;
+```
+
+This pattern — union all distinct keys to form a reference table, then left-join each source — is the standard SQLite workaround for `FULL OUTER JOIN`.
+:::
+
+## Part 4: Granularity Alignment
+
+Each table may have a finer grain than county-year. Before joining, aggregate each table to the target grain — one row per (county, year).
+
+### Aggregate deaths to county-year
+
+```{python}
+pd.read_sql_query("""
+    SELECT county, year, SUM(deaths) AS total_deaths, COUNT(*) AS n_detail_rows
+    FROM deaths
+    GROUP BY county, year
+    LIMIT 5;
+""", conn)
+```
+
+### Aggregate crime to county-year
+
+```{python}
+pd.read_sql_query("""
+    SELECT county, year, COUNT(*) AS total_offenses
+    FROM crime
+    GROUP BY county, year
+    LIMIT 5;
+""", conn)
+```
+
+### Aggregate population to county-year
+
+```{python}
+pd.read_sql_query("""
+    SELECT county, year, SUM(totalpopulation) AS total_pop
+    FROM population
+    GROUP BY county, year
+    LIMIT 5;
+""", conn)
+```
+
+### Verify uniqueness after aggregation
+
+```{python}
+pd.read_sql_query("""
+    WITH agg_deaths AS (
+        SELECT county, year, SUM(deaths) AS total_deaths
+        FROM deaths GROUP BY county, year
+    )
+    SELECT COUNT(*) AS total_rows,
+           COUNT(DISTINCT county || '-' || year) AS distinct_keys
+    FROM agg_deaths;
+""", conn)
+```
+
+Total rows and distinct keys should be equal. If they are not, the aggregation did not produce a unique key and the join will still fan out.
+
+## Part 5: Building the Analysis-Ready Dataset
+
+With each table aggregated to county-year and cardinality verified, we can now join them.
+
+```{python}
+pd.read_sql_query("""
+    WITH agg_deaths AS (
+        SELECT county, year, SUM(deaths) AS total_deaths
+        FROM deaths
+        GROUP BY county, year
+    ),
+    agg_crime AS (
+        SELECT county, year, COUNT(*) AS total_offenses
+        FROM crime
+        GROUP BY county, year
+    ),
+    agg_pop AS (
+        SELECT county, year, SUM(totalpopulation) AS total_pop
+        FROM population
+        GROUP BY county, year
+    )
+    SELECT
+        COALESCE(d.county, c.county, p.county) AS county,
+        COALESCE(d.year, c.year, p.year) AS year,
+        d.total_deaths,
+        c.total_offenses,
+        p.total_pop,
+        ROUND(1.0 * d.total_deaths / p.total_pop * 100000, 1) AS death_rate_per_100k,
+        ROUND(1.0 * c.total_offenses / p.total_pop * 100000, 1) AS crime_rate_per_100k
+    FROM agg_pop p
+    LEFT JOIN agg_deaths d ON p.county = d.county AND p.year = d.year
+    LEFT JOIN agg_crime c ON p.county = c.county AND p.year = c.year
+    ORDER BY county, year
+    LIMIT 20;
+""", conn)
+```
+
+The population table serves as the base (left) table because it has the most complete county-year coverage. Deaths and crime data are joined onto it. Counties or years with no death or crime records will show NULL in those columns — a known and documented gap, not an error.
+
+## Part 6: Post-Join Audit
+
+After building the joined dataset, run a systematic audit.
+
+### Row count audit
+
+```{python}
+pd.read_sql_query("""
+    WITH agg_pop AS (
+        SELECT county, year, SUM(totalpopulation) AS total_pop
+        FROM population GROUP BY county, year
+    ),
+    agg_deaths AS (
+        SELECT county, year, SUM(deaths) AS total_deaths
+        FROM deaths GROUP BY county, year
+    ),
+    agg_crime AS (
+        SELECT county, year, COUNT(*) AS total_offenses
+        FROM crime GROUP BY county, year
+    ),
+    joined AS (
+        SELECT p.county, p.year, d.total_deaths, c.total_offenses, p.total_pop
+        FROM agg_pop p
+        LEFT JOIN agg_deaths d ON p.county = d.county AND p.year = d.year
+        LEFT JOIN agg_crime c ON p.county = c.county AND p.year = c.year
+    )
+    SELECT
+        (SELECT COUNT(*) FROM agg_pop) AS pop_rows,
+        (SELECT COUNT(*) FROM agg_deaths) AS death_rows,
+        (SELECT COUNT(*) FROM agg_crime) AS crime_rows,
+        (SELECT COUNT(*) FROM joined) AS joined_rows;
+""", conn)
+```
+
+The joined row count should equal the population row count (the base table in a LEFT JOIN). If it is larger, you have a fan-out problem. If it is smaller, something went wrong with the join.
+
+### Totals audit
+
+```{python}
+# Verify that aggregated totals in the joined result match the source tables
+pd.read_sql_query("""
+    WITH joined AS (
+        SELECT p.county, p.year,
+               d.total_deaths, c.total_offenses, p.total_pop
+        FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p
+        LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d
+            ON p.county = d.county AND p.year = d.year
+        LEFT JOIN (SELECT county, year, COUNT(*) AS total_offenses FROM crime GROUP BY county, year) c
+            ON p.county = c.county AND p.year = c.year
+    )
+    SELECT
+        SUM(total_pop) AS joined_pop_total,
+        SUM(total_deaths) AS joined_death_total,
+        SUM(total_offenses) AS joined_crime_total;
+""", conn)
+```
+
+Compare these totals to `SELECT SUM(...) FROM` each source table individually. Any discrepancy indicates a join problem.
+
+### NULL audit
+
+```{python}
+pd.read_sql_query("""
+    WITH joined AS (
+        SELECT p.county, p.year,
+               d.total_deaths, c.total_offenses, p.total_pop
+        FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p
+        LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d
+            ON p.county = d.county AND p.year = d.year
+        LEFT JOIN (SELECT county, year, COUNT(*) AS total_offenses FROM crime GROUP BY county, year) c
+            ON p.county = c.county AND p.year = c.year
+    )
+    SELECT
+        COUNT(*) AS total_rows,
+        SUM(CASE WHEN total_deaths IS NULL THEN 1 ELSE 0 END) AS null_deaths,
+        SUM(CASE WHEN total_offenses IS NULL THEN 1 ELSE 0 END) AS null_crime,
+        SUM(CASE WHEN total_pop IS NULL THEN 1 ELSE 0 END) AS null_pop
+    FROM joined;
+""", conn)
+```
+
+## Part 7: The Join-Quality Report
+
+::: {.callout-note}
+## Public Interest Context: Oversight
+
+The join-quality report is more than a technical artifact. It is an audit trail — a structured record of what matched, what was dropped, and why. In a public interest context, this kind of documentation is what oversight looks like in practice.
+
+Consider what is at stake in this specific join. You are combining mortality data, crime data, and population data to compute per-capita rates for Colorado counties. If your join silently drops rural counties with missing crime records, your rates will only reflect urban counties — and any conclusions you draw about "Colorado counties" will actually only reflect a subset of them.
+
+The join-quality report forces you to document that dropout explicitly: how many counties are missing from each source, which years have complete data, and where NULLs were introduced. A reader of your analysis should be able to evaluate your joins — not only your conclusions. See @sec-public-interest for the broader framework.
+:::
+
+Every multi-table analysis should produce a brief report documenting the join. This is the SQL equivalent of the Known Issues Log from @sec-documentation. At minimum, it should cover:
+
+1. **Join structure**: which tables, which keys, which join type, and why
+2. **Granularity alignment**: how each table was aggregated to the target grain
+3. **Cardinality checks**: confirmation that each table has one row per key after aggregation
+4. **Unmatched record audit**: which counties/years are missing from each source
+5. **Row count audit**: joined rows vs. base table rows
+6. **Totals audit**: aggregated values in joined result vs. source tables
+7. **NULL summary**: how many NULLs were introduced by the join
+8. **Remaining uncertainties**: what you could not verify or what might affect interpretation
+
+## Pandas Cross-Check
+
+A valuable validation practice is to replicate the SQL join in pandas and compare results:
+
+```{python}
+# Read the joined result from SQL
+sql_result = pd.read_sql_query("""
+    SELECT p.county, p.year,
+           SUM(d.total_deaths) AS total_deaths,
+           SUM(p.total_pop) AS total_pop
+    FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p
+    LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d
+        ON p.county = d.county AND p.year = d.year
+    GROUP BY p.county, p.year
+    LIMIT 5;
+""", conn)
+
+sql_result
+```
+
+```{python}
+# Replicate in pandas
+# deaths_df = pd.read_sql_query("SELECT * FROM deaths", conn)
+# pop_df = pd.read_sql_query("SELECT * FROM population", conn)
+# ... aggregate and merge in pandas, then compare
+```
+
+## Post-Join Audit Checklist
+
+Use this checklist after every multi-table join:
+
+- [ ] Row count: joined rows == base table rows (for LEFT JOIN)
+- [ ] No fan-out: no (county, year) appears more than once
+- [ ] Totals match: `SUM(col)` in joined result matches source tables
+- [ ] NULLs explained: every NULL column has a documented reason
+- [ ] Cross-check: pandas merge produces the same result
+- [ ] Report written: join-quality report documents decisions and uncertainties
+
+## Join Type Decision Guide
+
+| Situation | Join type | Rationale |
+|-----------|-----------|-----------|
+| You need all records from your base table | LEFT JOIN | Preserves base; adds NULLs where no match |
+| You need only complete cases | INNER JOIN | Drops any row missing from either table |
+| You want to see what is missing from each side | Anti-join pattern | LEFT JOIN + WHERE IS NULL |
+| You need all records from both sides | FULL OUTER JOIN | Not available in SQLite; simulate with UNION |
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Join fan-out (too many rows in the result)
+**What it means:** One or both tables have multiple rows per join key. A many-to-many join explodes: 5 rows × 3 rows for the same county-year = 15 output rows.
+
+**How to fix it:** Run `SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM <table>` on each side. If they differ, aggregate to one-row-per-key before joining. Add the aggregation as a CTE so the fan-out fix is visible in the query.
+:::
+
+::: {.callout-warning}
+## Join returns zero rows despite matching keys
+**What it means:** Silent mismatch — key formats, whitespace, or dtypes differ between the two tables. See @sec-sql-cleaning for the full diagnosis.
+
+**How to fix it:** `SELECT DISTINCT <key> FROM <table>` on each side. Compare the values literally. Use `TRIM`, `UPPER`, or pandas pre-normalization to bring the formats into alignment before the join.
+:::
+
+::: {.callout-warning}
+## `FULL OUTER JOIN` raises `Error: RIGHT and FULL OUTER JOINs are not currently supported`
+**What it means:** Older versions of SQLite (< 3.39, released 2022) do not support `FULL OUTER JOIN`.
+
+**How to fix it:** Upgrade SQLite (`conda install sqlite`), or simulate a `FULL OUTER` with `LEFT JOIN` + `UNION ALL` + the mirror `RIGHT-as-LEFT` join. The pattern is in @sec-sql-reshaping Part 3.
+:::
+
+::: {.callout-warning}
+## All your per-capita rates are NaN for some counties
+**What it means:** Those counties are missing from the population table, so `deaths / NULL` returns `NULL`. The rate is literally undefined, not zero.
+
+**How to fix it:** List the unmatched counties explicitly (anti-join), document the gap in your Known Issues Log, and decide whether to drop those counties from the rate analysis or hand-source the population data.
+:::
+
+## Key Takeaways
+
+- Before joining, audit **grain** (`COUNT(*) vs COUNT(DISTINCT keys)`) and **key format** (`SELECT DISTINCT`). These two checks prevent most join bugs.
+- Aggregate to the target grain *inside a CTE* before joining. Make the aggregation visible in the query.
+- Always produce a **join-quality report**: structure, granularity, cardinality, unmatched records, row counts, totals, NULLs, remaining uncertainty.
+- Cross-check complex joins with a pandas replication. If the two disagree, you learn something; if they agree, your confidence is earned.
+- Silent join failures are the most dangerous SQL bug class. Treat every multi-table join as a claim that needs evidence.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on SQL joins and audit discipline
+
+- **SQLite: Join operators** — [sqlite.org/syntax/join-operator.html](https://www.sqlite.org/syntax/join-operator.html) is the formal grammar.
+- **SQLite: SELECT with joins** — [sqlite.org/lang_select.html](https://www.sqlite.org/lang_select.html) covers join semantics and clause ordering.
+- **Mode: SQL Joins** — [mode.com/sql-tutorial/sql-joins/](https://mode.com/sql-tutorial/sql-joins/) walks through each join type with visual examples.
+- **SQLZoo: Joins tutorial** — [sqlzoo.net/wiki/The_JOIN_operation](https://sqlzoo.net/wiki/The_JOIN_operation) provides interactive practice.
+- **Data Validation: What It Is and Why It Matters** — a Mode blog post at [mode.com/blog/data-validation](https://mode.com/blog/data-validation/) on audit discipline in analytical work.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: INNER JOIN vs. LEFT JOIN impact
+Write both an INNER JOIN and a LEFT JOIN version of the three-table join. How many rows does each produce? What counties or years are lost in the INNER JOIN?
+
+::: {.callout-note collapse="true"}
+## Solution
+Compare `SELECT COUNT(*)` from each version. The difference represents county-year combinations present in population but absent from deaths or crime. Document which counties are affected and why.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Top 10 counties by death rate
+Using the analysis-ready dataset, find the top 10 counties by death rate per 100,000 in the most recent year available. Only include counties with population greater than 1,000 to avoid extreme rates from tiny counties.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    WITH agg AS (
+        SELECT p.county, p.year, SUM(d.deaths) AS total_deaths, SUM(p.totalpopulation) AS total_pop
+        FROM (SELECT county, year, SUM(totalpopulation) AS totalpopulation FROM population GROUP BY county, year) p
+        LEFT JOIN (SELECT county, year, SUM(deaths) AS deaths FROM deaths GROUP BY county, year) d
+            ON p.county = d.county AND p.year = d.year
+        GROUP BY p.county, p.year
+    )
+    SELECT county, year, total_deaths, total_pop,
+           ROUND(1.0 * total_deaths / total_pop * 100000, 1) AS death_rate
+    FROM agg
+    WHERE year = (SELECT MAX(year) FROM agg)
+      AND total_pop > 1000
+      AND total_deaths IS NOT NULL
+    ORDER BY death_rate DESC
+    LIMIT 10;
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Write a join-quality report
+Write a complete join-quality report for the three-table join you built in this chapter. Follow the seven-section structure described in Part 7. Be specific about numbers — how many rows, how many NULLs, which counties are affected.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 4: Diagnose a fan-out
+Create a deliberately flawed join to observe fan-out in action. Join the `deaths` table directly to the `population` table on `county` and `year` *without* aggregating first. Count the rows in the result. How does this compare to the number of rows in `population` alone? What happened, and why?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT
+        (SELECT COUNT(*) FROM population) AS pop_rows,
+        (SELECT COUNT(*) FROM deaths) AS death_rows,
+        (SELECT COUNT(*) FROM deaths d JOIN population p
+         ON d.county = p.county AND d.year = p.year) AS joined_rows;
+""", conn)
+```
+
+The joined row count exceeds the population row count because `deaths` has multiple rows per (county, year) — one per age group and ICD chapter. Each population row matches multiple death rows, multiplying the count. This fan-out produces inflated totals in any `SUM()` or `COUNT()` in the joined query. The fix is to aggregate `deaths` to county-year before joining.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 5: Anti-join pattern
+Write a query that finds all county-year combinations present in the `population` table but absent from the `crime` table. These are the county-years for which no crime data was reported. How many are there, and which counties are most affected?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT p.county, p.year
+    FROM (SELECT DISTINCT county, year FROM population) p
+    LEFT JOIN (SELECT DISTINCT county, year FROM crime) c
+        ON p.county = c.county AND p.year = c.year
+    WHERE c.county IS NULL   -- NULL in right table means no match: anti-join condition
+    ORDER BY p.county, p.year;
+""", conn)
+```
+:::
+:::
+
+## SQL ↔ pandas Equivalents
+
+| SQL | pandas |
+|-----|--------|
+| `LEFT JOIN ... ON` | `pd.merge(how='left', on=...)` |
+| `INNER JOIN ... ON` | `pd.merge(how='inner', on=...)` |
+| `LEFT JOIN ... WHERE IS NULL` (anti-join) | `merge(indicator=True)` then filter `_merge == 'left_only'` |
+| `COALESCE(a, b)` | `a.fillna(b)` |
+| `UNION ALL` | `pd.concat([df1, df2])` |
+| CTE → aggregate → join | Assign intermediate DataFrames → merge |

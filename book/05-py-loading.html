@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -431,7 +443,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">5.3</span> Setup</h2>
 <p>You will use three libraries in this chapter: <a href="https://pandas.pydata.org/docs/">pandas</a> for the <code>DataFrame</code>, <a href="https://numpy.org/doc/stable/">numpy</a> for numerical arrays, and <a href="https://matplotlib.org/stable/">matplotlib</a> for the quick visualization at the end.</p>
-<div id="4d239144" class="cell" data-execution_count="1">
+<div id="910a6aef" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -501,17 +513,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>pd.read_csv('colorado_cannabis_sales_by_county.csv')</code> looks for the file <strong>in your notebook’s current working directory</strong>. If you get a <code>FileNotFoundError</code>, the file is not there — the file name is mistyped, the file lives in a subdirectory (<code>data/raw/colorado_cannabis_sales_by_county.csv</code>), or your notebook is running in a different folder than you expected. Run <code>import os; print(os.getcwd())</code> to confirm where you are. See <a href="02-documentation.html" class="quarto-xref"><span>Chapter 2</span></a> for a deeper walkthrough of <code>FileNotFoundError</code>.</p>
 </div>
 </div>
-<div id="4818e82d" class="cell" data-execution_count="2">
+<div id="1fbd185f" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'colorado_cannabis_sales_by_county.csv'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Before doing anything else, look at the data.</p>
-<div id="bb720ff9" class="cell" data-execution_count="3">
+<div id="a2b3b0dd" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="a4cada86" class="cell" data-execution_count="4">
+<div id="b4e626bc" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="ee75ab60" class="cell" data-execution_count="5">
+<div id="57fa8816" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df.tail(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Something is wrong. The real column headers appear to be on row 2, not row 0. The first two rows contain a title block from the original Excel file. And the bottom of the file likely contains footnotes or totals that are not data rows.</p>
@@ -556,7 +568,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="header-where-the-column-names-are" class="level3" data-number="5.8.1">
 <h3 data-number="5.8.1" class="anchored" data-anchor-id="header-where-the-column-names-are"><span class="header-section-number">5.8.1</span> <code>header</code>: where the column names are</h3>
 <p>If the header row is not the first row of the file, specify its zero-indexed position:</p>
-<div id="2c400294" class="cell" data-execution_count="6">
+<div id="9b1bde18" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'colorado_cannabis_sales_by_county.csv'</span>,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="dv">2</span></span>
@@ -568,7 +580,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="skipfooter-removing-trailing-rows" class="level3" data-number="5.8.2">
 <h3 data-number="5.8.2" class="anchored" data-anchor-id="skipfooter-removing-trailing-rows"><span class="header-section-number">5.8.2</span> <code>skipfooter</code>: removing trailing rows</h3>
 <p>Government data files often have footnotes, totals, or metadata appended to the bottom. The <code>skipfooter</code> parameter removes a specified number of rows from the end. Note that <code>skipfooter</code> requires setting <code>engine='python'</code> because the default C parser does not support it.</p>
-<div id="6503b385" class="cell" data-execution_count="7">
+<div id="78c206d3" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'colorado_cannabis_sales_by_county.csv'</span>,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="dv">2</span>,</span>
@@ -582,7 +594,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="na_values-declaring-custom-missing-value-codes" class="level3" data-number="5.8.3">
 <h3 data-number="5.8.3" class="anchored" data-anchor-id="na_values-declaring-custom-missing-value-codes"><span class="header-section-number">5.8.3</span> <code>na_values</code>: declaring custom missing value codes</h3>
 <p>Many datasets use codes like <code>NR</code> (Not Reported), <code>-999</code>, <code>.</code>, or empty strings to represent missing values. The <code>na_values</code> parameter tells pandas to treat these as <code>NaN</code>:</p>
-<div id="acd863b9" class="cell" data-execution_count="8">
+<div id="3f095064" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'colorado_cannabis_sales_by_county.csv'</span>,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="dv">2</span>,</span>
@@ -597,7 +609,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="sep-specifying-the-delimiter" class="level3" data-number="5.8.4">
 <h3 data-number="5.8.4" class="anchored" data-anchor-id="sep-specifying-the-delimiter"><span class="header-section-number">5.8.4</span> <code>sep</code>: specifying the delimiter</h3>
 <p>CSV stands for “comma-separated values,” but many files use other delimiters — tabs (<code>\t</code>), pipes (<code>|</code>), or semicolons (<code>;</code>). If your file uses something other than a comma, specify it with <code>sep</code>:</p>
-<div id="b39d0315" class="cell" data-execution_count="9">
+<div id="b15bd849" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: pipe-delimited file</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df = pd.read_csv('voter_data.txt', sep='|')</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -605,7 +617,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="dtype-controlling-column-types" class="level3" data-number="5.8.5">
 <h3 data-number="5.8.5" class="anchored" data-anchor-id="dtype-controlling-column-types"><span class="header-section-number">5.8.5</span> <code>dtype</code>: controlling column types</h3>
 <p>By default, pandas guesses each column’s type. You can override this with a dictionary mapping column names to types. This is especially useful for columns that look numeric but should remain strings — like zip codes or ID numbers that have leading zeros:</p>
-<div id="4fcc721b" class="cell" data-execution_count="10">
+<div id="be384efb" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: preserve leading zeros in zip codes</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df = pd.read_csv('data.csv', dtype={'zip_code': str, 'voter_id': str})</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -635,18 +647,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="running-the-post-load-checklist" class="level2" data-number="5.11">
 <h2 data-number="5.11" class="anchored" data-anchor-id="running-the-post-load-checklist"><span class="header-section-number">5.11</span> Running the Post-Load Checklist</h2>
-<div id="cad8c31e" class="cell" data-execution_count="11">
+<div id="13ff16ac" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Shape:'</span>, df.shape)</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">Dtypes:'</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.dtypes)</span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">Missing values:'</span>)</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.isna().<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="a92ca41f" class="cell" data-execution_count="12">
+<div id="1cb2b599" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'Month'</span>, <span class="st">'Year'</span>, <span class="st">'County'</span>]:</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(df[col].value_counts(), <span class="st">'</span><span class="ch">\n\n</span><span class="st">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="d9c54777" class="cell" data-execution_count="13">
+<div id="1344d4a2" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> [<span class="st">'Medical'</span>, <span class="st">'Retail'</span>]:</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(df[col].describe(), <span class="st">'</span><span class="ch">\n\n</span><span class="st">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -654,7 +666,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="a-quick-preview-what-you-can-do-with-clean-data" class="level2" data-number="5.12">
 <h2 data-number="5.12" class="anchored" data-anchor-id="a-quick-preview-what-you-can-do-with-clean-data"><span class="header-section-number">5.12</span> A Quick Preview: What You Can Do with Clean Data</h2>
 <p>With the data loaded and cleaned, you can immediately begin exploring. Here is a pivot table and a simple visualization — both of which we will cover in depth in later chapters:</p>
-<div id="5b2259fa" class="cell" data-execution_count="14">
+<div id="43378591" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pivot_df <span class="op">=</span> pd.pivot_table(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>df,</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span><span class="st">'County'</span>,</span>
@@ -665,7 +677,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>pivot_df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="99c5cac2" class="cell" data-execution_count="15">
+<div id="47b0bf09" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pivot_df.loc[<span class="st">'Las Animas'</span>].plot(title<span class="op">=</span><span class="st">'Las Animas County Retail Cannabis Sales by Year'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
@@ -849,7 +861,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-11" class="callout-11-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="a13a20dc" class="cell" data-execution_count="16">
+<div id="43002ef8" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'boco_voter_data.txt'</span>, sep<span class="op">=</span><span class="st">'|'</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Shape:'</span>, df.shape)</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">Dtypes:'</span>)</span>
@@ -889,7 +901,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-13" class="callout-13-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="d10167f6" class="cell" data-execution_count="17">
+<div id="c67e2b6e" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sya_df <span class="op">=</span> pd.read_csv(<span class="st">'sya-county.csv'</span>, header<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sya_df.dtypes)</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(sya_df.head())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

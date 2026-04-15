@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -430,7 +442,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2" data-number="8.3">
 <h2 data-number="8.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">8.3</span> Setup</h2>
 <p>This chapter uses <a href="https://pandas.pydata.org/docs/">pandas</a> and <a href="https://numpy.org/doc/stable/">numpy</a>.</p>
-<div id="3c348fd6" class="cell" data-execution_count="1">
+<div id="e5a801f6" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -457,7 +469,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="datasets" class="level2" data-number="8.4">
 <h2 data-number="8.4" class="anchored" data-anchor-id="datasets"><span class="header-section-number">8.4</span> Datasets</h2>
 <p>This chapter continues with the Lahman Baseball Database and Colorado population data from <a href="07-py-extending.html" class="quarto-xref"><span>Chapter 7</span></a>, and adds two new Lahman tables — Salaries and People — to demonstrate multi-table merging.</p>
-<div id="28eabb4d" class="cell" data-execution_count="2">
+<div id="0500ac24" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> pd.read_csv(<span class="st">'Batting.csv'</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Derived columns from previous chapter</span></span>
@@ -476,12 +488,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Batting shape:'</span>, batting.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="a34c19cb" class="cell" data-execution_count="3">
+<div id="d30f423d" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>salaries <span class="op">=</span> pd.read_csv(<span class="st">'Salaries.csv'</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Salaries shape:'</span>, salaries.shape)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Year range:'</span>, salaries[<span class="st">'yearID'</span>].<span class="bu">min</span>(), <span class="st">'–'</span>, salaries[<span class="st">'yearID'</span>].<span class="bu">max</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="33ae7738" class="cell" data-execution_count="4">
+<div id="6cca7c60" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>people <span class="op">=</span> pd.read_csv(<span class="st">'People.csv'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'People shape:'</span>, people.shape)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>people[[<span class="st">'playerID'</span>, <span class="st">'nameFirst'</span>, <span class="st">'nameLast'</span>, <span class="st">'birthYear'</span>, <span class="st">'birthState'</span>]].head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -497,7 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="melt-wide-to-long" class="level2" data-number="8.6">
 <h2 data-number="8.6" class="anchored" data-anchor-id="melt-wide-to-long"><span class="header-section-number">8.6</span> <code>melt()</code>: Wide to Long</h2>
 <p>The <code>melt()</code> function unpivots a wide DataFrame into long format. You specify which columns stay as identifiers (<code>id_vars</code>) and which columns get “melted” into a single key-value pair (<code>value_vars</code>).</p>
-<div id="b551bf38" class="cell" data-execution_count="5">
+<div id="96939b44" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build a wide pivot first</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>c0 <span class="op">=</span> batting[<span class="st">'yearID'</span>] <span class="op">&gt;=</span> <span class="dv">1900</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>c1 <span class="op">=</span> batting[<span class="st">'yearID'</span>] <span class="op">&lt;</span> <span class="dv">2020</span></span>
@@ -513,7 +525,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Wide shape:'</span>, hr_wide.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="1818d25f" class="cell" data-execution_count="6">
+<div id="ab8dca17" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>team_cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> hr_wide.columns <span class="cf">if</span> c <span class="op">!=</span> <span class="st">'decade'</span>]</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>hr_long <span class="op">=</span> hr_wide.melt(</span>
@@ -527,12 +539,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Expected rows:'</span>, hr_wide.shape[<span class="dv">0</span>], <span class="st">'×'</span>, <span class="bu">len</span>(team_cols), <span class="st">'='</span>, hr_wide.shape[<span class="dv">0</span>] <span class="op">*</span> <span class="bu">len</span>(team_cols))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>After melting, some rows will contain <code>NaN</code> — a team that did not exist in a given decade. Always drop or flag these:</p>
-<div id="58cfeb83" class="cell" data-execution_count="7">
+<div id="c2c80c89" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>hr_clean <span class="op">=</span> hr_long.dropna(subset<span class="op">=</span>[<span class="st">'total_HR'</span>])</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'After dropping NaN:'</span>, hr_clean.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The power of long format is that it enables further computation that would be awkward in wide format:</p>
-<div id="8345c626" class="cell" data-execution_count="8">
+<div id="1900142d" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># League-wide mean HR per team by decade — easy in long, awkward in wide</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>league_avg <span class="op">=</span> (</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    hr_clean</span>
@@ -547,7 +559,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="concat-stacking-dataframes" class="level2" data-number="8.7">
 <h2 data-number="8.7" class="anchored" data-anchor-id="concat-stacking-dataframes"><span class="header-section-number">8.7</span> <code>concat()</code>: Stacking DataFrames</h2>
 <p>The <code>concat()</code> function appends rows from multiple DataFrames into one. This is the programmatic equivalent of copy-pasting rows across Excel sheets. Use it when you have multiple files with the same columns — annual exports, regional splits, or train/test splits.</p>
-<div id="3cdcf3ee" class="cell" data-execution_count="9">
+<div id="93146718" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dead_ball <span class="op">=</span> batting[batting[<span class="st">'yearID'</span>] <span class="op">&lt;</span> <span class="dv">1920</span>].copy()</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>live_ball <span class="op">=</span> batting[(batting[<span class="st">'yearID'</span>] <span class="op">&gt;=</span> <span class="dv">1920</span>) <span class="op">&amp;</span> (batting[<span class="st">'yearID'</span>] <span class="op">&lt;</span> <span class="dv">1970</span>)].copy()</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>modern <span class="op">=</span> batting[batting[<span class="st">'yearID'</span>] <span class="op">&gt;=</span> <span class="dv">1970</span>].copy()</span>
@@ -574,7 +586,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="tracking-provenance-with-keys" class="level3" data-number="8.7.1">
 <h3 data-number="8.7.1" class="anchored" data-anchor-id="tracking-provenance-with-keys"><span class="header-section-number">8.7.1</span> Tracking provenance with <code>keys</code></h3>
 <p>When files come from different sources, use the <code>keys</code> parameter to record which file each row came from:</p>
-<div id="14d5a37d" class="cell" data-execution_count="10">
+<div id="cba854c7" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>era_labels <span class="op">=</span> [<span class="st">'Dead Ball (&lt;1920)'</span>, <span class="st">'Live Ball (1920-1969)'</span>, <span class="st">'Modern (1970+)'</span>]</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>all_eras_labeled <span class="op">=</span> pd.concat(</span>
@@ -607,7 +619,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-1-inspect-keys-before-merging" class="level3" data-number="8.8.1">
 <h3 data-number="8.8.1" class="anchored" data-anchor-id="step-1-inspect-keys-before-merging"><span class="header-section-number">8.8.1</span> Step 1: Inspect keys before merging</h3>
 <p>Before any merge, verify that your keys have the same dtype in both tables and understand the cardinality — is the key unique in each table, or can it repeat?</p>
-<div id="3b68da62" class="cell" data-execution_count="11">
+<div id="4e4c8295" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Batting playerID dtype:'</span>, batting[<span class="st">'playerID'</span>].dtype)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Salaries playerID dtype:'</span>, salaries[<span class="st">'playerID'</span>].dtype)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
@@ -618,7 +630,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>      salaries.groupby([<span class="st">'playerID'</span>, <span class="st">'yearID'</span>]).size().<span class="bu">max</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The batting table has players with multiple rows per season — players traded mid-year get one row per team. This means a merge on <code>playerID + yearID</code> alone could produce multiple matches. The solution is to aggregate batting to one row per player-season first:</p>
-<div id="a9b4b195" class="cell" data-execution_count="12">
+<div id="8e9645ce" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>batting_season <span class="op">=</span> (</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    batting</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    .groupby([<span class="st">'playerID'</span>, <span class="st">'yearID'</span>])</span>
@@ -641,7 +653,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="step-2-merge-with-indicatortrue" class="level3" data-number="8.8.2">
 <h3 data-number="8.8.2" class="anchored" data-anchor-id="step-2-merge-with-indicatortrue"><span class="header-section-number">8.8.2</span> Step 2: Merge with <code>indicator=True</code></h3>
 <p>The <code>indicator=True</code> parameter adds a <code>_merge</code> column that shows whether each row matched in both tables, only in the left, or only in the right:</p>
-<div id="ebe777e6" class="cell" data-execution_count="13">
+<div id="5a87d756" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>bat_sal <span class="op">=</span> pd.merge(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    left<span class="op">=</span>batting_season,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    right<span class="op">=</span>salaries[[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>, <span class="st">'salary'</span>]],</span>
@@ -660,7 +672,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="step-3-understand-unmatched-rows" class="level3" data-number="8.8.3">
 <h3 data-number="8.8.3" class="anchored" data-anchor-id="step-3-understand-unmatched-rows"><span class="header-section-number">8.8.3</span> Step 3: Understand unmatched rows</h3>
-<div id="5e2b3a3c" class="cell" data-execution_count="14">
+<div id="1aed516c" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>unmatched <span class="op">=</span> bat_sal[bat_sal[<span class="st">'_merge'</span>] <span class="op">==</span> <span class="st">'left_only'</span>]</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Unmatched year range:'</span>, unmatched[<span class="st">'yearID'</span>].<span class="bu">min</span>(), <span class="st">'–'</span>, unmatched[<span class="st">'yearID'</span>].<span class="bu">max</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -668,7 +680,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="adding-biographical-data" class="level3" data-number="8.8.4">
 <h3 data-number="8.8.4" class="anchored" data-anchor-id="adding-biographical-data"><span class="header-section-number">8.8.4</span> Adding biographical data</h3>
-<div id="836dbe44" class="cell" data-execution_count="15">
+<div id="b028c329" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bio_cols <span class="op">=</span> [<span class="st">'playerID'</span>, <span class="st">'nameFirst'</span>, <span class="st">'nameLast'</span>, <span class="st">'birthYear'</span>, <span class="st">'birthState'</span>, <span class="st">'birthCountry'</span>]</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>people_slim <span class="op">=</span> people[bio_cols].copy()</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -682,7 +694,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="applied-analysis-salary-and-performance" class="level2" data-number="8.9">
 <h2 data-number="8.9" class="anchored" data-anchor-id="applied-analysis-salary-and-performance"><span class="header-section-number">8.9</span> Applied Analysis: Salary and Performance</h2>
 <p>With a merged dataset, you can answer questions that required data from multiple tables.</p>
-<div id="9b42e50c" class="cell" data-execution_count="16">
+<div id="806ceb0f" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter to salary era with meaningful at-bats</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>qualified <span class="op">=</span> bat_sal_bio[</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    (bat_sal_bio[<span class="st">'yearID'</span>] <span class="op">&gt;=</span> <span class="dv">1985</span>) <span class="op">&amp;</span></span>
@@ -710,7 +722,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="multiindex-when-groups-become-the-index" class="level2" data-number="8.10">
 <h2 data-number="8.10" class="anchored" data-anchor-id="multiindex-when-groups-become-the-index"><span class="header-section-number">8.10</span> MultiIndex: When Groups Become the Index</h2>
 <p>After <code>groupby().agg()</code> on multiple columns, pandas returns a MultiIndex — a hierarchical index that can be confusing if you are not expecting it. The most common solution is to call <code>.reset_index()</code> immediately to flatten it back to regular columns:</p>
-<div id="8ed1e176" class="cell" data-execution_count="17">
+<div id="53b95c0e" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Without reset_index — produces a MultiIndex</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>team_stats <span class="op">=</span> (</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    batting_modern</span>
@@ -720,7 +732,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'MultiIndex columns:'</span>, team_stats.columns[:<span class="dv">4</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="d7c0b866" class="cell" data-execution_count="18">
+<div id="2723c0ae" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Flatten with reset_index and column renaming</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>team_stats.columns <span class="op">=</span> [<span class="st">'_'</span>.join(col) <span class="cf">for</span> col <span class="kw">in</span> team_stats.columns]</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>team_stats <span class="op">=</span> team_stats.reset_index()</span>
@@ -866,7 +878,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-10" class="callout-10-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="f05aa038" class="cell" data-execution_count="19">
+<div id="bd7a67c1" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>age_band_cols <span class="op">=</span> [<span class="st">'Children (0-17)'</span>, <span class="st">'Working Age (18-64)'</span>, <span class="st">'Seniors (65+)'</span>]</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>long_2020 <span class="op">=</span> wide_2020.melt(</span>
@@ -910,7 +922,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-12" class="callout-12-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="88239dbd" class="cell" data-execution_count="20">
+<div id="03fa1c4f" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>teams <span class="op">=</span> pd.read_csv(<span class="st">'Teams.csv'</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>bat_team <span class="op">=</span> pd.merge(</span>

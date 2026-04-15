@@ -313,19 +313,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -451,7 +463,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Part II: Python</strong> introduces the <a href="https://pandas.pydata.org/docs/">pandas</a> library for tabular data analysis. Across four chapters, you will learn to load CSV and Excel files with <code>read_csv</code> and <code>read_excel</code>, clean data using string methods, type coercion, and dictionary-based recoding, extend datasets with derived columns, <code>groupby</code> aggregation, and <code>pivot_table</code>, and reshape data using <code>melt</code>, <code>merge</code>, and <code>concat</code>. The datasets in this section include Colorado cannabis sales data, Boulder County voter registration records, Lahman Baseball statistics, and Colorado population estimates from the State Demography Office.</p>
 <p><strong>Part III: SQL</strong> teaches you to perform the same operations using Structured Query Language and the <a href="https://www.sqlite.org/docs.html">SQLite</a> database engine. You will set up a database from the command line, design schemas, load cleaned CSVs, write diagnostic queries, use <code>GROUP BY</code>, subqueries, and Common Table Expressions (CTEs), and join multiple tables while auditing join quality. The SQL chapters use Colorado public health datasets — CDC mortality data, Colorado Bureau of Investigation crime statistics, and population estimates — culminating in a multi-table join that produces an analysis-ready dataset.</p>
 <p><strong>Part IV: Non-Tabular Data</strong> extends the book’s toolkit to data that does not arrive as rows and columns. Five chapters introduce spatial data with <a href="https://geopandas.org/">GeoPandas</a>, network data with <a href="https://networkx.org/">NetworkX</a>, unstructured text with <a href="https://www.nltk.org/">NLTK</a>, time series with <a href="https://www.statsmodels.org/">statsmodels</a> and <a href="https://facebook.github.io/prophet/">Prophet</a>, and structured web data (JSON, XML, HTML) with <a href="https://requests.readthedocs.io/">requests</a> and <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">Beautiful Soup</a>.</p>
-<p><strong>Part V: Analysis</strong> applies the conceptual vocabulary from Part I to the clean, well-structured data you have built. You will characterize distributions and identify outliers through descriptive statistics, build a visual vocabulary for exploring patterns using <a href="https://matplotlib.org/stable/">matplotlib</a> and <a href="https://seaborn.pydata.org/">seaborn</a>, and apply simple hypothesis tests from <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy.stats</a> — t-tests, chi-square tests, and correlation coefficients — interpreting their results in plain language. Part V uses the same datasets from earlier chapters, so that the analytical questions grow naturally from the data preparation work you have already done.</p>
+<p><strong>Part V: Analysis</strong> organizes the final stage of the book as five complementary modes of <strong>exploration</strong>. You will characterize distributions, outliers, and categorical patterns through <strong>descriptive exploration</strong>; use trace and digital-ethnographic methods to read data as the residue of particular institutions and practices in <strong>qualitative exploration</strong>; compare groups and variables with t-tests, one-way ANOVA, chi-square, and correlation in <strong>comparative exploration</strong> (via <a href="https://docs.scipy.org/doc/scipy/reference/stats.html">scipy.stats</a>); build a visual vocabulary with <a href="https://matplotlib.org/stable/">matplotlib</a> and <a href="https://seaborn.pydata.org/">seaborn</a> in <strong>visual exploration</strong>; and fit linear models with <a href="https://www.statsmodels.org/">statsmodels</a> to quantify and interpret relationships across multiple simultaneous variables in <strong>modeling exploration</strong>. Part V uses the same datasets from earlier chapters so that the analytical questions grow naturally from the data preparation work you have already done.</p>
 <p>Two <strong>Appendices</strong> document the datasets used throughout the book (sources, structures, known quirks) and disclose the author’s use of AI assistance during drafting.</p>
 </section>
 <section id="recurring-themes" class="level2">
@@ -1023,7 +1035,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>**Part IV: Non-Tabular Data** extends the book's toolkit to data that does not arrive as rows and columns. Five chapters introduce spatial data with <span class="co">[</span><span class="ot">GeoPandas</span><span class="co">](https://geopandas.org/)</span>, network data with <span class="co">[</span><span class="ot">NetworkX</span><span class="co">](https://networkx.org/)</span>, unstructured text with <span class="co">[</span><span class="ot">NLTK</span><span class="co">](https://www.nltk.org/)</span>, time series with <span class="co">[</span><span class="ot">statsmodels</span><span class="co">](https://www.statsmodels.org/)</span> and <span class="co">[</span><span class="ot">Prophet</span><span class="co">](https://facebook.github.io/prophet/)</span>, and structured web data (JSON, XML, HTML) with <span class="co">[</span><span class="ot">requests</span><span class="co">](https://requests.readthedocs.io/)</span> and <span class="co">[</span><span class="ot">Beautiful Soup</span><span class="co">](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)</span>.</span>
 <span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>**Part V: Analysis** applies the conceptual vocabulary from Part I to the clean, well-structured data you have built. You will characterize distributions and identify outliers through descriptive statistics, build a visual vocabulary for exploring patterns using <span class="co">[</span><span class="ot">matplotlib</span><span class="co">](https://matplotlib.org/stable/)</span> and <span class="co">[</span><span class="ot">seaborn</span><span class="co">](https://seaborn.pydata.org/)</span>, and apply simple hypothesis tests from <span class="co">[</span><span class="ot">scipy.stats</span><span class="co">](https://docs.scipy.org/doc/scipy/reference/stats.html)</span> — t-tests, chi-square tests, and correlation coefficients — interpreting their results in plain language. Part V uses the same datasets from earlier chapters, so that the analytical questions grow naturally from the data preparation work you have already done.</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>**Part V: Analysis** organizes the final stage of the book as five complementary modes of **exploration**. You will characterize distributions, outliers, and categorical patterns through **descriptive exploration**; use trace and digital-ethnographic methods to read data as the residue of particular institutions and practices in **qualitative exploration**; compare groups and variables with t-tests, one-way ANOVA, chi-square, and correlation in **comparative exploration** (via [scipy.stats](https://docs.scipy.org/doc/scipy/reference/stats.html)); build a visual vocabulary with [matplotlib](https://matplotlib.org/stable/) and [seaborn](https://seaborn.pydata.org/) in **visual exploration**; and fit linear models with [statsmodels](https://www.statsmodels.org/) to quantify and interpret relationships across multiple simultaneous variables in **modeling exploration**. Part V uses the same datasets from earlier chapters so that the analytical questions grow naturally from the data preparation work you have already done.</span>
 <span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>Two **Appendices** document the datasets used throughout the book (sources, structures, known quirks) and disclose the author's use of AI assistance during drafting.</span>
 <span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>

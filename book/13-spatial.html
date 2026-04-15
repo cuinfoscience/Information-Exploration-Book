@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -420,7 +432,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2" data-number="13.3">
 <h2 data-number="13.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">13.3</span> Setup</h2>
 <p>You’ll use <a href="https://geopandas.org/en/stable/docs.html">GeoPandas</a> for spatial DataFrames, <a href="https://shapely.readthedocs.io/">Shapely</a> for the geometry objects it contains, <a href="https://pyproj4.github.io/pyproj/">pyproj</a> for coordinate transformations, and <a href="https://matplotlib.org/stable/">matplotlib</a> for plotting.</p>
-<div id="b27856b4" class="cell" data-execution_count="1">
+<div id="b53d1041" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> geopandas <span class="im">as</span> gpd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -448,7 +460,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="13.4" class="anchored" data-anchor-id="loading-spatial-data"><span class="header-section-number">13.4</span> Loading Spatial Data</h2>
 <p>Spatial data arrives in a few common formats. <strong>Shapefiles</strong> (<code>.shp</code>) are an older but ubiquitous format maintained by the US Census Bureau for boundary data; they actually consist of several files (<code>.shp</code>, <code>.shx</code>, <code>.dbf</code>, <code>.prj</code>) that must stay together in the same folder. <strong>GeoJSON</strong> (<code>.geojson</code>) is a newer, web-friendly format that packs everything into a single readable JSON file.</p>
 <p>Load a shapefile or GeoJSON with <code>gpd.read_file()</code>. Here you load the Census TIGER/Line shapefile for Colorado counties.</p>
-<div id="d06b251b" class="cell" data-execution_count="2">
+<div id="d8cd36c0" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>counties <span class="op">=</span> gpd.read_file(<span class="st">'data/tl_2023_08_county.shp'</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Shape:'</span>, counties.shape)</span>
@@ -466,11 +478,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>EPSG:3857</strong> — the “Web Mercator” projection used by Google Maps, OpenStreetMap, and most web mapping tiles. Useful for overlaying your data on a web basemap.</li>
 </ul>
 <p>Check the CRS of any GeoDataFrame like this:</p>
-<div id="807d93fa" class="cell" data-execution_count="3">
+<div id="9fe842bf" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(counties.crs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>If this prints <code>EPSG:4326</code> or similar, the geometries are in latitude/longitude. To reproject — change the CRS while preserving the underlying locations — use <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_crs.html"><code>to_crs()</code></a>:</p>
-<div id="f978901f" class="cell" data-execution_count="4">
+<div id="3f1fd326" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>counties_web <span class="op">=</span> counties.to_crs(<span class="st">'EPSG:3857'</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(counties_web.crs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -492,7 +504,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="13.6" class="anchored" data-anchor-id="choropleths"><span class="header-section-number">13.6</span> Choropleths</h2>
 <p>A <strong>choropleth</strong> is a map where each region is shaded according to the value of a variable — for example, each Colorado county shaded by its poverty rate. It’s the single most common map type in data journalism.</p>
 <p>Suppose you have a pandas DataFrame <code>poverty_df</code> with columns <code>countyfips</code> and <code>poverty_rate</code>. You merge it onto the county geometries using the same <code>.merge()</code> you learned in <a href="07-py-extending.html" class="quarto-xref"><span>Chapter 7</span></a>, then call <code>.plot()</code> on the resulting GeoDataFrame.</p>
-<div id="11feaa29" class="cell" data-execution_count="5">
+<div id="2128dded" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>counties_poverty <span class="op">=</span> counties.merge(poverty_df, on<span class="op">=</span><span class="st">'countyfips'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">8</span>))</span>
@@ -517,7 +529,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="13.7" class="anchored" data-anchor-id="spatial-joins"><span class="header-section-number">13.7</span> Spatial Joins</h2>
 <p>You’ve already seen how <code>.merge()</code> in <a href="07-py-extending.html" class="quarto-xref"><span>Chapter 7</span></a> combines DataFrames on a shared key column. A <strong>spatial join</strong> is the same operation, but the “key” is geometric containment or proximity rather than a matching value. The function is <a href="https://geopandas.org/en/stable/docs/reference/api/geopandas.sjoin.html"><code>gpd.sjoin()</code></a>.</p>
 <p>The classic use case is <strong>point-in-polygon</strong>: given a set of points (e.g., business locations) and a set of polygons (e.g., counties), tag each point with the county it falls inside.</p>
-<div id="769047c4" class="cell" data-execution_count="6">
+<div id="3143f2ef" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Points: one row per dispensary with lat/lon columns</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>dispensaries <span class="op">=</span> pd.read_csv(<span class="st">'data/dispensaries.csv'</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>dispensaries_gdf <span class="op">=</span> gpd.GeoDataFrame(</span>
@@ -546,7 +558,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>'contains'</code> — reverse of <code>within</code>.</li>
 </ul>
 <p>After the join, <code>tagged</code> has every original dispensary column plus the matched county’s <code>countyfips</code> and <code>NAME</code>. You can now count dispensaries per county with a regular pandas <code>groupby</code>:</p>
-<div id="01a9acad" class="cell" data-execution_count="7">
+<div id="fed0d530" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>per_county <span class="op">=</span> tagged.groupby(<span class="st">'NAME'</span>).size().sort_values(ascending<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(per_county.head())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>

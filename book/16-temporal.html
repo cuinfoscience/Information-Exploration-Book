@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -423,7 +435,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2" data-number="16.3">
 <h2 data-number="16.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">16.3</span> Setup</h2>
 <p>You’ll use <a href="https://pandas.pydata.org/docs/">pandas</a> for date handling, <a href="https://www.statsmodels.org/">statsmodels</a> for decomposition and ARIMA, and <a href="https://matplotlib.org/stable/">matplotlib</a> for plotting.</p>
-<div id="b09a27dc" class="cell" data-execution_count="1">
+<div id="09500835" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -462,7 +474,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="building-a-proper-time-series" class="level2" data-number="16.5">
 <h2 data-number="16.5" class="anchored" data-anchor-id="building-a-proper-time-series"><span class="header-section-number">16.5</span> Building a Proper Time Series</h2>
 <p>A pandas DataFrame becomes a time series when its index is a <code>DatetimeIndex</code>. The first step is always: parse the date column, set it as the index, and sort.</p>
-<div id="b0370d3a" class="cell" data-execution_count="2">
+<div id="dbabc762" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>unrate <span class="op">=</span> pd.read_csv(<span class="st">'data/UNRATE.csv'</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>unrate[<span class="st">'DATE'</span>] <span class="op">=</span> pd.to_datetime(unrate[<span class="st">'DATE'</span>])</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>unrate <span class="op">=</span> unrate.set_index(<span class="st">'DATE'</span>).sort_index()</span>
@@ -488,7 +500,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="visualizing-a-time-series" class="level2" data-number="16.6">
 <h2 data-number="16.6" class="anchored" data-anchor-id="visualizing-a-time-series"><span class="header-section-number">16.6</span> Visualizing a Time Series</h2>
 <p>Before any modeling, plot the series. Eyeballing the trend, seasonality, and outliers prevents a lot of downstream confusion.</p>
-<div id="04634e66" class="cell" data-execution_count="3">
+<div id="cb20ebec" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ax.plot(unrate.index, unrate[<span class="st">'UNRATE'</span>])</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'US Unemployment Rate (monthly)'</span>)</span>
@@ -503,7 +515,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="decomposition" class="level2" data-number="16.7">
 <h2 data-number="16.7" class="anchored" data-anchor-id="decomposition"><span class="header-section-number">16.7</span> Decomposition</h2>
 <p><strong>Seasonal decomposition</strong> splits the observed series into three components: trend, seasonal, and residual. The additive model assumes <code>observed = trend + seasonal + residual</code>; the multiplicative model assumes the three components multiply.</p>
-<div id="1a9a0d08" class="cell" data-execution_count="4">
+<div id="283783ce" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>decomp <span class="op">=</span> seasonal_decompose(unrate[<span class="st">'UNRATE'</span>], model<span class="op">=</span><span class="st">'additive'</span>, period<span class="op">=</span><span class="dv">12</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> decomp.plot()</span>
@@ -516,7 +528,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="autocorrelation-and-differencing" class="level2" data-number="16.8">
 <h2 data-number="16.8" class="anchored" data-anchor-id="autocorrelation-and-differencing"><span class="header-section-number">16.8</span> Autocorrelation and Differencing</h2>
 <p>The <strong>autocorrelation function (ACF)</strong> plots the correlation between the series and its lagged versions. A slowly decaying ACF suggests a strong trend (non-stationary); sharp peaks at regular lags suggest seasonality.</p>
-<div id="3d8b9ce8" class="cell" data-execution_count="5">
+<div id="dfcd4ad4" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>plot_acf(unrate[<span class="st">'UNRATE'</span>].dropna(), ax<span class="op">=</span>axes[<span class="dv">0</span>], lags<span class="op">=</span><span class="dv">48</span>, title<span class="op">=</span><span class="st">'ACF: Unemployment rate'</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>plot_pacf(unrate[<span class="st">'UNRATE'</span>].dropna(), ax<span class="op">=</span>axes[<span class="dv">1</span>], lags<span class="op">=</span><span class="dv">48</span>, title<span class="op">=</span><span class="st">'PACF: Unemployment rate'</span>)</span>
@@ -524,7 +536,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>To make a non-stationary series stationary, take the <strong>first difference</strong> (each observation minus its predecessor):</p>
-<div id="ad161a28" class="cell" data-execution_count="6">
+<div id="2bbbcf98" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>diff <span class="op">=</span> unrate[<span class="st">'UNRATE'</span>].diff().dropna()</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span>))</span>
@@ -544,14 +556,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>q</code> — number of moving-average lags</li>
 </ul>
 <p>Picking good <code>(p, d, q)</code> is part art, part ritual. Start with <code>(1, 1, 1)</code> as a baseline, then use ACF/PACF plots and information criteria (AIC, BIC) to refine.</p>
-<div id="8c54a6e1" class="cell" data-execution_count="7">
+<div id="bac799cd" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ARIMA(unrate[<span class="st">'UNRATE'</span>], order<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fit <span class="op">=</span> model.fit()</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fit.summary())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The summary lists coefficient estimates, standard errors, and fit statistics. Non-significant coefficients (p &gt; 0.05) suggest you can simplify the model.</p>
 <p>To forecast the next 24 months:</p>
-<div id="b3fc3715" class="cell" data-execution_count="8">
+<div id="b3df2adb" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>forecast <span class="op">=</span> fit.get_forecast(steps<span class="op">=</span><span class="dv">24</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> forecast.predicted_mean</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ci <span class="op">=</span> forecast.conf_int(alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
@@ -572,7 +584,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="16.10" class="anchored" data-anchor-id="advanced-forecasting-with-prophet"><span class="header-section-number">16.10</span> Advanced: Forecasting with Prophet</h2>
 <p><a href="https://facebook.github.io/prophet/">Prophet</a> (originally from Meta/Facebook) is a higher-level forecasting tool. It automates most of the decisions ARIMA asks you to make — seasonality, trend changepoints, holidays — and exposes a scikit-learn-style <code>fit</code>/<code>predict</code> API. You give up some control; you gain speed.</p>
 <p>Prophet expects a specific DataFrame format: a column <code>ds</code> (the date) and a column <code>y</code> (the value).</p>
-<div id="33e449ca" class="cell" data-execution_count="9">
+<div id="51d16d97" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> prophet <span class="im">import</span> Prophet</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> unrate.reset_index().rename(columns<span class="op">=</span>{<span class="st">'DATE'</span>: <span class="st">'ds'</span>, <span class="st">'UNRATE'</span>: <span class="st">'y'</span>})</span>

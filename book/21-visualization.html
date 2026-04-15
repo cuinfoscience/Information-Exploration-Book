@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>19&nbsp; Visual Exploration – Information Exploration</title>
+<title>21&nbsp; Visual Exploration – Information Exploration</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,8 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./20-hypothesis-testing.html" rel="next">
-<link href="./18-descriptive.html" rel="prev">
+<link href="./22-modeling.html" rel="next">
+<link href="./20-comparative.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -120,7 +120,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./18-descriptive.html">Analysis</a></li><li class="breadcrumb-item"><a href="./19-visualization.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./18-descriptive.html">Analysis</a></li><li class="breadcrumb-item"><a href="./21-visualization.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -362,50 +374,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">19.1</span> Learning Objectives</a></li>
-  <li><a href="#why-visualize" id="toc-why-visualize" class="nav-link" data-scroll-target="#why-visualize"><span class="header-section-number">19.2</span> Why Visualize</a></li>
-  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">19.3</span> Setup</a></li>
-  <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets"><span class="header-section-number">19.4</span> Datasets</a></li>
-  <li><a href="#visualizing-distributions" id="toc-visualizing-distributions" class="nav-link" data-scroll-target="#visualizing-distributions"><span class="header-section-number">19.5</span> Visualizing Distributions</a>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">21.1</span> Learning Objectives</a></li>
+  <li><a href="#why-visualize" id="toc-why-visualize" class="nav-link" data-scroll-target="#why-visualize"><span class="header-section-number">21.2</span> Why Visualize</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">21.3</span> Setup</a></li>
+  <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets"><span class="header-section-number">21.4</span> Datasets</a></li>
+  <li><a href="#visualizing-distributions" id="toc-visualizing-distributions" class="nav-link" data-scroll-target="#visualizing-distributions"><span class="header-section-number">21.5</span> Visualizing Distributions</a>
   <ul class="collapse">
-  <li><a href="#histograms" id="toc-histograms" class="nav-link" data-scroll-target="#histograms"><span class="header-section-number">19.5.1</span> Histograms</a></li>
-  <li><a href="#kernel-density-estimation-kde" id="toc-kernel-density-estimation-kde" class="nav-link" data-scroll-target="#kernel-density-estimation-kde"><span class="header-section-number">19.5.2</span> Kernel density estimation (KDE)</a></li>
-  <li><a href="#comparing-distributions-across-groups" id="toc-comparing-distributions-across-groups" class="nav-link" data-scroll-target="#comparing-distributions-across-groups"><span class="header-section-number">19.5.3</span> Comparing distributions across groups</a></li>
-  <li><a href="#box-plots" id="toc-box-plots" class="nav-link" data-scroll-target="#box-plots"><span class="header-section-number">19.5.4</span> Box plots</a></li>
-  <li><a href="#violin-plots" id="toc-violin-plots" class="nav-link" data-scroll-target="#violin-plots"><span class="header-section-number">19.5.5</span> Violin plots</a></li>
+  <li><a href="#histograms" id="toc-histograms" class="nav-link" data-scroll-target="#histograms"><span class="header-section-number">21.5.1</span> Histograms</a></li>
+  <li><a href="#kernel-density-estimation-kde" id="toc-kernel-density-estimation-kde" class="nav-link" data-scroll-target="#kernel-density-estimation-kde"><span class="header-section-number">21.5.2</span> Kernel density estimation (KDE)</a></li>
+  <li><a href="#comparing-distributions-across-groups" id="toc-comparing-distributions-across-groups" class="nav-link" data-scroll-target="#comparing-distributions-across-groups"><span class="header-section-number">21.5.3</span> Comparing distributions across groups</a></li>
+  <li><a href="#box-plots" id="toc-box-plots" class="nav-link" data-scroll-target="#box-plots"><span class="header-section-number">21.5.4</span> Box plots</a></li>
+  <li><a href="#violin-plots" id="toc-violin-plots" class="nav-link" data-scroll-target="#violin-plots"><span class="header-section-number">21.5.5</span> Violin plots</a></li>
   </ul></li>
-  <li><a href="#visualizing-relationships" id="toc-visualizing-relationships" class="nav-link" data-scroll-target="#visualizing-relationships"><span class="header-section-number">19.6</span> Visualizing Relationships</a>
+  <li><a href="#visualizing-relationships" id="toc-visualizing-relationships" class="nav-link" data-scroll-target="#visualizing-relationships"><span class="header-section-number">21.6</span> Visualizing Relationships</a>
   <ul class="collapse">
-  <li><a href="#scatter-plots" id="toc-scatter-plots" class="nav-link" data-scroll-target="#scatter-plots"><span class="header-section-number">19.6.1</span> Scatter plots</a></li>
-  <li><a href="#adding-context-with-color-and-size" id="toc-adding-context-with-color-and-size" class="nav-link" data-scroll-target="#adding-context-with-color-and-size"><span class="header-section-number">19.6.2</span> Adding context with color and size</a></li>
-  <li><a href="#pair-plots" id="toc-pair-plots" class="nav-link" data-scroll-target="#pair-plots"><span class="header-section-number">19.6.3</span> Pair plots</a></li>
-  <li><a href="#correlation-heatmaps" id="toc-correlation-heatmaps" class="nav-link" data-scroll-target="#correlation-heatmaps"><span class="header-section-number">19.6.4</span> Correlation heatmaps</a></li>
+  <li><a href="#scatter-plots" id="toc-scatter-plots" class="nav-link" data-scroll-target="#scatter-plots"><span class="header-section-number">21.6.1</span> Scatter plots</a></li>
+  <li><a href="#adding-context-with-color-and-size" id="toc-adding-context-with-color-and-size" class="nav-link" data-scroll-target="#adding-context-with-color-and-size"><span class="header-section-number">21.6.2</span> Adding context with color and size</a></li>
+  <li><a href="#pair-plots" id="toc-pair-plots" class="nav-link" data-scroll-target="#pair-plots"><span class="header-section-number">21.6.3</span> Pair plots</a></li>
+  <li><a href="#correlation-heatmaps" id="toc-correlation-heatmaps" class="nav-link" data-scroll-target="#correlation-heatmaps"><span class="header-section-number">21.6.4</span> Correlation heatmaps</a></li>
   </ul></li>
-  <li><a href="#visualizing-trends-over-time" id="toc-visualizing-trends-over-time" class="nav-link" data-scroll-target="#visualizing-trends-over-time"><span class="header-section-number">19.7</span> Visualizing Trends Over Time</a>
+  <li><a href="#visualizing-trends-over-time" id="toc-visualizing-trends-over-time" class="nav-link" data-scroll-target="#visualizing-trends-over-time"><span class="header-section-number">21.7</span> Visualizing Trends Over Time</a>
   <ul class="collapse">
-  <li><a href="#single-trend-line" id="toc-single-trend-line" class="nav-link" data-scroll-target="#single-trend-line"><span class="header-section-number">19.7.1</span> Single trend line</a></li>
-  <li><a href="#multiple-trend-lines-for-comparison" id="toc-multiple-trend-lines-for-comparison" class="nav-link" data-scroll-target="#multiple-trend-lines-for-comparison"><span class="header-section-number">19.7.2</span> Multiple trend lines for comparison</a></li>
-  <li><a href="#trends-with-confidence-bands" id="toc-trends-with-confidence-bands" class="nav-link" data-scroll-target="#trends-with-confidence-bands"><span class="header-section-number">19.7.3</span> Trends with confidence bands</a></li>
+  <li><a href="#single-trend-line" id="toc-single-trend-line" class="nav-link" data-scroll-target="#single-trend-line"><span class="header-section-number">21.7.1</span> Single trend line</a></li>
+  <li><a href="#multiple-trend-lines-for-comparison" id="toc-multiple-trend-lines-for-comparison" class="nav-link" data-scroll-target="#multiple-trend-lines-for-comparison"><span class="header-section-number">21.7.2</span> Multiple trend lines for comparison</a></li>
+  <li><a href="#trends-with-confidence-bands" id="toc-trends-with-confidence-bands" class="nav-link" data-scroll-target="#trends-with-confidence-bands"><span class="header-section-number">21.7.3</span> Trends with confidence bands</a></li>
   </ul></li>
-  <li><a href="#visualizing-comparisons" id="toc-visualizing-comparisons" class="nav-link" data-scroll-target="#visualizing-comparisons"><span class="header-section-number">19.8</span> Visualizing Comparisons</a>
+  <li><a href="#visualizing-comparisons" id="toc-visualizing-comparisons" class="nav-link" data-scroll-target="#visualizing-comparisons"><span class="header-section-number">21.8</span> Visualizing Comparisons</a>
   <ul class="collapse">
-  <li><a href="#bar-charts-for-group-comparisons" id="toc-bar-charts-for-group-comparisons" class="nav-link" data-scroll-target="#bar-charts-for-group-comparisons"><span class="header-section-number">19.8.1</span> Bar charts for group comparisons</a></li>
-  <li><a href="#faceted-plots-small-multiples" id="toc-faceted-plots-small-multiples" class="nav-link" data-scroll-target="#faceted-plots-small-multiples"><span class="header-section-number">19.8.2</span> Faceted plots (small multiples)</a></li>
+  <li><a href="#bar-charts-for-group-comparisons" id="toc-bar-charts-for-group-comparisons" class="nav-link" data-scroll-target="#bar-charts-for-group-comparisons"><span class="header-section-number">21.8.1</span> Bar charts for group comparisons</a></li>
+  <li><a href="#faceted-plots-small-multiples" id="toc-faceted-plots-small-multiples" class="nav-link" data-scroll-target="#faceted-plots-small-multiples"><span class="header-section-number">21.8.2</span> Faceted plots (small multiples)</a></li>
   </ul></li>
-  <li><a href="#choosing-the-right-plot" id="toc-choosing-the-right-plot" class="nav-link" data-scroll-target="#choosing-the-right-plot"><span class="header-section-number">19.9</span> Choosing the Right Plot</a></li>
-  <li><a href="#common-issues-in-this-chapter" id="toc-common-issues-in-this-chapter" class="nav-link" data-scroll-target="#common-issues-in-this-chapter"><span class="header-section-number">19.10</span> Common Issues in This Chapter</a></li>
-  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways"><span class="header-section-number">19.11</span> Key Takeaways</a></li>
-  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">19.12</span> Further Reading</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">19.13</span> Exercises</a></li>
+  <li><a href="#choosing-the-right-plot" id="toc-choosing-the-right-plot" class="nav-link" data-scroll-target="#choosing-the-right-plot"><span class="header-section-number">21.9</span> Choosing the Right Plot</a></li>
+  <li><a href="#common-issues-in-this-chapter" id="toc-common-issues-in-this-chapter" class="nav-link" data-scroll-target="#common-issues-in-this-chapter"><span class="header-section-number">21.10</span> Common Issues in This Chapter</a></li>
+  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways"><span class="header-section-number">21.11</span> Key Takeaways</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">21.12</span> Further Reading</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">21.13</span> Exercises</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/19-visualization.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/21-visualization.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./18-descriptive.html">Analysis</a></li><li class="breadcrumb-item"><a href="./19-visualization.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./18-descriptive.html">Analysis</a></li><li class="breadcrumb-item"><a href="./21-visualization.html"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span id="sec-visualization" class="quarto-section-identifier"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span id="sec-visualization" class="quarto-section-identifier"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
 </div>
 
 
@@ -422,8 +434,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="learning-objectives" class="level2" data-number="19.1">
-<h2 data-number="19.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">19.1</span> Learning Objectives</h2>
+<section id="learning-objectives" class="level2" data-number="21.1">
+<h2 data-number="21.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">21.1</span> Learning Objectives</h2>
 <p>By the end of this chapter, you will be able to:</p>
 <ul>
 <li>Build <a href="https://matplotlib.org/stable/api/index.html">matplotlib</a> figures using <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html"><code>plt.subplots</code></a> and annotate them with titles, labels, and reference lines.</li>
@@ -434,15 +446,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Choose the right plot type for a given analytical question.</li>
 </ul>
 </section>
-<section id="why-visualize" class="level2" data-number="19.2">
-<h2 data-number="19.2" class="anchored" data-anchor-id="why-visualize"><span class="header-section-number">19.2</span> Why Visualize</h2>
+<section id="why-visualize" class="level2" data-number="21.2">
+<h2 data-number="21.2" class="anchored" data-anchor-id="why-visualize"><span class="header-section-number">21.2</span> Why Visualize</h2>
 <p>A well-chosen visualization reveals structure that no table of numbers can convey: the shape of a distribution, the trajectory of a trend, the clustering of groups, the isolation of outliers. This chapter introduces a systematic repertoire of plot types for exploratory data analysis using <a href="https://matplotlib.org/stable/api/index.html">matplotlib</a> and <a href="https://seaborn.pydata.org/">seaborn</a>, organized by what you are trying to see — distributions, relationships, trends, and comparisons. The goal is not to produce publication-ready graphics (though some of these will be close) but to build visual intuitions that inform your analytical decisions.</p>
 <p>Every plot in this chapter answers a question. Before writing any plotting code, state the question in a Markdown cell. After producing the plot, write one or two sentences interpreting what it shows. This habit turns exploratory plots from pretty pictures into analytical evidence.</p>
 </section>
-<section id="setup" class="level2" data-number="19.3">
-<h2 data-number="19.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">19.3</span> Setup</h2>
+<section id="setup" class="level2" data-number="21.3">
+<h2 data-number="21.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">21.3</span> Setup</h2>
 <p>This chapter uses <a href="https://pandas.pydata.org/docs/">pandas</a>, <a href="https://numpy.org/doc/stable/">numpy</a>, <a href="https://matplotlib.org/stable/">matplotlib</a>, and <a href="https://seaborn.pydata.org/">seaborn</a>.</p>
-<div id="ddbc0286" class="cell" data-execution_count="1">
+<div id="603abd97" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -472,9 +484,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="datasets" class="level2" data-number="19.4">
-<h2 data-number="19.4" class="anchored" data-anchor-id="datasets"><span class="header-section-number">19.4</span> Datasets</h2>
-<div id="36e268b5" class="cell" data-execution_count="2">
+<section id="datasets" class="level2" data-number="21.4">
+<h2 data-number="21.4" class="anchored" data-anchor-id="datasets"><span class="header-section-number">21.4</span> Datasets</h2>
+<div id="91a39cb5" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lahman batting — qualified player-seasons</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> pd.read_csv(<span class="st">'Batting.csv'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'BA'</span>] <span class="op">=</span> batting[<span class="st">'H'</span>] <span class="op">/</span> batting[<span class="st">'AB'</span>].replace(<span class="dv">0</span>, <span class="bu">float</span>(<span class="st">'nan'</span>))</span>
@@ -497,7 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    on<span class="op">=</span>[<span class="st">'playerID'</span>, <span class="st">'yearID'</span>], how<span class="op">=</span><span class="st">'inner'</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="96436066" class="cell" data-execution_count="3">
+<div id="837a7d97" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Colorado population</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">'https://storage.googleapis.com/co-publicdata/sya-county.csv'</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pop <span class="op">=</span> pd.read_csv(url, skiprows<span class="op">=</span><span class="dv">1</span>, dtype<span class="op">=</span>{<span class="st">'countyfips'</span>: <span class="bu">str</span>})</span>
@@ -508,7 +520,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    right<span class="op">=</span><span class="va">False</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="49ca05c1" class="cell" data-execution_count="4">
+<div id="2f403ccf" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cannabis sales</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cannabis <span class="op">=</span> pd.read_csv(</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'colorado_cannabis_sales_by_county.csv'</span>,</span>
@@ -524,13 +536,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>cannabis <span class="op">=</span> cannabis[cannabis[<span class="st">'county'</span>] <span class="op">!=</span> <span class="st">'Total'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="visualizing-distributions" class="level2" data-number="19.5">
-<h2 data-number="19.5" class="anchored" data-anchor-id="visualizing-distributions"><span class="header-section-number">19.5</span> Visualizing Distributions</h2>
+<section id="visualizing-distributions" class="level2" data-number="21.5">
+<h2 data-number="21.5" class="anchored" data-anchor-id="visualizing-distributions"><span class="header-section-number">21.5</span> Visualizing Distributions</h2>
 <p>The first question to ask about any numeric variable is: <em>what does its distribution look like?</em> Is it symmetric, skewed, bimodal, or uniform? Distributions guide your choice of summary statistics (mean vs.&nbsp;median), your approach to outliers, and your selection of statistical tests.</p>
-<section id="histograms" class="level3" data-number="19.5.1">
-<h3 data-number="19.5.1" class="anchored" data-anchor-id="histograms"><span class="header-section-number">19.5.1</span> Histograms</h3>
+<section id="histograms" class="level3" data-number="21.5.1">
+<h3 data-number="21.5.1" class="anchored" data-anchor-id="histograms"><span class="header-section-number">21.5.1</span> Histograms</h3>
 <p>A histogram divides the range of values into bins and counts how many observations fall in each. It is the most direct visualization of a distribution’s shape.</p>
-<div id="d6197346" class="cell" data-execution_count="5">
+<div id="dd73d881" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax.hist(qualified[<span class="st">'BA'</span>], bins<span class="op">=</span><span class="dv">50</span>, edgecolor<span class="op">=</span><span class="st">'white'</span>, alpha<span class="op">=</span><span class="fl">0.7</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Batting Average'</span>)</span>
@@ -544,10 +556,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The mean and median are close together, suggesting a roughly symmetric distribution. If they diverged substantially, the distribution would be skewed.</p>
 </section>
-<section id="kernel-density-estimation-kde" class="level3" data-number="19.5.2">
-<h3 data-number="19.5.2" class="anchored" data-anchor-id="kernel-density-estimation-kde"><span class="header-section-number">19.5.2</span> Kernel density estimation (KDE)</h3>
+<section id="kernel-density-estimation-kde" class="level3" data-number="21.5.2">
+<h3 data-number="21.5.2" class="anchored" data-anchor-id="kernel-density-estimation-kde"><span class="header-section-number">21.5.2</span> Kernel density estimation (KDE)</h3>
 <p>A KDE plot smooths the histogram into a continuous curve, making it easier to see the overall shape:</p>
-<div id="9411e908" class="cell" data-execution_count="6">
+<div id="e30181c6" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sns.kdeplot(data<span class="op">=</span>qualified, x<span class="op">=</span><span class="st">'BA'</span>, ax<span class="op">=</span>ax, fill<span class="op">=</span><span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'KDE of Batting Average'</span>)</span>
@@ -556,10 +568,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="comparing-distributions-across-groups" class="level3" data-number="19.5.3">
-<h3 data-number="19.5.3" class="anchored" data-anchor-id="comparing-distributions-across-groups"><span class="header-section-number">19.5.3</span> Comparing distributions across groups</h3>
+<section id="comparing-distributions-across-groups" class="level3" data-number="21.5.3">
+<h3 data-number="21.5.3" class="anchored" data-anchor-id="comparing-distributions-across-groups"><span class="header-section-number">21.5.3</span> Comparing distributions across groups</h3>
 <p>Overlaying distributions for different groups reveals how they differ. Here we compare batting averages across eras:</p>
-<div id="3d371c65" class="cell" data-execution_count="7">
+<div id="4218368c" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>era_filter <span class="op">=</span> qualified[<span class="st">'decade'</span>].isin([<span class="dv">1920</span>, <span class="dv">1960</span>, <span class="dv">2000</span>])</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>era_data <span class="op">=</span> qualified[era_filter].copy()</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>era_data[<span class="st">'era'</span>] <span class="op">=</span> era_data[<span class="st">'decade'</span>].<span class="bu">map</span>({<span class="dv">1920</span>: <span class="st">'1920s'</span>, <span class="dv">1960</span>: <span class="st">'1960s'</span>, <span class="dv">2000</span>: <span class="st">'2000s'</span>})</span>
@@ -572,10 +584,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="box-plots" class="level3" data-number="19.5.4">
-<h3 data-number="19.5.4" class="anchored" data-anchor-id="box-plots"><span class="header-section-number">19.5.4</span> Box plots</h3>
+<section id="box-plots" class="level3" data-number="21.5.4">
+<h3 data-number="21.5.4" class="anchored" data-anchor-id="box-plots"><span class="header-section-number">21.5.4</span> Box plots</h3>
 <p>Box plots show the five-number summary (min, Q1, median, Q3, max) plus individual outlier points. They are especially effective for comparing distributions across many groups:</p>
-<div id="f3a230e5" class="cell" data-execution_count="8">
+<div id="7609accc" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>decade_data <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>] <span class="op">&gt;=</span> <span class="dv">1900</span>]</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sns.boxplot(data<span class="op">=</span>decade_data, x<span class="op">=</span><span class="st">'decade'</span>, y<span class="op">=</span><span class="st">'BA'</span>, ax<span class="op">=</span>ax, color<span class="op">=</span><span class="st">'lightblue'</span>)</span>
@@ -588,10 +600,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The boxes show the interquartile range (middle 50%), the horizontal line is the median, and the dots are outliers beyond the IQR fences.</p>
 </section>
-<section id="violin-plots" class="level3" data-number="19.5.5">
-<h3 data-number="19.5.5" class="anchored" data-anchor-id="violin-plots"><span class="header-section-number">19.5.5</span> Violin plots</h3>
+<section id="violin-plots" class="level3" data-number="21.5.5">
+<h3 data-number="21.5.5" class="anchored" data-anchor-id="violin-plots"><span class="header-section-number">21.5.5</span> Violin plots</h3>
 <p>A violin plot combines a box plot with a KDE, showing the full shape of each group’s distribution:</p>
-<div id="2cd20fb5" class="cell" data-execution_count="9">
+<div id="e489c848" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>selected_decades <span class="op">=</span> decade_data[decade_data[<span class="st">'decade'</span>].isin([<span class="dv">1920</span>, <span class="dv">1950</span>, <span class="dv">1980</span>, <span class="dv">2010</span>])]</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>sns.violinplot(data<span class="op">=</span>selected_decades, x<span class="op">=</span><span class="st">'decade'</span>, y<span class="op">=</span><span class="st">'HR'</span>, ax<span class="op">=</span>ax, inner<span class="op">=</span><span class="st">'quartile'</span>)</span>
@@ -603,12 +615,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="visualizing-relationships" class="level2" data-number="19.6">
-<h2 data-number="19.6" class="anchored" data-anchor-id="visualizing-relationships"><span class="header-section-number">19.6</span> Visualizing Relationships</h2>
+<section id="visualizing-relationships" class="level2" data-number="21.6">
+<h2 data-number="21.6" class="anchored" data-anchor-id="visualizing-relationships"><span class="header-section-number">21.6</span> Visualizing Relationships</h2>
 <p>When you want to understand how two numeric variables relate to each other, scatter plots and correlation heatmaps are your primary tools.</p>
-<section id="scatter-plots" class="level3" data-number="19.6.1">
-<h3 data-number="19.6.1" class="anchored" data-anchor-id="scatter-plots"><span class="header-section-number">19.6.1</span> Scatter plots</h3>
-<div id="4d937050" class="cell" data-execution_count="10">
+<section id="scatter-plots" class="level3" data-number="21.6.1">
+<h3 data-number="21.6.1" class="anchored" data-anchor-id="scatter-plots"><span class="header-section-number">21.6.1</span> Scatter plots</h3>
+<div id="4b7704ef" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">6</span>))</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>sample <span class="op">=</span> bat_sal[bat_sal[<span class="st">'yearID'</span>] <span class="op">==</span> <span class="dv">2015</span>].copy()</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>ax.scatter(sample[<span class="st">'salary'</span>] <span class="op">/</span> <span class="fl">1e6</span>, sample[<span class="st">'OPS'</span>], alpha<span class="op">=</span><span class="fl">0.4</span>, s<span class="op">=</span><span class="dv">20</span>)</span>
@@ -620,10 +632,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>If the points form a rising cloud, the variables are positively correlated. If the cloud is flat or shapeless, there is little linear relationship. If the cloud curves, the relationship may be nonlinear — something a correlation coefficient alone would not reveal.</p>
 </section>
-<section id="adding-context-with-color-and-size" class="level3" data-number="19.6.2">
-<h3 data-number="19.6.2" class="anchored" data-anchor-id="adding-context-with-color-and-size"><span class="header-section-number">19.6.2</span> Adding context with color and size</h3>
+<section id="adding-context-with-color-and-size" class="level3" data-number="21.6.2">
+<h3 data-number="21.6.2" class="anchored" data-anchor-id="adding-context-with-color-and-size"><span class="header-section-number">21.6.2</span> Adding context with color and size</h3>
 <p>Seaborn’s <code>scatterplot()</code> can encode additional variables using color (hue) and size:</p>
-<div id="759c3f99" class="cell" data-execution_count="11">
+<div id="30fbec0f" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">6</span>))</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>sns.scatterplot(</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>sample, x<span class="op">=</span>sample[<span class="st">'salary'</span>]<span class="op">/</span><span class="fl">1e6</span>, y<span class="op">=</span><span class="st">'OPS'</span>,</span>
@@ -635,10 +647,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="pair-plots" class="level3" data-number="19.6.3">
-<h3 data-number="19.6.3" class="anchored" data-anchor-id="pair-plots"><span class="header-section-number">19.6.3</span> Pair plots</h3>
+<section id="pair-plots" class="level3" data-number="21.6.3">
+<h3 data-number="21.6.3" class="anchored" data-anchor-id="pair-plots"><span class="header-section-number">21.6.3</span> Pair plots</h3>
 <p>When you have several numeric variables, a pair plot shows every pairwise scatter plot and each variable’s distribution in a single figure:</p>
-<div id="3be8c254" class="cell" data-execution_count="12">
+<div id="a90fb23c" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pair_cols <span class="op">=</span> [<span class="st">'BA'</span>, <span class="st">'SLG'</span>, <span class="st">'OBP'</span>, <span class="st">'HR'</span>]</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pair_data <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>] <span class="op">==</span> <span class="dv">2010</span>][pair_cols].dropna().sample(<span class="dv">500</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -648,10 +660,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="correlation-heatmaps" class="level3" data-number="19.6.4">
-<h3 data-number="19.6.4" class="anchored" data-anchor-id="correlation-heatmaps"><span class="header-section-number">19.6.4</span> Correlation heatmaps</h3>
+<section id="correlation-heatmaps" class="level3" data-number="21.6.4">
+<h3 data-number="21.6.4" class="anchored" data-anchor-id="correlation-heatmaps"><span class="header-section-number">21.6.4</span> Correlation heatmaps</h3>
 <p>A heatmap visualizes the correlation matrix from <a href="18-descriptive.html" class="quarto-xref"><span>Chapter 18</span></a>, making it easy to spot strong relationships at a glance:</p>
-<div id="92f08c43" class="cell" data-execution_count="13">
+<div id="e7d08a9d" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> qualified[[<span class="st">'AB'</span>, <span class="st">'H'</span>, <span class="st">'HR'</span>, <span class="st">'BB'</span>, <span class="st">'BA'</span>, <span class="st">'SLG'</span>, <span class="st">'OBP'</span>, <span class="st">'OPS'</span>]].dropna()</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>corr <span class="op">=</span> metrics.corr()</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -665,12 +677,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Red cells indicate strong positive correlations, blue cells indicate negative correlations, and white cells indicate little linear relationship.</p>
 </section>
 </section>
-<section id="visualizing-trends-over-time" class="level2" data-number="19.7">
-<h2 data-number="19.7" class="anchored" data-anchor-id="visualizing-trends-over-time"><span class="header-section-number">19.7</span> Visualizing Trends Over Time</h2>
+<section id="visualizing-trends-over-time" class="level2" data-number="21.7">
+<h2 data-number="21.7" class="anchored" data-anchor-id="visualizing-trends-over-time"><span class="header-section-number">21.7</span> Visualizing Trends Over Time</h2>
 <p>Time series plots — line charts showing how a variable changes across time — are essential for longitudinal analysis.</p>
-<section id="single-trend-line" class="level3" data-number="19.7.1">
-<h3 data-number="19.7.1" class="anchored" data-anchor-id="single-trend-line"><span class="header-section-number">19.7.1</span> Single trend line</h3>
-<div id="e5c0b36e" class="cell" data-execution_count="14">
+<section id="single-trend-line" class="level3" data-number="21.7.1">
+<h3 data-number="21.7.1" class="anchored" data-anchor-id="single-trend-line"><span class="header-section-number">21.7.1</span> Single trend line</h3>
+<div id="c7712f9e" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Statewide cannabis retail sales by year</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>annual_state <span class="op">=</span> cannabis.groupby(<span class="st">'year'</span>)[<span class="st">'retail'</span>].<span class="bu">sum</span>().reset_index()</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -683,9 +695,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="multiple-trend-lines-for-comparison" class="level3" data-number="19.7.2">
-<h3 data-number="19.7.2" class="anchored" data-anchor-id="multiple-trend-lines-for-comparison"><span class="header-section-number">19.7.2</span> Multiple trend lines for comparison</h3>
-<div id="a3d73217" class="cell" data-execution_count="15">
+<section id="multiple-trend-lines-for-comparison" class="level3" data-number="21.7.2">
+<h3 data-number="21.7.2" class="anchored" data-anchor-id="multiple-trend-lines-for-comparison"><span class="header-section-number">21.7.2</span> Multiple trend lines for comparison</h3>
+<div id="b2dcf741" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare top 5 counties</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>top_counties <span class="op">=</span> (</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    cannabis.groupby(<span class="st">'county'</span>)[<span class="st">'retail'</span>].<span class="bu">sum</span>()</span>
@@ -703,10 +715,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="trends-with-confidence-bands" class="level3" data-number="19.7.3">
-<h3 data-number="19.7.3" class="anchored" data-anchor-id="trends-with-confidence-bands"><span class="header-section-number">19.7.3</span> Trends with confidence bands</h3>
+<section id="trends-with-confidence-bands" class="level3" data-number="21.7.3">
+<h3 data-number="21.7.3" class="anchored" data-anchor-id="trends-with-confidence-bands"><span class="header-section-number">21.7.3</span> Trends with confidence bands</h3>
 <p>Seaborn can compute and display confidence intervals around aggregated trends:</p>
-<div id="a2b9e4f9" class="cell" data-execution_count="16">
+<div id="3d6609e0" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>decade_ba <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>] <span class="op">&gt;=</span> <span class="dv">1900</span>]</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
@@ -720,12 +732,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The shaded band shows the 95% confidence interval around the mean at each year, giving you a sense of both the trend and the variability.</p>
 </section>
 </section>
-<section id="visualizing-comparisons" class="level2" data-number="19.8">
-<h2 data-number="19.8" class="anchored" data-anchor-id="visualizing-comparisons"><span class="header-section-number">19.8</span> Visualizing Comparisons</h2>
+<section id="visualizing-comparisons" class="level2" data-number="21.8">
+<h2 data-number="21.8" class="anchored" data-anchor-id="visualizing-comparisons"><span class="header-section-number">21.8</span> Visualizing Comparisons</h2>
 <p>When you want to compare a metric across categorical groups, bar charts, grouped bar charts, and faceted plots make the differences visible.</p>
-<section id="bar-charts-for-group-comparisons" class="level3" data-number="19.8.1">
-<h3 data-number="19.8.1" class="anchored" data-anchor-id="bar-charts-for-group-comparisons"><span class="header-section-number">19.8.1</span> Bar charts for group comparisons</h3>
-<div id="60812f69" class="cell" data-execution_count="17">
+<section id="bar-charts-for-group-comparisons" class="level3" data-number="21.8.1">
+<h3 data-number="21.8.1" class="anchored" data-anchor-id="bar-charts-for-group-comparisons"><span class="header-section-number">21.8.1</span> Bar charts for group comparisons</h3>
+<div id="445b3d0c" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dependency ratio by county type (top vs bottom 10)</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>dep_wide <span class="op">=</span> (</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    estimates[estimates[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2020</span>]</span>
@@ -756,10 +768,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="faceted-plots-small-multiples" class="level3" data-number="19.8.2">
-<h3 data-number="19.8.2" class="anchored" data-anchor-id="faceted-plots-small-multiples"><span class="header-section-number">19.8.2</span> Faceted plots (small multiples)</h3>
+<section id="faceted-plots-small-multiples" class="level3" data-number="21.8.2">
+<h3 data-number="21.8.2" class="anchored" data-anchor-id="faceted-plots-small-multiples"><span class="header-section-number">21.8.2</span> Faceted plots (small multiples)</h3>
 <p>Faceting breaks a single plot into a grid of subplots, one per group. This is one of the most effective techniques for comparing patterns across categories:</p>
-<div id="e6660154" class="cell" data-execution_count="18">
+<div id="41459256" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Batting average distribution across four selected decades</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>four_decades <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>].isin([<span class="dv">1930</span>, <span class="dv">1960</span>, <span class="dv">1990</span>, <span class="dv">2020</span>])].copy()</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>four_decades[<span class="st">'era'</span>] <span class="op">=</span> four_decades[<span class="st">'decade'</span>].astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">'s'</span></span>
@@ -774,8 +786,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="choosing-the-right-plot" class="level2" data-number="19.9">
-<h2 data-number="19.9" class="anchored" data-anchor-id="choosing-the-right-plot"><span class="header-section-number">19.9</span> Choosing the Right Plot</h2>
+<section id="choosing-the-right-plot" class="level2" data-number="21.9">
+<h2 data-number="21.9" class="anchored" data-anchor-id="choosing-the-right-plot"><span class="header-section-number">21.9</span> Choosing the Right Plot</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 29%">
@@ -828,8 +840,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tbody>
 </table>
 </section>
-<section id="common-issues-in-this-chapter" class="level2" data-number="19.10">
-<h2 data-number="19.10" class="anchored" data-anchor-id="common-issues-in-this-chapter"><span class="header-section-number">19.10</span> Common Issues in This Chapter</h2>
+<section id="common-issues-in-this-chapter" class="level2" data-number="21.10">
+<h2 data-number="21.10" class="anchored" data-anchor-id="common-issues-in-this-chapter"><span class="header-section-number">21.10</span> Common Issues in This Chapter</h2>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -887,8 +899,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="key-takeaways" class="level2" data-number="19.11">
-<h2 data-number="19.11" class="anchored" data-anchor-id="key-takeaways"><span class="header-section-number">19.11</span> Key Takeaways</h2>
+<section id="key-takeaways" class="level2" data-number="21.11">
+<h2 data-number="21.11" class="anchored" data-anchor-id="key-takeaways"><span class="header-section-number">21.11</span> Key Takeaways</h2>
 <ul>
 <li>Every plot should answer a specific question. Write the question first, the code second, the interpretation third.</li>
 <li><strong>Distributions</strong>: histograms, KDEs, box plots, violin plots. <strong>Relationships</strong>: scatter, pairplot, heatmap. <strong>Trends</strong>: line plots. <strong>Comparisons</strong>: bar charts, faceted plots.</li>
@@ -897,8 +909,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Small multiples (faceted plots) beat one crowded plot almost every time.</li>
 </ul>
 </section>
-<section id="further-reading" class="level2" data-number="19.12">
-<h2 data-number="19.12" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">19.12</span> Further Reading</h2>
+<section id="further-reading" class="level2" data-number="21.12">
+<h2 data-number="21.12" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">21.12</span> Further Reading</h2>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -922,8 +934,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="exercises" class="level2" data-number="19.13">
-<h2 data-number="19.13" class="anchored" data-anchor-id="exercises"><span class="header-section-number">19.13</span> Exercises</h2>
+<section id="exercises" class="level2" data-number="21.13">
+<h2 data-number="21.13" class="anchored" data-anchor-id="exercises"><span class="header-section-number">21.13</span> Exercises</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -949,7 +961,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="dc2a4939" class="cell" data-execution_count="19">
+<div id="0fe57b4a" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>era_hr <span class="op">=</span> qualified[qualified[<span class="st">'decade'</span>].isin([<span class="dv">1990</span>, <span class="dv">2010</span>])].copy()</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>era_hr[<span class="st">'era'</span>] <span class="op">=</span> era_hr[<span class="st">'decade'</span>].<span class="bu">map</span>({<span class="dv">1990</span>: <span class="st">'1990s'</span>, <span class="dv">2010</span>: <span class="st">'2010s'</span>})</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -990,7 +1002,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="9883abd4" class="cell" data-execution_count="20">
+<div id="5b15b4c3" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>county_year <span class="op">=</span> cannabis.groupby([<span class="st">'county'</span>, <span class="st">'year'</span>])[[<span class="st">'medical'</span>, <span class="st">'retail'</span>]].<span class="bu">sum</span>().dropna().reset_index()</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">7</span>))</span>
@@ -1487,13 +1499,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./18-descriptive.html" class="pagination-link" aria-label="Descriptive and Qualitative Exploration">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span>
+      <a href="./20-comparative.html" class="pagination-link" aria-label="Comparative Exploration">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./20-hypothesis-testing.html" class="pagination-link" aria-label="Hypothesis Testing and Comparisons">
-        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./22-modeling.html" class="pagination-link" aria-label="Modeling Exploration">
+        <span class="nav-page-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
@@ -1977,4 +1989,4 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/19-visualization.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/21-visualization.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>

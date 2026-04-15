@@ -44,7 +44,7 @@
     "href": "index.html#how-this-book-is-organized",
     "title": "Information Exploration",
     "section": "How This Book Is Organized",
-    "text": "How This Book Is Organized\nThe book is divided into five parts. Part I builds the conceptual and technical foundation. Parts II and III each apply the Load–Clean–Extend–Reshape framework with a different tabular tool. Part IV extends the toolkit to non-tabular data (spatial, network, text, time series, and web-structured formats). Part V applies the results to analysis.\nPart I: Foundations covers the paratechnical skills that most courses skip but that every analyst needs — navigating the terminal, organizing project files, writing documentation, managing Python environments, and reading error messages — as well as the conceptual and ethical vocabulary for working with public data. Four chapters: workspace setup, documentation and errors, research-question framing, and public-interest data science. These short chapters are designed to be referenced throughout the rest of the book.\nPart II: Python introduces the pandas library for tabular data analysis. Across four chapters, you will learn to load CSV and Excel files with read_csv and read_excel, clean data using string methods, type coercion, and dictionary-based recoding, extend datasets with derived columns, groupby aggregation, and pivot_table, and reshape data using melt, merge, and concat. The datasets in this section include Colorado cannabis sales data, Boulder County voter registration records, Lahman Baseball statistics, and Colorado population estimates from the State Demography Office.\nPart III: SQL teaches you to perform the same operations using Structured Query Language and the SQLite database engine. You will set up a database from the command line, design schemas, load cleaned CSVs, write diagnostic queries, use GROUP BY, subqueries, and Common Table Expressions (CTEs), and join multiple tables while auditing join quality. The SQL chapters use Colorado public health datasets — CDC mortality data, Colorado Bureau of Investigation crime statistics, and population estimates — culminating in a multi-table join that produces an analysis-ready dataset.\nPart IV: Non-Tabular Data extends the book’s toolkit to data that does not arrive as rows and columns. Five chapters introduce spatial data with GeoPandas, network data with NetworkX, unstructured text with NLTK, time series with statsmodels and Prophet, and structured web data (JSON, XML, HTML) with requests and Beautiful Soup.\nPart V: Analysis applies the conceptual vocabulary from Part I to the clean, well-structured data you have built. You will characterize distributions and identify outliers through descriptive statistics, build a visual vocabulary for exploring patterns using matplotlib and seaborn, and apply simple hypothesis tests from scipy.stats — t-tests, chi-square tests, and correlation coefficients — interpreting their results in plain language. Part V uses the same datasets from earlier chapters, so that the analytical questions grow naturally from the data preparation work you have already done.\nTwo Appendices document the datasets used throughout the book (sources, structures, known quirks) and disclose the author’s use of AI assistance during drafting.",
+    "text": "How This Book Is Organized\nThe book is divided into five parts. Part I builds the conceptual and technical foundation. Parts II and III each apply the Load–Clean–Extend–Reshape framework with a different tabular tool. Part IV extends the toolkit to non-tabular data (spatial, network, text, time series, and web-structured formats). Part V applies the results to analysis.\nPart I: Foundations covers the paratechnical skills that most courses skip but that every analyst needs — navigating the terminal, organizing project files, writing documentation, managing Python environments, and reading error messages — as well as the conceptual and ethical vocabulary for working with public data. Four chapters: workspace setup, documentation and errors, research-question framing, and public-interest data science. These short chapters are designed to be referenced throughout the rest of the book.\nPart II: Python introduces the pandas library for tabular data analysis. Across four chapters, you will learn to load CSV and Excel files with read_csv and read_excel, clean data using string methods, type coercion, and dictionary-based recoding, extend datasets with derived columns, groupby aggregation, and pivot_table, and reshape data using melt, merge, and concat. The datasets in this section include Colorado cannabis sales data, Boulder County voter registration records, Lahman Baseball statistics, and Colorado population estimates from the State Demography Office.\nPart III: SQL teaches you to perform the same operations using Structured Query Language and the SQLite database engine. You will set up a database from the command line, design schemas, load cleaned CSVs, write diagnostic queries, use GROUP BY, subqueries, and Common Table Expressions (CTEs), and join multiple tables while auditing join quality. The SQL chapters use Colorado public health datasets — CDC mortality data, Colorado Bureau of Investigation crime statistics, and population estimates — culminating in a multi-table join that produces an analysis-ready dataset.\nPart IV: Non-Tabular Data extends the book’s toolkit to data that does not arrive as rows and columns. Five chapters introduce spatial data with GeoPandas, network data with NetworkX, unstructured text with NLTK, time series with statsmodels and Prophet, and structured web data (JSON, XML, HTML) with requests and Beautiful Soup.\nPart V: Analysis organizes the final stage of the book as five complementary modes of exploration. You will characterize distributions, outliers, and categorical patterns through descriptive exploration; use trace and digital-ethnographic methods to read data as the residue of particular institutions and practices in qualitative exploration; compare groups and variables with t-tests, one-way ANOVA, chi-square, and correlation in comparative exploration (via scipy.stats); build a visual vocabulary with matplotlib and seaborn in visual exploration; and fit linear models with statsmodels to quantify and interpret relationships across multiple simultaneous variables in modeling exploration. Part V uses the same datasets from earlier chapters so that the analytical questions grow naturally from the data preparation work you have already done.\nTwo Appendices document the datasets used throughout the book (sources, structures, known quirks) and disclose the author’s use of AI assistance during drafting.",
     "crumbs": [
       "Preface"
     ]
@@ -2917,496 +2917,826 @@
   {
     "objectID": "18-descriptive.html",
     "href": "18-descriptive.html",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "",
     "text": "18.1 Learning Objectives\nBy the end of this chapter, you will be able to:",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#learning-objectives",
     "href": "18-descriptive.html#learning-objectives",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "",
     "text": "Move beyond df.describe() to characterize the shape, skewness, and spread of a distribution using quantiles and the coefficient of variation.\nIdentify outliers with the IQR method and the z-score method, and decide whether each outlier reflects an error or a legitimate extreme observation.\nProduce frequency tables with .value_counts() and cross-tabulations with pd.crosstab().\nBuild a correlation matrix with df.corr() and interpret its structure.\nWrite a short descriptive summary that documents N, shape, outliers, and missingness for any new dataset.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#why-descriptive-exploration-comes-first",
     "href": "18-descriptive.html#why-descriptive-exploration-comes-first",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.2 Why Descriptive Exploration Comes First",
     "text": "18.2 Why Descriptive Exploration Comes First\nBefore you compare groups or test hypotheses, you need to understand what your data looks like. Descriptive exploration is the process of characterizing a dataset’s central tendencies, variability, shape, and outliers — building an informed mental model of the data that guides every subsequent analytical decision. This chapter goes beyond the .describe() method you have already used and introduces systematic techniques for understanding distributions, identifying unusual observations, examining categorical patterns, and constructing frequency tables and cross-tabulations.\nThe philosophy here is qualitative in the broadest sense: you are looking for patterns, surprises, and anomalies rather than computing formal test statistics. The goal is to know your data well enough that nothing in the later chapters catches you off guard.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#setup",
     "href": "18-descriptive.html#setup",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.3 Setup",
     "text": "18.3 Setup\nThis chapter uses pandas, numpy, matplotlib, and seaborn.\n\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\npd.set_option('display.max_columns', None)\npd.set_option('display.float_format', '{:.3f}'.format)\n\nsns.set_style('whitegrid')\n\n\n\n\n\n\n\nWarningIf you get an ImportError\n\n\n\n\n\nInstall missing packages with conda install pandas numpy matplotlib seaborn (or pip install pandas numpy matplotlib seaborn) and restart the Jupyter kernel. seaborn is sometimes missing from minimal environments; that is a common first-time cause. See Chapter 1.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#datasets",
     "href": "18-descriptive.html#datasets",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.4 Datasets",
     "text": "18.4 Datasets\nWe continue with the datasets from earlier chapters, loading and preparing them with the derived columns already established.\n\n# Lahman batting with derived metrics\nbatting = pd.read_csv('Batting.csv')\nbatting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))\nbatting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']\nbatting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))\nbatting['HBP'] = batting['HBP'].fillna(0)\nbatting['SF'] = batting['SF'].fillna(0)\nbatting['OBP'] = (\n    (batting['H'] + batting['BB'] + batting['HBP'])\n    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))\n)\nbatting['OPS'] = batting['OBP'] + batting['SLG']\nbatting['decade'] = (batting['yearID'] // 10) * 10\n\n# Filter to qualified player-seasons for meaningful rate statistics\nqualified = batting[batting['AB'] &gt;= 100].copy()\n\nprint('Qualified player-seasons:', qualified.shape[0])\n\n\n# Colorado population estimates\nurl = 'https://storage.googleapis.com/co-publicdata/sya-county.csv'\npop = pd.read_csv(url, skiprows=1, dtype={'countyfips': str})\nestimates = pop[pop['datatype'] == 'Estimate'].copy()\n\n\n# Cannabis sales (cleaned)\ncannabis = pd.read_csv(\n    'colorado_cannabis_sales_by_county.csv',\n    header=2, skipfooter=8, engine='python', na_values=['NR']\n)\ncannabis.columns = ['month', 'year', 'county', 'medical', 'retail']\ncannabis['county'] = cannabis['county'].str.strip()\nfor col in ['medical', 'retail']:\n    cannabis[col] = pd.to_numeric(\n        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False),\n        errors='coerce'\n    )\ncannabis = cannabis[cannabis['county'] != 'Total']",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#beyond-.describe-understanding-distributions",
     "href": "18-descriptive.html#beyond-.describe-understanding-distributions",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.5 Beyond .describe(): Understanding Distributions",
     "text": "18.5 Beyond .describe(): Understanding Distributions\nThe .describe() method gives you the five-number summary (min, 25th percentile, median, 75th percentile, max) plus the mean and count. This is a useful starting point, but it hides important features of a distribution: its shape, its skewness, and whether it has multiple modes.\n\n18.5.1 Skewness\nMany real-world variables are right-skewed — a long tail extends toward high values while most observations cluster near the low end. Income, city populations, and home prices all follow this pattern. Cannabis sales across Colorado counties are a clear example:\n\nannual_sales = (\n    cannabis[cannabis['year'] == 2023]\n    .groupby('county')['retail']\n    .sum()\n    .dropna()\n)\n\nprint(annual_sales.describe())\nprint(f'\\nSkewness: {annual_sales.skew():.2f}')\nprint(f'Mean:     ${annual_sales.mean():,.0f}')\nprint(f'Median:   ${annual_sales.median():,.0f}')\n\nWhen the mean is substantially larger than the median, the distribution is right-skewed, and the mean is being pulled upward by a few very large values. In this case, the median is a better measure of the “typical” county than the mean.\n\n\n18.5.2 Quantiles and percentiles\nQuantiles divide your data into equal-sized groups. The .quantile() method lets you compute arbitrary percentiles:\n\n# Decile boundaries for batting average\npercentiles = qualified['BA'].quantile(np.arange(0, 1.1, 0.1))\nprint('Batting average deciles:')\nprint(percentiles.round(3))\n\nQuantiles are useful for creating bins (as with pd.qcut() in Chapter 8), for identifying where a specific value falls in the distribution, and for detecting whether the distribution has unusual gaps or concentrations.\n\n\n18.5.3 The coefficient of variation\nStandard deviation tells you how spread out values are, but its meaning depends on the scale of the variable. A standard deviation of 1,000 is enormous for a variable with a mean of 500 but negligible for a variable with a mean of 10,000,000. The coefficient of variation (CV) — the ratio of the standard deviation to the mean — provides a scale-free measure of relative variability:\n\nfor col in ['medical', 'retail']:\n    mean_val = cannabis[col].mean()\n    std_val = cannabis[col].std()\n    cv = std_val / mean_val\n    print(f'{col}: mean={mean_val:,.0f}, std={std_val:,.0f}, CV={cv:.2f}')\n\nA CV above 1.0 indicates very high variability relative to the mean — typical of skewed distributions.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#identifying-outliers",
     "href": "18-descriptive.html#identifying-outliers",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.6 Identifying Outliers",
     "text": "18.6 Identifying Outliers\nAn outlier is an observation that is unusually far from the rest of the data. Outliers are not automatically errors — they may be legitimate extreme values that are analytically important. The goal is to identify them, investigate them, and make a documented decision about whether to include them in your analysis.\n\n18.6.1 The IQR method\nThe interquartile range (IQR) is the distance between the 25th and 75th percentiles. The standard convention defines outliers as values below Q1 − 1.5 × IQR or above Q3 + 1.5 × IQR:\n\ndef find_outliers_iqr(series, multiplier=1.5):\n    \"\"\"Identify outliers using the IQR method.\"\"\"\n    Q1 = series.quantile(0.25)\n    Q3 = series.quantile(0.75)\n    IQR = Q3 - Q1\n    lower = Q1 - multiplier * IQR\n    upper = Q3 + multiplier * IQR\n\n    outliers = series[(series &lt; lower) | (series &gt; upper)]\n\n    print(f'Q1={Q1:.3f}, Q3={Q3:.3f}, IQR={IQR:.3f}')\n    print(f'Lower fence: {lower:.3f}, Upper fence: {upper:.3f}')\n    print(f'Outliers: {len(outliers)} of {len(series)} ({len(outliers)/len(series):.1%})')\n\n    return outliers\n\nhr_outliers = find_outliers_iqr(qualified['HR'])\n\n\n\n18.6.2 The z-score method\nA z-score measures how many standard deviations a value is from the mean. Values with |z| &gt; 3 are conventionally considered outliers:\n\nqualified['hr_zscore'] = (\n    (qualified['HR'] - qualified['HR'].mean()) / qualified['HR'].std()\n)\n\nextreme = qualified[qualified['hr_zscore'].abs() &gt; 3]\nprint(f'Observations with |z| &gt; 3: {len(extreme)}')\nprint(extreme[['playerID', 'yearID', 'HR', 'hr_zscore']].sort_values('hr_zscore', ascending=False).head(10))\n\n\n\n18.6.3 Investigating outliers\nOnce you identify outliers, investigate them before deciding what to do. Are they data entry errors, measurement artifacts, or genuinely extreme observations?\n\n# Are the extreme HR seasons real or errors?\n# Check: do the player names and years match known record holders?\nprint(extreme[['playerID', 'yearID', 'teamID', 'HR']].sort_values('HR', ascending=False).head(5))\n\nIf these are legitimate records (Barry Bonds’ 73 HR in 2001, for instance), removing them would be analytically dishonest. If they are data entry errors (a player with 999 HR), removing them is necessary. Document the decision either way.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#categorical-patterns",
     "href": "18-descriptive.html#categorical-patterns",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.7 Categorical Patterns",
     "text": "18.7 Categorical Patterns\nFor non-numeric columns, the primary descriptive tools are frequency tables and cross-tabulations.\n\n18.7.1 Frequency tables\nThe .value_counts() method is your workhorse for categorical exploration. Use it with normalize=True to get proportions instead of counts:\n\n# County distribution of cannabis sales records\ncounty_counts = cannabis['county'].value_counts()\nprint(f'Counties with data: {len(county_counts)}')\nprint(f'\\nTop 10:')\nprint(county_counts.head(10))\nprint(f'\\nBottom 5:')\nprint(county_counts.tail(5))\n\n\n# Age band distribution in Colorado (2020)\nbins = [0, 18, 65, 101]\nlabels = ['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)']\nest_2020 = estimates[estimates['year'] == 2020].copy()\nest_2020['age_band'] = pd.cut(est_2020['age'], bins=bins, labels=labels, right=False)\n\nband_totals = est_2020.groupby('age_band', observed=True)['totalpopulation'].sum()\nprint('Statewide population by age band (2020):')\nprint(band_totals)\nprint(f'\\nProportions:')\nprint((band_totals / band_totals.sum()).round(3))\n\n\n\n18.7.2 Cross-tabulations\nA cross-tabulation (crosstab) shows the joint distribution of two categorical variables. Use pd.crosstab() to build one:\n\n# Decades × league for batting data\nbatting_with_league = batting.copy()\n\ndecade_counts = pd.crosstab(\n    qualified['decade'],\n    qualified['teamID'].str[:2],  # rough proxy\n    margins=True\n)\nprint('Player-seasons by decade (first 5 decades):')\nprint(decade_counts.head())\n\nCross-tabulations become more informative with normalize to show proportions and with margins=True to include row and column totals.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#summarizing-multiple-variables-together",
     "href": "18-descriptive.html#summarizing-multiple-variables-together",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.8 Summarizing Multiple Variables Together",
-    "text": "18.8 Summarizing Multiple Variables Together\nWhen you have several numeric columns, examining them individually is tedious. A correlation matrix provides a compact summary of pairwise relationships:\n\nbatting_metrics = qualified[['AB', 'H', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS']].copy()\n\ncorr_matrix = batting_metrics.corr().round(2)\nprint(corr_matrix)\n\nWe will visualize this matrix as a heatmap in Chapter 19 and test individual correlations formally in Chapter 20.",
+    "text": "18.8 Summarizing Multiple Variables Together\nWhen you have several numeric columns, examining them individually is tedious. A correlation matrix provides a compact summary of pairwise relationships:\n\nbatting_metrics = qualified[['AB', 'H', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS']].copy()\n\ncorr_matrix = batting_metrics.corr().round(2)\nprint(corr_matrix)\n\nWe will visualize this matrix as a heatmap in Chapter 21 and test individual correlations formally in Chapter 20.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#the-descriptive-summary-template",
     "href": "18-descriptive.html#the-descriptive-summary-template",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.9 The Descriptive Summary Template",
     "text": "18.9 The Descriptive Summary Template\nFor any new dataset or analytical question, produce a descriptive summary that covers these elements. You can structure this as a Markdown cell in your notebook:\n## Descriptive Summary: [Dataset / Variable]\n\n**Unit of analysis:** [what each row represents]\n**N:** [number of observations after filtering]\n**Key statistics:** mean, median, std, min, max\n**Shape:** [symmetric, right-skewed, bimodal, etc.]\n**Outliers:** [count, method used, decision made]\n**Missing data:** [count, pattern, impact on analysis]\n**Notable patterns:** [any surprises, clusters, or anomalies]",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#common-issues-in-this-chapter",
     "href": "18-descriptive.html#common-issues-in-this-chapter",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.10 Common Issues in This Chapter",
-    "text": "18.10 Common Issues in This Chapter\n\n\n\n\n\n\nWarningThe mean looks “off” but the data is fine\n\n\n\nWhat it means: The distribution is heavily skewed. A few extreme values pull the mean in one direction, even though the rest of the data sits in a narrow range.\nHow to fix it: Report the median alongside the mean, and name the shape explicitly (“right-skewed”). The median is the better “typical” measure for skewed variables like income or sales.\n\n\n\n\n\n\n\n\nWarningYour outlier detector flagged half the data\n\n\n\nWhat it means: The 1.5 × IQR or |z| &gt; 3 rule assumes a roughly symmetric distribution. On highly skewed data, both methods produce far too many “outliers.”\nHow to fix it: Log-transform the variable (np.log1p) before applying outlier rules, or use a more robust method like median absolute deviation (MAD). Investigate what “unusual” means in the domain before applying a mechanical rule.\n\n\n\n\n\n\n\n\nWarningcrosstab margins look wrong\n\n\n\nWhat it means: Missing values are excluded from crosstab by default, so the marginal totals may not match len(df).\nHow to fix it: Pass dropna=False to include NaN as its own category, or pre-fill missing values with a sentinel like 'Unknown' before crosstabbing. Document the choice.\n\n\n\n\n\n\n\n\nWarningA correlation is high but the relationship is noise\n\n\n\nWhat it means: Correlation summarizes a monotonic trend. A strong correlation can hide outliers, nonlinearity, or a relationship driven by a handful of points.\nHow to fix it: Always visualize before concluding. A scatter plot or pairplot will show what the correlation coefficient cannot. See Chapter 19.",
+    "text": "18.10 Common Issues in This Chapter\n\n\n\n\n\n\nWarningThe mean looks “off” but the data is fine\n\n\n\nWhat it means: The distribution is heavily skewed. A few extreme values pull the mean in one direction, even though the rest of the data sits in a narrow range.\nHow to fix it: Report the median alongside the mean, and name the shape explicitly (“right-skewed”). The median is the better “typical” measure for skewed variables like income or sales.\n\n\n\n\n\n\n\n\nWarningYour outlier detector flagged half the data\n\n\n\nWhat it means: The 1.5 × IQR or |z| &gt; 3 rule assumes a roughly symmetric distribution. On highly skewed data, both methods produce far too many “outliers.”\nHow to fix it: Log-transform the variable (np.log1p) before applying outlier rules, or use a more robust method like median absolute deviation (MAD). Investigate what “unusual” means in the domain before applying a mechanical rule.\n\n\n\n\n\n\n\n\nWarningcrosstab margins look wrong\n\n\n\nWhat it means: Missing values are excluded from crosstab by default, so the marginal totals may not match len(df).\nHow to fix it: Pass dropna=False to include NaN as its own category, or pre-fill missing values with a sentinel like 'Unknown' before crosstabbing. Document the choice.\n\n\n\n\n\n\n\n\nWarningA correlation is high but the relationship is noise\n\n\n\nWhat it means: Correlation summarizes a monotonic trend. A strong correlation can hide outliers, nonlinearity, or a relationship driven by a handful of points.\nHow to fix it: Always visualize before concluding. A scatter plot or pairplot will show what the correlation coefficient cannot. See Chapter 21.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#key-takeaways",
     "href": "18-descriptive.html#key-takeaways",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.11 Key Takeaways",
     "text": "18.11 Key Takeaways\n\nDescriptive exploration is about building intuition — shape, skew, outliers, missingness — before any formal comparison.\nThe mean lies when the distribution is skewed. Always check the median, and name the shape out loud.\nOutlier detection is a starting point, not an answer. Every outlier deserves an investigation and a documented decision.\n.value_counts(), pd.crosstab(), and .corr() are three tools that cover most categorical-and-multivariate exploration.\nSummarize every new dataset with the descriptive summary template before moving on. It forces you to answer the “what is this data?” question explicitly.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#further-reading",
     "href": "18-descriptive.html#further-reading",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.12 Further Reading",
     "text": "18.12 Further Reading\n\n\n\n\n\n\nTip📚 Going deeper on descriptive statistics\n\n\n\n\n\n\npandas: Descriptive statistics — pandas.pydata.org/docs/user_guide/basics.html#descriptive-statistics documents the full catalog of methods.\npandas: pd.crosstab — pandas.pydata.org/docs/reference/api/pandas.crosstab.html is the API reference for cross-tabs.\nscipy.stats: Summary statistics — docs.scipy.org/doc/scipy/reference/stats.html#summary-statistics covers skewness, kurtosis, and robust estimators.\nReal Python: Python Statistics Fundamentals — realpython.com/python-statistics/ is an accessible walkthrough with examples.\n“Exploratory Data Analysis” by John Tukey — the founding text on descriptive exploration. Dated but worth skimming for its unchanged wisdom about looking at data before testing it.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
     "objectID": "18-descriptive.html#exercises",
     "href": "18-descriptive.html#exercises",
-    "title": "18  Descriptive and Qualitative Exploration",
+    "title": "18  Descriptive Exploration",
     "section": "18.13 Exercises",
     "text": "18.13 Exercises\n\n\n\n\n\n\nNoteExercise 1: Distribution profile\n\n\n\n\n\nCompute the mean, median, standard deviation, skewness, and coefficient of variation for retail cannabis sales in 2023 across all counties. Based on these statistics, describe the shape of the distribution in one or two sentences. Which measure of central tendency (mean or median) better represents the “typical” county?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nannual = cannabis[cannabis['year'] == 2023].groupby('county')['retail'].sum().dropna()\nprint(f'Mean:     ${annual.mean():,.0f}')\nprint(f'Median:   ${annual.median():,.0f}')\nprint(f'Std:      ${annual.std():,.0f}')\nprint(f'Skewness: {annual.skew():.2f}')\nprint(f'CV:       {annual.std() / annual.mean():.2f}')\n\nThe distribution is strongly right-skewed (skewness &gt;&gt; 1), with a few large urban counties pulling the mean well above the median. The median better represents the typical county.\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 2: Outlier investigation\n\n\n\n\n\nUsing the IQR method, identify outlier counties in 2023 retail cannabis sales. For each outlier, look up the county’s population. Are these outliers because they are genuinely unusual, or because they are large counties?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\noutliers = find_outliers_iqr(annual)\nprint('Outlier counties:')\nprint(outliers.sort_values(ascending=False))\n\nThese are almost certainly large urban counties (Denver, El Paso, Arapahoe, etc.). They are outliers in sales volume because they have more people, not because their per-capita sales are unusual. Computing per-capita sales (by dividing by population) would likely eliminate most of these as outliers.\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 3: Cross-tabulation\n\n\n\n\n\nCreate a cross-tabulation of cannabis counties by year and whether they have any medical sales (yes/no). Has the number of counties reporting medical sales changed over time?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\ncannabis['has_medical'] = cannabis['medical'].notna() & (cannabis['medical'] &gt; 0)\ncrosstab = pd.crosstab(cannabis['year'], cannabis['has_medical'], margins=True)\ncrosstab.columns = ['No Medical', 'Has Medical', 'Total']\nprint(crosstab)",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive and Qualitative Exploration</span>"
+      "<span class='chapter-number'>18</span>  <span class='chapter-title'>Descriptive Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html",
-    "href": "19-visualization.html",
-    "title": "19  Visual Exploration",
+    "objectID": "19-qualitative.html",
+    "href": "19-qualitative.html",
+    "title": "19  Qualitative Exploration",
     "section": "",
     "text": "19.1 Learning Objectives\nBy the end of this chapter, you will be able to:",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#learning-objectives",
-    "href": "19-visualization.html#learning-objectives",
-    "title": "19  Visual Exploration",
+    "objectID": "19-qualitative.html#learning-objectives",
+    "href": "19-qualitative.html#learning-objectives",
+    "title": "19  Qualitative Exploration",
     "section": "",
-    "text": "Build matplotlib figures using plt.subplots and annotate them with titles, labels, and reference lines.\nVisualize distributions with histograms, KDEs, box plots, and seaborn violin plots.\nExplore relationships with scatter plots, seaborn pair plots, and correlation heatmaps.\nPlot trends over time with sns.lineplot, including confidence bands.\nUse seaborn’s FacetGrid for small-multiple comparisons across groups.\nChoose the right plot type for a given analytical question.",
+    "text": "Read a dataset as a trace — the residue of particular people, systems, and procedures, not a neutral record of the world.\nApply a short digital ethnography to a public dataset: finding the forms, interfaces, staff roles, and policies that produced the rows.\nIdentify the political economy of a dataset: who paid for the collection, whose interests the categories serve, and who bears the cost of being counted or miscounted.\nExplain what sociomateriality means in practice and give concrete examples of how software, devices, and categories jointly shape what gets recorded.\nIntegrate qualitative findings with quantitative analysis, strengthening both.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#why-visualize",
-    "href": "19-visualization.html#why-visualize",
-    "title": "19  Visual Exploration",
-    "section": "19.2 Why Visualize",
-    "text": "19.2 Why Visualize\nA well-chosen visualization reveals structure that no table of numbers can convey: the shape of a distribution, the trajectory of a trend, the clustering of groups, the isolation of outliers. This chapter introduces a systematic repertoire of plot types for exploratory data analysis using matplotlib and seaborn, organized by what you are trying to see — distributions, relationships, trends, and comparisons. The goal is not to produce publication-ready graphics (though some of these will be close) but to build visual intuitions that inform your analytical decisions.\nEvery plot in this chapter answers a question. Before writing any plotting code, state the question in a Markdown cell. After producing the plot, write one or two sentences interpreting what it shows. This habit turns exploratory plots from pretty pictures into analytical evidence.",
+    "objectID": "19-qualitative.html#why-qualitative-exploration",
+    "href": "19-qualitative.html#why-qualitative-exploration",
+    "title": "19  Qualitative Exploration",
+    "section": "19.2 Why Qualitative Exploration",
+    "text": "19.2 Why Qualitative Exploration\nYou’ve spent the last several chapters becoming good at counting. You can describe a distribution, find outliers, and cross-tabulate categories. What those skills cannot do, on their own, is explain why the distribution has the shape it does. Why does one county have orders of magnitude more dispensaries per capita than its neighbor — is that a market fact, or a licensing-office staffing artifact? Why do some cause-of-death codes spike in a particular year — new disease, or a coding-guidance update? Why does a voter registration file suddenly grow by 12% — new residents, or a change in how the state purges inactive records?\nThose are qualitative questions. The answer is not in the rows; it is in the social and technical context that produced the rows. This chapter introduces a set of methods for recovering that context — trace methods, digital ethnographic methods, and a vocabulary from political economy and sociomateriality. Together they give you a way to read a dataset as evidence about the institution that produced it, not just about the world that institution claims to describe.\nIf this feels very different from loading a CSV, that’s because it is. Qualitative methods are interpretive, take time, and produce short text memos rather than DataFrames. They are also what separates an analyst who knows what their numbers mean from one who only knows how to compute them.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#setup",
-    "href": "19-visualization.html#setup",
-    "title": "19  Visual Exploration",
-    "section": "19.3 Setup",
-    "text": "19.3 Setup\nThis chapter uses pandas, numpy, matplotlib, and seaborn.\n\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\npd.set_option('display.max_columns', None)\npd.set_option('display.float_format', '{:.3f}'.format)\n\n# Seaborn defaults: clean, readable, and appropriately sized\nsns.set_style('whitegrid')\nsns.set_context('notebook', font_scale=1.1)\n\n\n\n\n\n\n\nWarningIf you get an ImportError\n\n\n\n\n\nInstall missing packages with conda install pandas numpy matplotlib seaborn (or pip install pandas numpy matplotlib seaborn) and restart the Jupyter kernel. seaborn depends on matplotlib, so if one is missing, the other likely is too. See Chapter 1.",
+    "objectID": "19-qualitative.html#data-as-trace",
+    "href": "19-qualitative.html#data-as-trace",
+    "title": "19  Qualitative Exploration",
+    "section": "19.3 Data as Trace",
+    "text": "19.3 Data as Trace\nEvery dataset is the leftover of particular activity. A cannabis sales spreadsheet is the residue of: a dispensary’s point-of-sale system logging transactions; a franchise operator rolling up daily reports to monthly totals; a state Department of Revenue analyst collecting submissions across licensees; an IT contractor’s monthly export script. A row in that spreadsheet is not “sales” — it is a particular numeric value that survived that whole chain of people and systems.\nReading data as trace means asking: what activity left this residue, and where did each step happen?\nConcretely, for any dataset you work with, you can sketch the trace chain:\n\nAct of observation — what happened in the world that somebody cared to record? (A sale. An arrest. A hospital admission.)\nPrimary inscription — who wrote it down first, on what device or form? (A cashier scanned a bar code. A patrol officer filled out a CAD report in the squad car.)\nAggregation — who compiled those inscriptions into a record? (The dispensary’s nightly close-out. The department’s monthly crime report.)\nTransmission — how did the record reach the publishing agency? (An email attachment. An automated state-portal upload.)\nPublication — who formatted the record for public release, and what did they add or remove? (A records officer. A data-dot-gov pipeline.)\n\nEach step has actors, tools, and discretion. The more steps you can name for a dataset, the better your analysis will be — because each step is a potential source of bias, lag, or omission you can now ask about explicitly.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#datasets",
-    "href": "19-visualization.html#datasets",
-    "title": "19  Visual Exploration",
-    "section": "19.4 Datasets",
-    "text": "19.4 Datasets\n\n# Lahman batting — qualified player-seasons\nbatting = pd.read_csv('Batting.csv')\nbatting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))\nbatting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']\nbatting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))\nbatting['HBP'] = batting['HBP'].fillna(0)\nbatting['SF'] = batting['SF'].fillna(0)\nbatting['OBP'] = (\n    (batting['H'] + batting['BB'] + batting['HBP'])\n    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))\n)\nbatting['OPS'] = batting['OBP'] + batting['SLG']\nbatting['decade'] = (batting['yearID'] // 10) * 10\nqualified = batting[batting['AB'] &gt;= 100].copy()\n\n# Salaries\nsalaries = pd.read_csv('Salaries.csv')\nbat_sal = pd.merge(\n    qualified, salaries[['playerID', 'yearID', 'salary']],\n    on=['playerID', 'yearID'], how='inner'\n)\n\n\n# Colorado population\nurl = 'https://storage.googleapis.com/co-publicdata/sya-county.csv'\npop = pd.read_csv(url, skiprows=1, dtype={'countyfips': str})\nestimates = pop[pop['datatype'] == 'Estimate'].copy()\nestimates['age_band'] = pd.cut(\n    estimates['age'], bins=[0, 18, 65, 101],\n    labels=['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)'],\n    right=False\n)\n\n\n# Cannabis sales\ncannabis = pd.read_csv(\n    'colorado_cannabis_sales_by_county.csv',\n    header=2, skipfooter=8, engine='python', na_values=['NR']\n)\ncannabis.columns = ['month', 'year', 'county', 'medical', 'retail']\ncannabis['county'] = cannabis['county'].str.strip()\nfor col in ['medical', 'retail']:\n    cannabis[col] = pd.to_numeric(\n        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False),\n        errors='coerce'\n    )\ncannabis = cannabis[cannabis['county'] != 'Total']",
+    "objectID": "19-qualitative.html#digital-ethnography",
+    "href": "19-qualitative.html#digital-ethnography",
+    "title": "19  Qualitative Exploration",
+    "section": "19.4 Digital Ethnography",
+    "text": "19.4 Digital Ethnography\nTraditional ethnography involves extended observation of people in situ — a classic example is Clifford Geertz sitting in Balinese villages for months taking notes. Digital ethnography adapts those methods for technologically mediated settings: you observe how people work with interfaces, what happens when a form is filled in wrong, how automated systems mis-match human categories, and what “the data” looks like from inside the organization that produced it.\nFor public interest analysis, a light digital ethnography often suffices. You do not need to shadow a records clerk for a month. A few targeted inquiries usually surface the most important context.\n\n19.4.1 Methods you can realistically use\n\nRead the agency’s public documentation. Data dictionaries, publishing cadences, release notes, and schema-change announcements are often quietly posted on agency sites. A schema that added a race_ethnicity column in 2019 reframes any pre-2019 analysis.\nRead staff-facing manuals and training materials. These sometimes appear in FOIA releases, on archived training portals, or on state procurement sites. They tell you what front-line staff are told to record, which is rarely identical to what the public data documents.\nCollect screenshots of interfaces. If you can find the data-entry screens a front-line clerk uses — sometimes linked from vendor demo videos, sometimes via FOIA — you learn which fields are required, which are optional, which auto-complete, and which silently truncate.\nRead meeting minutes and board packets. Municipal IT committees, state data governance boards, and vendor contract renewals leave public paper trails. A contract-renewal packet will often describe exactly what the agency’s data system can and cannot do.\nTrace the vendor. Most government data comes out of commercial software — Tyler Technologies, Motorola, CentralSquare, Epic. Once you know the vendor, you can read their marketing and documentation, which often reveals capabilities and defaults the agency does not advertise.\nInterview producers and users. A thirty-minute conversation with a records clerk, a line reporter who uses the dataset regularly, or a retired analyst can save weeks of guesswork. Treat the interview as reporting: take notes, confirm details, and ask what the dataset doesn’t record.\n\nYou’ve already seen some of the raw materials in Chapter 15. Text-processing techniques — searching, extracting, summarizing — are how you work through manuals and minutes at scale once you have them.\n\n\n19.4.2 Walking a dataset back\nA useful habit is to pick one suspicious row in a dataset and “walk it back” through the trace chain. For a single reported-crime row, can you find: the offense category’s formal definition, the jurisdiction’s reporting form, the vendor system the form is entered into, the aggregation rule that rolled it up to the state, and the publication cadence? You probably can’t find all of these — but the gaps are themselves findings, and each one becomes a question you can ask in a FOIA request or an interview.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#visualizing-distributions",
-    "href": "19-visualization.html#visualizing-distributions",
-    "title": "19  Visual Exploration",
-    "section": "19.5 Visualizing Distributions",
-    "text": "19.5 Visualizing Distributions\nThe first question to ask about any numeric variable is: what does its distribution look like? Is it symmetric, skewed, bimodal, or uniform? Distributions guide your choice of summary statistics (mean vs. median), your approach to outliers, and your selection of statistical tests.\n\n19.5.1 Histograms\nA histogram divides the range of values into bins and counts how many observations fall in each. It is the most direct visualization of a distribution’s shape.\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.hist(qualified['BA'], bins=50, edgecolor='white', alpha=0.7)\nax.set_xlabel('Batting Average')\nax.set_ylabel('Count')\nax.set_title('Distribution of Batting Average (qualified player-seasons, AB ≥ 100)')\nax.axvline(qualified['BA'].mean(), color='red', linestyle='--', label=f'Mean: {qualified[\"BA\"].mean():.3f}')\nax.axvline(qualified['BA'].median(), color='orange', linestyle='--', label=f'Median: {qualified[\"BA\"].median():.3f}')\nax.legend()\nplt.tight_layout()\nplt.show()\n\nThe mean and median are close together, suggesting a roughly symmetric distribution. If they diverged substantially, the distribution would be skewed.\n\n\n19.5.2 Kernel density estimation (KDE)\nA KDE plot smooths the histogram into a continuous curve, making it easier to see the overall shape:\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.kdeplot(data=qualified, x='BA', ax=ax, fill=True, alpha=0.3)\nax.set_title('KDE of Batting Average')\nax.set_xlabel('Batting Average')\nplt.tight_layout()\nplt.show()\n\n\n\n19.5.3 Comparing distributions across groups\nOverlaying distributions for different groups reveals how they differ. Here we compare batting averages across eras:\n\nera_filter = qualified['decade'].isin([1920, 1960, 2000])\nera_data = qualified[era_filter].copy()\nera_data['era'] = era_data['decade'].map({1920: '1920s', 1960: '1960s', 2000: '2000s'})\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.kdeplot(data=era_data, x='BA', hue='era', ax=ax, fill=True, alpha=0.3)\nax.set_title('Batting Average Distribution by Era')\nax.set_xlabel('Batting Average')\nplt.tight_layout()\nplt.show()\n\n\n\n19.5.4 Box plots\nBox plots show the five-number summary (min, Q1, median, Q3, max) plus individual outlier points. They are especially effective for comparing distributions across many groups:\n\nfig, ax = plt.subplots(figsize=(10, 5))\ndecade_data = qualified[qualified['decade'] &gt;= 1900]\nsns.boxplot(data=decade_data, x='decade', y='BA', ax=ax, color='lightblue')\nax.set_title('Batting Average by Decade (AB ≥ 100)')\nax.set_xlabel('Decade')\nax.set_ylabel('Batting Average')\nplt.xticks(rotation=45)\nplt.tight_layout()\nplt.show()\n\nThe boxes show the interquartile range (middle 50%), the horizontal line is the median, and the dots are outliers beyond the IQR fences.\n\n\n19.5.5 Violin plots\nA violin plot combines a box plot with a KDE, showing the full shape of each group’s distribution:\n\nfig, ax = plt.subplots(figsize=(10, 5))\nselected_decades = decade_data[decade_data['decade'].isin([1920, 1950, 1980, 2010])]\nsns.violinplot(data=selected_decades, x='decade', y='HR', ax=ax, inner='quartile')\nax.set_title('Home Run Distribution by Selected Decades')\nax.set_xlabel('Decade')\nax.set_ylabel('Home Runs')\nplt.tight_layout()\nplt.show()",
+    "objectID": "19-qualitative.html#the-political-economy-of-data-generation",
+    "href": "19-qualitative.html#the-political-economy-of-data-generation",
+    "title": "19  Qualitative Exploration",
+    "section": "19.5 The Political Economy of Data Generation",
+    "text": "19.5 The Political Economy of Data Generation\nEvery dataset exists because somebody paid for it to exist. Agencies collect data because they are required to, or because a grant funds it, or because a senior official wants a dashboard. Private firms publish data because it drives sales, or because regulators compel disclosure, or because doing so undermines a competitor. Academic datasets exist because a PI had grant money and a research agenda. No dataset is a neutral record of the world; every dataset is a byproduct of particular institutional interests.\nThe political-economy questions worth asking for any dataset include:\n\nWho funded the collection? Is the funding stable, or does it sunset next year? A dataset that depends on a single grant may disappear when the grant ends.\nWhose work is the data an output of? The employee or contractor who does the data-entry labor is usually the least powerful actor in the chain and has the least discretion over what gets recorded.\nWho benefits from the categories as currently defined? A category that groups together subgroups that a policy treats very differently is a category that hides an unequal effect. A category that splits a group into subcategories that trigger different services is a category that shapes who gets what.\nWho bears the cost of the record existing? Being in a dataset is not always neutral — arrest records, immigration records, and credit records follow people around. Data generation has distributional consequences even when the dataset itself looks technical.\nWho is missing, and what does the absence do? Counts that exclude unhoused residents, uninsured patients, people without phones, or people who avoid official contact misrepresent the population in ways that compound over time (see Chapter 4 on exemption).\n\nThese are not rhetorical questions. Answering them changes what your quantitative analysis is about. A chart of “Colorado crime rates by county” is really a chart of “reported offenses as captured by the reporting jurisdictions that submitted to the CBI that year” — which is a much narrower claim, and much more defensible.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#visualizing-relationships",
-    "href": "19-visualization.html#visualizing-relationships",
-    "title": "19  Visual Exploration",
-    "section": "19.6 Visualizing Relationships",
-    "text": "19.6 Visualizing Relationships\nWhen you want to understand how two numeric variables relate to each other, scatter plots and correlation heatmaps are your primary tools.\n\n19.6.1 Scatter plots\n\nfig, ax = plt.subplots(figsize=(8, 6))\nsample = bat_sal[bat_sal['yearID'] == 2015].copy()\nax.scatter(sample['salary'] / 1e6, sample['OPS'], alpha=0.4, s=20)\nax.set_xlabel('Salary (millions $)')\nax.set_ylabel('OPS')\nax.set_title('Salary vs. OPS (2015 season, qualified batters)')\nplt.tight_layout()\nplt.show()\n\nIf the points form a rising cloud, the variables are positively correlated. If the cloud is flat or shapeless, there is little linear relationship. If the cloud curves, the relationship may be nonlinear — something a correlation coefficient alone would not reveal.\n\n\n19.6.2 Adding context with color and size\nSeaborn’s scatterplot() can encode additional variables using color (hue) and size:\n\nfig, ax = plt.subplots(figsize=(9, 6))\nsns.scatterplot(\n    data=sample, x=sample['salary']/1e6, y='OPS',\n    hue='AB', size='HR', sizes=(20, 200), alpha=0.6, ax=ax\n)\nax.set_xlabel('Salary (millions $)')\nax.set_title('Salary vs. OPS — sized by HR, colored by AB')\nplt.tight_layout()\nplt.show()\n\n\n\n19.6.3 Pair plots\nWhen you have several numeric variables, a pair plot shows every pairwise scatter plot and each variable’s distribution in a single figure:\n\npair_cols = ['BA', 'SLG', 'OBP', 'HR']\npair_data = qualified[qualified['decade'] == 2010][pair_cols].dropna().sample(500, random_state=42)\n\nsns.pairplot(pair_data, diag_kind='kde', plot_kws={'alpha': 0.3, 's': 15})\nplt.suptitle('Pairwise Relationships — 2010s Batting (sample)', y=1.02)\nplt.tight_layout()\nplt.show()\n\n\n\n19.6.4 Correlation heatmaps\nA heatmap visualizes the correlation matrix from Chapter 18, making it easy to spot strong relationships at a glance:\n\nmetrics = qualified[['AB', 'H', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS']].dropna()\ncorr = metrics.corr()\n\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', center=0, ax=ax,\n            square=True, linewidths=0.5)\nax.set_title('Correlation Matrix — Batting Metrics')\nplt.tight_layout()\nplt.show()\n\nRed cells indicate strong positive correlations, blue cells indicate negative correlations, and white cells indicate little linear relationship.",
+    "objectID": "19-qualitative.html#sociomateriality",
+    "href": "19-qualitative.html#sociomateriality",
+    "title": "19  Qualitative Exploration",
+    "section": "19.6 Sociomateriality",
+    "text": "19.6 Sociomateriality\nThe term sociomateriality — drawn from organization studies, and best developed by Wanda Orlikowski and colleagues — names a simple but powerful idea: data is the joint product of technical artifacts and social practices, and neither on its own explains what the data looks like.\nConsider four concrete examples:\n\nA traffic camera generates a vehicle-count row only when the detection algorithm classifies a passing shape as a vehicle. Cyclists, e-scooters, and some motorcycles frequently fall below the classification threshold. The resulting “vehicle count” is a joint product of a camera’s optical properties, the manufacturer’s default algorithm, and the city’s choice to stick with defaults.\nA hospital billing code (ICD-10) is applied by a coder reading a clinician’s note. Different coders will apply different codes to the same note. The resulting “diagnosis frequency” is a joint product of the clinician’s vocabulary, the coder’s training, the hospital’s compliance culture, and the payer’s billing-code preferences.\nA police CAD system records an incident only after a dispatcher classifies it as one of a set of predefined call types. The same call (“suspicious person”) can be entered as trespassing, loitering, welfare check, or no action required, depending on the dispatcher’s read. The resulting “call type distribution” is a joint product of state-mandated categories, vendor software defaults, and dispatcher discretion under time pressure.\nA census survey converts a respondent’s self-description into a pre-coded race/ethnicity bucket. Whether “Guatemalan” is a fill-in or a checkbox, whether “Some other race” is available, and whether Arab/Middle Eastern/North African has its own line all depend on instrument design choices made years before collection.\n\nIn each case, the dataset looks purely technical but is actually produced by a tight loop of software, device, policy, and human discretion. Sociomateriality gives you a vocabulary for naming that. When you notice a surprising pattern in a dataset, the sociomaterial question is: which part of this pattern lives in the world, and which part lives in the instrument?",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#visualizing-trends-over-time",
-    "href": "19-visualization.html#visualizing-trends-over-time",
-    "title": "19  Visual Exploration",
-    "section": "19.7 Visualizing Trends Over Time",
-    "text": "19.7 Visualizing Trends Over Time\nTime series plots — line charts showing how a variable changes across time — are essential for longitudinal analysis.\n\n19.7.1 Single trend line\n\n# Statewide cannabis retail sales by year\nannual_state = cannabis.groupby('year')['retail'].sum().reset_index()\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.plot(annual_state['year'], annual_state['retail'] / 1e9, marker='o')\nax.set_xlabel('Year')\nax.set_ylabel('Retail Sales ($ billions)')\nax.set_title('Colorado Statewide Retail Cannabis Sales')\nplt.tight_layout()\nplt.show()\n\n\n\n19.7.2 Multiple trend lines for comparison\n\n# Compare top 5 counties\ntop_counties = (\n    cannabis.groupby('county')['retail'].sum()\n    .nlargest(5).index.tolist()\n)\ntop_data = cannabis[cannabis['county'].isin(top_counties)]\ncounty_annual = top_data.groupby(['year', 'county'])['retail'].sum().reset_index()\n\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.lineplot(data=county_annual, x='year', y='retail', hue='county', marker='o', ax=ax)\nax.set_ylabel('Annual Retail Sales ($)')\nax.set_title('Retail Cannabis Sales — Top 5 Counties')\nax.legend(title='County', bbox_to_anchor=(1.05, 1), loc='upper left')\nplt.tight_layout()\nplt.show()\n\n\n\n19.7.3 Trends with confidence bands\nSeaborn can compute and display confidence intervals around aggregated trends:\n\ndecade_ba = qualified[qualified['decade'] &gt;= 1900]\n\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.lineplot(data=decade_ba, x='yearID', y='BA', ax=ax, ci=95)\nax.set_xlabel('Year')\nax.set_ylabel('Batting Average')\nax.set_title('League-Wide Batting Average Over Time (95% CI)')\nplt.tight_layout()\nplt.show()\n\nThe shaded band shows the 95% confidence interval around the mean at each year, giving you a sense of both the trend and the variability.",
+    "objectID": "19-qualitative.html#integrating-qualitative-and-quantitative-work",
+    "href": "19-qualitative.html#integrating-qualitative-and-quantitative-work",
+    "title": "19  Qualitative Exploration",
+    "section": "19.7 Integrating Qualitative and Quantitative Work",
+    "text": "19.7 Integrating Qualitative and Quantitative Work\nQualitative exploration is not a substitute for quantitative analysis — it is a complement. The combination is stronger than either alone.\nA useful workflow:\n\nStart with a quantitative anomaly. A spike, a gap, an outlier, a strange distribution.\nForm a qualitative hypothesis. “This spike appeared right after the state mandated a new reporting form.”\nTest the hypothesis with trace and ethnographic methods. Read the state’s release notes. FOIA the training memo. Interview a records officer.\nRevise the quantitative analysis based on what you learned. Drop the pre-change years, or add a dummy variable for the change, or split the analysis into two eras.\nDocument everything in the Known Issues Log. The qualitative finding is now part of your analytical provenance, not a footnote.\n\nGood analysis lives in that loop. A purely quantitative chart hides the institutional story that explains it; a purely qualitative account lacks the scale to characterize a pattern. Interleaving the two is how accountability journalism, program evaluation, and rigorous policy analysis actually get done.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#visualizing-comparisons",
-    "href": "19-visualization.html#visualizing-comparisons",
-    "title": "19  Visual Exploration",
-    "section": "19.8 Visualizing Comparisons",
-    "text": "19.8 Visualizing Comparisons\nWhen you want to compare a metric across categorical groups, bar charts, grouped bar charts, and faceted plots make the differences visible.\n\n19.8.1 Bar charts for group comparisons\n\n# Dependency ratio by county type (top vs bottom 10)\ndep_wide = (\n    estimates[estimates['year'] == 2020]\n    .groupby(['county', 'age_band'], observed=True)\n    .agg(pop=('totalpopulation', 'sum'))\n    .reset_index()\n    .pivot_table(index='county', columns='age_band', values='pop', aggfunc='sum')\n    .reset_index()\n)\ndep_wide.columns.name = None\ndep_wide['dep_ratio'] = (\n    (dep_wide['Children (0-17)'] + dep_wide['Seniors (65+)'])\n    / dep_wide['Working Age (18-64)']\n)\n\ntop5 = dep_wide.nlargest(5, 'dep_ratio')\nbot5 = dep_wide.nsmallest(5, 'dep_ratio')\ncomparison = pd.concat([top5, bot5]).sort_values('dep_ratio', ascending=True)\n\nfig, ax = plt.subplots(figsize=(8, 5))\ncolors = ['steelblue' if x in bot5['county'].values else 'coral' for x in comparison['county']]\nax.barh(comparison['county'], comparison['dep_ratio'], color=colors)\nax.set_xlabel('Dependency Ratio')\nax.set_title('Highest and Lowest Dependency Ratios — Colorado Counties (2020)')\nax.axvline(dep_wide['dep_ratio'].median(), color='gray', linestyle='--', alpha=0.5, label='Median')\nax.legend()\nplt.tight_layout()\nplt.show()\n\n\n\n19.8.2 Faceted plots (small multiples)\nFaceting breaks a single plot into a grid of subplots, one per group. This is one of the most effective techniques for comparing patterns across categories:\n\n# Batting average distribution across four selected decades\nfour_decades = qualified[qualified['decade'].isin([1930, 1960, 1990, 2020])].copy()\nfour_decades['era'] = four_decades['decade'].astype(str) + 's'\n\ng = sns.FacetGrid(four_decades, col='era', col_wrap=2, height=3.5, aspect=1.3)\ng.map(sns.histplot, 'BA', bins=30, kde=True)\ng.set_axis_labels('Batting Average', 'Count')\ng.set_titles('{col_name}')\ng.figure.suptitle('Batting Average Distribution by Era', y=1.02)\nplt.tight_layout()\nplt.show()",
+    "objectID": "19-qualitative.html#public-interest-context-making-the-invisible-accountable",
+    "href": "19-qualitative.html#public-interest-context-making-the-invisible-accountable",
+    "title": "19  Qualitative Exploration",
+    "section": "19.8 Public Interest Context: Making the Invisible Accountable",
+    "text": "19.8 Public Interest Context: Making the Invisible Accountable\nQualitative exploration is what makes public interest data work accountable, because it connects the abstract rate in your chart to the specific people and systems that generated it. A rate is an inert number. A rate plus a trace chain plus a sociomaterial account is a falsifiable claim about an institution. That claim can be confirmed, challenged, revised, and — importantly — used.\nThe datasets in this book describe health, crime, housing, labor, and commerce in Colorado. Each one is the residue of a specific agency’s work. When you map that work carefully, you can tell which conclusions the data supports and which it only appears to support. When you skip the mapping, you inherit the agency’s blind spots silently.\n\n\n\n\n\n\nNoteConnection to Chapter 4\n\n\n\nThis section connects to all three pressures — enclosure, erosion, and exemption — from Chapter 4. Trace and ethnographic methods are how you make enclosed data practices visible, document erosion in aging systems, and characterize what has been exempted from collection.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#choosing-the-right-plot",
-    "href": "19-visualization.html#choosing-the-right-plot",
-    "title": "19  Visual Exploration",
-    "section": "19.9 Choosing the Right Plot",
-    "text": "19.9 Choosing the Right Plot\n\n\n\n\n\n\n\n\nQuestion\nPlot type\nWhen to use\n\n\n\n\nWhat does this variable look like?\nHistogram, KDE, box plot\nSingle numeric variable\n\n\nHow do distributions differ across groups?\nOverlaid KDE, grouped box plot, violin plot\nOne numeric + one categorical\n\n\nHow are two variables related?\nScatter plot, pair plot\nTwo numeric variables\n\n\nWhat are all pairwise relationships?\nCorrelation heatmap, pair plot\nMany numeric variables\n\n\nHow has a variable changed over time?\nLine plot\nNumeric variable + time\n\n\nHow do groups compare on a metric?\nBar chart, grouped bar chart\nOne numeric + one categorical\n\n\nHow do patterns vary across subgroups?\nFaceted plot (small multiples)\nAny plot + a grouping variable",
+    "objectID": "19-qualitative.html#common-issues-in-this-chapter",
+    "href": "19-qualitative.html#common-issues-in-this-chapter",
+    "title": "19  Qualitative Exploration",
+    "section": "19.9 Common Issues in This Chapter",
+    "text": "19.9 Common Issues in This Chapter\n\n\n\n\n\n\nWarningYou cannot find the documentation you need\n\n\n\nWhat it means: Many agencies publish data without comprehensive documentation, and much of what exists is internal. You will run into dead ends.\nHow to fix it: Use a targeted FOIA or open-records request. State sunshine laws usually cover internal data dictionaries, training memos, and vendor contracts. Organizations like Muckrock have templates. Build documentation gaps into your Known Issues Log rather than hiding them.\n\n\n\n\n\n\n\n\nWarningYour interview contact does not want to go on the record\n\n\n\nWhat it means: Staff at public agencies often face real professional risk for speaking to outside analysts. That is not paranoia; it is organizational reality.\nHow to fix it: Offer background-only conversations. Never quote a staff source by name without explicit, repeated permission. For sensitive sources, establish signal/WhatsApp channels and avoid work email. Treat the ethics of data-producer interviews as seriously as you would any other reporting ethics.\n\n\n\n\n\n\n\n\nWarningQualitative findings do not fit in the quantitative narrative\n\n\n\nWhat it means: You learned something in interviews that complicates or contradicts your numbers. Your first instinct is to leave it out.\nHow to fix it: Write it in. The audience that trusts your charts most is the audience most willing to follow you into nuance. A limitations paragraph that names the qualitative finding — “reporting practices changed in 2019 in a way that likely inflates the apparent increase” — is more credible than a chart that pretends the shift did not happen.\n\n\n\n\n\n\n\n\nWarningYou are not sure whether a finding is generalizable\n\n\n\nWhat it means: Qualitative methods produce rich but local accounts. One records clerk’s experience may not generalize to every clerk in the state.\nHow to fix it: Say so. Qualitative findings should be reported as “a practice I observed at X site” rather than “how Colorado counties operate.” When possible, triangulate by talking to two or three people in similar roles at different sites.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#common-issues-in-this-chapter",
-    "href": "19-visualization.html#common-issues-in-this-chapter",
-    "title": "19  Visual Exploration",
-    "section": "19.10 Common Issues in This Chapter",
-    "text": "19.10 Common Issues in This Chapter\n\n\n\n\n\n\nWarningThe plot is too small or text is overlapping\n\n\n\nWhat it means: The default figure size is often too small for more than a toy example.\nHow to fix it: Pass figsize=(10, 5) (or similar) to plt.subplots(). Call plt.tight_layout() before plt.show() to prevent label overlap. For long category labels, rotate with plt.xticks(rotation=45).\n\n\n\n\n\n\n\n\nWarningSeaborn’s ci parameter is deprecated\n\n\n\nWhat it means: In seaborn 0.12+, ci=95 was replaced with errorbar=('ci', 95) in functions like lineplot. Your code may throw a FutureWarning.\nHow to fix it: Replace ci=95 with errorbar=('ci', 95). For no confidence interval, use errorbar=None instead of ci=None. See seaborn’s release notes.\n\n\n\n\n\n\n\n\nWarningThe plot shows &lt;Figure size ... Axes: ...&gt; text instead of a figure\n\n\n\nWhat it means: You used a plotting call that returned the figure/axes object without rendering. This is common when the last expression in a notebook cell is a plot object.\nHow to fix it: End the cell with plt.show(), or assign the figure to an underscore: _ = ax.plot(...). Or put the call in a different cell.\n\n\n\n\n\n\n\n\nWarningFacetGrid or hue does not color the way you expect\n\n\n\nWhat it means: Seaborn infers color order from the column’s dtype. Numeric columns get a continuous palette; categorical columns get a discrete one.\nHow to fix it: Cast the column to str or category before plotting if you want a discrete palette. Or pass an explicit palette argument: palette='Set2'.",
+    "objectID": "19-qualitative.html#key-takeaways",
+    "href": "19-qualitative.html#key-takeaways",
+    "title": "19  Qualitative Exploration",
+    "section": "19.10 Key Takeaways",
+    "text": "19.10 Key Takeaways\n\nData is trace — the residue of particular activity by particular people using particular tools. The shape of the data is shaped by all of it.\nDigital ethnography — reading documentation, observing interfaces, interviewing producers and users — is how you recover the context that quantitative analysis needs.\nEvery dataset has a political economy: who pays, who benefits, who bears the cost of being counted or miscounted. No dataset is neutral.\nSociomateriality names the joint role of software, devices, and human practice. When a pattern surprises you, ask which part lives in the world and which lives in the instrument.\nIntegrate qualitative and quantitative work deliberately. The loop — anomaly → hypothesis → context → revision → documentation — is how rigorous analysis actually gets done.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#key-takeaways",
-    "href": "19-visualization.html#key-takeaways",
-    "title": "19  Visual Exploration",
-    "section": "19.11 Key Takeaways",
-    "text": "19.11 Key Takeaways\n\nEvery plot should answer a specific question. Write the question first, the code second, the interpretation third.\nDistributions: histograms, KDEs, box plots, violin plots. Relationships: scatter, pairplot, heatmap. Trends: line plots. Comparisons: bar charts, faceted plots.\nSeaborn and matplotlib compose. You can start a plot with sns. and keep refining it with ax. methods.\nAlways label axes, set a title, and include units. A plot without labels is not evidence.\nSmall multiples (faceted plots) beat one crowded plot almost every time.",
+    "objectID": "19-qualitative.html#further-reading",
+    "href": "19-qualitative.html#further-reading",
+    "title": "19  Qualitative Exploration",
+    "section": "19.11 Further Reading",
+    "text": "19.11 Further Reading\n\n\n\n\n\n\nTip📚 Going deeper on qualitative and ethnographic methods for data\n\n\n\n\n\n\n“Sorting Things Out” by Bowker and Star (MIT Press, 1999) — the foundational treatment of how classification systems shape the world and hide their work. Every data analyst should read at least the introduction.\n“‘Raw Data’ Is an Oxymoron” edited by Lisa Gitelman — a short essay collection that does for “data” what Bowker and Star did for classification. Start with the introduction.\n“Data Feminism” by D’Ignazio and Klein — free online at data-feminism.mitpress.mit.edu. Reads the political economy of data through a feminist lens.\n“Pollution Is Colonialism” by Max Liboiron — a sharp argument that methods are never neutral, with concrete examples from environmental science.\n“Virtual Ethnography” by Christine Hine — a practical guide to ethnographic methods for networked and digital settings.\nNick Seaver, “Algorithms as Culture” — a short paper at journals.sagepub.com/doi/10.1177/2053951717738104 that demonstrates algorithmic ethnography in practice.\nJackson, “Rethinking Repair” — a short paper introducing “broken-world thinking,” which reframes infrastructure as perpetually maintained rather than neutrally present.\nFOIA / open-records guides — Muckrock publishes state-by-state request templates; the Reporters Committee for Freedom of the Press has the most comprehensive state law summaries.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#further-reading",
-    "href": "19-visualization.html#further-reading",
-    "title": "19  Visual Exploration",
-    "section": "19.12 Further Reading",
-    "text": "19.12 Further Reading\n\n\n\n\n\n\nTip📚 Going deeper on visualization\n\n\n\n\n\n\nmatplotlib gallery — matplotlib.org/stable/gallery/ is the single best place to find a plot that resembles what you want, with code you can adapt.\nseaborn tutorial — seaborn.pydata.org/tutorial.html walks through each plot family with realistic datasets.\nseaborn API reference — seaborn.pydata.org/api.html documents every function.\n“Fundamentals of Data Visualization” by Claus Wilke — free online at clauswilke.com/dataviz/. The best modern textbook on designing plots that communicate.\nFrom Data to Viz — data-to-viz.com is a decision tree for choosing a plot type based on your data shape.",
+    "objectID": "19-qualitative.html#exercises",
+    "href": "19-qualitative.html#exercises",
+    "title": "19  Qualitative Exploration",
+    "section": "19.12 Exercises",
+    "text": "19.12 Exercises\n\n\n\n\n\n\nNoteExercise 1: Walk a dataset back\n\n\n\n\n\nPick one dataset you’ve worked with in this course. Write a short memo (300–500 words) that reconstructs the trace chain: the act of observation, the primary inscription, the aggregation steps, the transmission to the publishing agency, and the publication format. Where are the gaps in your account? What would you need to FOIA or ask in an interview to close them?\n\n\n\n\n\n\n\n\n\nNoteExercise 2: Document a sociomaterial feature\n\n\n\n\n\nIdentify one feature of a course dataset that looks technical but is actually shaped by a joint social-and-technical choice — a category boundary, a missing-value code, an aggregation rule, a submission cadence. Write a short paragraph explaining what the feature is, who made the choice, and what the feature would look like if the choice had been different. Add the result to the Known Issues Log of any notebook that uses the dataset.\n\n\n\n\n\n\n\n\n\nNoteExercise 3: Political-economy audit\n\n\n\n\n\nFor one public dataset of your choice (not necessarily a course dataset), answer the five political-economy questions from the chapter in writing: who funds the collection, whose work it is an output of, who benefits from the categories as defined, who bears the cost of the record existing, and who is missing. Aim for one paragraph per question, grounded in specific sources. Cite at least three sources that are not the agency’s own data page.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
+      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Qualitative Exploration</span>"
     ]
   },
   {
-    "objectID": "19-visualization.html#exercises",
-    "href": "19-visualization.html#exercises",
-    "title": "19  Visual Exploration",
-    "section": "19.13 Exercises",
-    "text": "19.13 Exercises\n\n\n\n\n\n\nNoteExercise 1: Distribution comparison\n\n\n\n\n\nCreate overlaid KDE plots comparing home run distributions for the 1990s and 2010s. What differences do you observe in the shape, center, and spread of the two distributions?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nera_hr = qualified[qualified['decade'].isin([1990, 2010])].copy()\nera_hr['era'] = era_hr['decade'].map({1990: '1990s', 2010: '2010s'})\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.kdeplot(data=era_hr, x='HR', hue='era', fill=True, alpha=0.3, ax=ax)\nax.set_title('Home Run Distribution: 1990s vs 2010s')\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 2: Scatter plot with interpretation\n\n\n\n\n\nCreate a scatter plot of medical vs. retail cannabis sales by county-year. Add a 45-degree reference line. What does the plot tell you about the relationship between the two sales categories?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\ncounty_year = cannabis.groupby(['county', 'year'])[['medical', 'retail']].sum().dropna().reset_index()\n\nfig, ax = plt.subplots(figsize=(7, 7))\nax.scatter(county_year['medical'], county_year['retail'], alpha=0.3, s=15)\nlim = max(county_year['medical'].max(), county_year['retail'].max())\nax.plot([0, lim], [0, lim], 'r--', alpha=0.5, label='1:1 line')\nax.set_xlabel('Medical Sales ($)')\nax.set_ylabel('Retail Sales ($)')\nax.set_title('Medical vs. Retail Cannabis Sales by County-Year')\nax.legend()\nplt.tight_layout()\nplt.show()\n\nMost points fall above the 1:1 line, indicating that retail sales generally exceed medical sales — increasingly so over time as the recreational market has grown.\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 3: Faceted trend plot\n\n\n\n\n\nCreate a faceted line plot showing the annual dependency ratio trend for four Colorado counties of your choice. Use FacetGrid or col_wrap in seaborn. What similarities and differences do you observe across counties?",
-    "crumbs": [
-      "Analysis",
-      "<span class='chapter-number'>19</span>  <span class='chapter-title'>Visual Exploration</span>"
-    ]
-  },
-  {
-    "objectID": "20-hypothesis-testing.html",
-    "href": "20-hypothesis-testing.html",
-    "title": "20  Hypothesis Testing and Comparisons",
+    "objectID": "20-comparative.html",
+    "href": "20-comparative.html",
+    "title": "20  Comparative Exploration",
     "section": "",
     "text": "20.1 Learning Objectives\nBy the end of this chapter, you will be able to:",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#learning-objectives",
-    "href": "20-hypothesis-testing.html#learning-objectives",
-    "title": "20  Hypothesis Testing and Comparisons",
+    "objectID": "20-comparative.html#learning-objectives",
+    "href": "20-comparative.html#learning-objectives",
+    "title": "20  Comparative Exploration",
     "section": "",
-    "text": "Frame a comparison as a null hypothesis vs. an alternative hypothesis and explain what a p-value does (and does not) mean.\nRun an independent and paired t-test using scipy.stats, and compute Cohen’s d as an effect-size measure.\nRun a chi-square test of independence on categorical variables, and compute Cramér’s V.\nCompute Pearson and Spearman correlation coefficients and interpret the difference between them.\nReport statistical results with four elements: what you tested, the result, the test statistic + p-value, and the effect size + interpretation.\nRecognize when statistical significance does and does not imply practical significance.",
+    "text": "Frame a comparison as a null hypothesis vs. an alternative hypothesis and explain what a p-value does (and does not) mean.\nRun an independent and paired t-test using scipy.stats, and compute Cohen’s d as an effect-size measure.\nRun a one-way ANOVA to compare means across three or more groups, interpret the F-statistic, and compute eta-squared as an effect size.\nRun a chi-square test of independence on categorical variables, and compute Cramér’s V.\nCompute Pearson and Spearman correlation coefficients and interpret the difference between them.\nReport statistical results with four elements: what you tested, the result, the test statistic + p-value, and the effect size + interpretation.\nRecognize when statistical significance does and does not imply practical significance.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#why-hypothesis-testing",
-    "href": "20-hypothesis-testing.html#why-hypothesis-testing",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.2 Why Hypothesis Testing",
-    "text": "20.2 Why Hypothesis Testing\nDescriptive statistics and visualizations tell you what your data looks like. Hypothesis testing tells you whether the patterns you see are likely to be meaningful or whether they could have arisen by chance. This chapter introduces a small set of statistical tests — enough to make principled statements about group differences and variable relationships — and focuses on interpreting results in plain language rather than on statistical theory.\nThe framework is deliberately simple. You will learn to ask three questions: Is there a difference between these groups? How strong is the relationship between these variables? Could what I’m seeing be due to random variation? The tools that answer these questions — t-tests, chi-square tests, and correlation coefficients — cover a large proportion of the exploratory comparisons you will encounter with tabular data.\nIf you have never worked with p-values before, they can feel counterintuitive at first — the interpretation flips in a way most introductions gloss over. Re-read the interpretation paragraphs slowly, and come back to them after running a few tests yourself. The intuition settles with practice.",
+    "objectID": "20-comparative.html#why-comparative-exploration",
+    "href": "20-comparative.html#why-comparative-exploration",
+    "title": "20  Comparative Exploration",
+    "section": "20.2 Why Comparative Exploration",
+    "text": "20.2 Why Comparative Exploration\nDescriptive and qualitative exploration tell you what your data looks like and what it means in context. Comparative exploration answers the next question: when you compare two groups, three groups, or two variables, is the difference you see real, or could it have arisen by chance? This chapter introduces a small set of statistical comparisons — t-tests for two groups, ANOVA for three or more groups, chi-square for categorical contingency, and correlation for pairs of numeric variables — that cover the vast majority of the comparisons an analyst makes with tabular data.\nThe framework is deliberately simple. Each test answers a version of the same question: is the pattern I see distinguishable from random variation? You’ll read each result the same way: name the test, report the statistic and p-value, compute an effect size, and interpret the magnitude in plain language. Once you can read one test’s output, you can read them all.\nIf you have never worked with p-values before, they can feel counterintuitive at first — the interpretation flips in a way most introductions gloss over. Re-read the interpretation paragraphs slowly, and come back to them after running a few tests yourself. The intuition settles with practice.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#setup",
-    "href": "20-hypothesis-testing.html#setup",
-    "title": "20  Hypothesis Testing and Comparisons",
+    "objectID": "20-comparative.html#setup",
+    "href": "20-comparative.html#setup",
+    "title": "20  Comparative Exploration",
     "section": "20.3 Setup",
     "text": "20.3 Setup\nThis chapter uses pandas, numpy, matplotlib, seaborn, and scipy.stats.\n\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nfrom scipy import stats\n\npd.set_option('display.max_columns', None)\npd.set_option('display.float_format', '{:.3f}'.format)\nsns.set_style('whitegrid')\n\n\n\n\n\n\n\nWarningIf you get an ImportError\n\n\n\n\n\nInstall missing packages with conda install pandas numpy matplotlib seaborn scipy (or pip install pandas numpy matplotlib seaborn scipy) and restart the Jupyter kernel. scipy is the most likely miss if you are coming from a minimal pandas environment. See Chapter 1.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#datasets",
-    "href": "20-hypothesis-testing.html#datasets",
-    "title": "20  Hypothesis Testing and Comparisons",
+    "objectID": "20-comparative.html#datasets",
+    "href": "20-comparative.html#datasets",
+    "title": "20  Comparative Exploration",
     "section": "20.4 Datasets",
     "text": "20.4 Datasets\n\n# Lahman batting — qualified player-seasons with salary\nbatting = pd.read_csv('Batting.csv')\nbatting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))\nbatting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']\nbatting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))\nbatting['HBP'] = batting['HBP'].fillna(0)\nbatting['SF'] = batting['SF'].fillna(0)\nbatting['OBP'] = (\n    (batting['H'] + batting['BB'] + batting['HBP'])\n    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))\n)\nbatting['OPS'] = batting['OBP'] + batting['SLG']\nbatting['decade'] = (batting['yearID'] // 10) * 10\nqualified = batting[batting['AB'] &gt;= 100].copy()\n\nsalaries = pd.read_csv('Salaries.csv')\nbat_sal = pd.merge(\n    qualified, salaries[['playerID', 'yearID', 'salary']],\n    on=['playerID', 'yearID'], how='inner'\n)\n\n\n# Cannabis sales\ncannabis = pd.read_csv(\n    'colorado_cannabis_sales_by_county.csv',\n    header=2, skipfooter=8, engine='python', na_values=['NR']\n)\ncannabis.columns = ['month', 'year', 'county', 'medical', 'retail']\ncannabis['county'] = cannabis['county'].str.strip()\nfor col in ['medical', 'retail']:\n    cannabis[col] = pd.to_numeric(\n        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False),\n        errors='coerce'\n    )\ncannabis = cannabis[cannabis['county'] != 'Total']",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#the-logic-of-hypothesis-testing",
-    "href": "20-hypothesis-testing.html#the-logic-of-hypothesis-testing",
-    "title": "20  Hypothesis Testing and Comparisons",
+    "objectID": "20-comparative.html#the-logic-of-hypothesis-testing",
+    "href": "20-comparative.html#the-logic-of-hypothesis-testing",
+    "title": "20  Comparative Exploration",
     "section": "20.5 The Logic of Hypothesis Testing",
     "text": "20.5 The Logic of Hypothesis Testing\nEvery hypothesis test follows the same structure:\n\nState the null hypothesis (H₀): There is no difference between the groups, or there is no relationship between the variables. The observed pattern is due to chance.\nState the alternative hypothesis (H₁): There is a real difference or relationship.\nCompute a test statistic that measures how far the observed data deviates from what the null hypothesis would predict.\nCompute a p-value — the probability of seeing a test statistic this extreme (or more extreme) if the null hypothesis were true.\nInterpret the result. A small p-value (conventionally below 0.05) means the observed pattern is unlikely to have arisen by chance alone. A large p-value means you do not have enough evidence to reject the null hypothesis.\n\nA p-value does not tell you the probability that the null hypothesis is true. It tells you how surprising your data would be if the null hypothesis were true. This distinction matters: a p-value of 0.03 means “if there were truly no difference, we’d see data this extreme only 3% of the time” — not “there is a 97% chance the difference is real.”\n\n\n\n\n\n\nWarningStatistical significance is not practical significance\n\n\n\nA large dataset can produce a tiny p-value for a difference that is too small to matter. Always report and interpret the effect size — the magnitude of the difference — alongside the p-value. A statistically significant but tiny difference is not analytically useful.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#comparing-two-groups-the-t-test",
-    "href": "20-hypothesis-testing.html#comparing-two-groups-the-t-test",
-    "title": "20  Hypothesis Testing and Comparisons",
+    "objectID": "20-comparative.html#comparing-two-groups-the-t-test",
+    "href": "20-comparative.html#comparing-two-groups-the-t-test",
+    "title": "20  Comparative Exploration",
     "section": "20.6 Comparing Two Groups: The t-Test",
     "text": "20.6 Comparing Two Groups: The t-Test\nThe independent samples t-test asks: Is the mean of one group different from the mean of another group? Use it when you have one numeric outcome and two categorical groups.\n\n20.6.1 Example: Batting average before and after the steroid era\nThe late 1990s through early 2000s are sometimes called baseball’s “steroid era.” Did batting averages differ between the pre-steroid period (1980–1993) and the steroid era (1994–2004)?\n\npre_steroid = qualified[\n    (qualified['yearID'] &gt;= 1980) & (qualified['yearID'] &lt;= 1993)\n]['BA'].dropna()\n\nsteroid_era = qualified[\n    (qualified['yearID'] &gt;= 1994) & (qualified['yearID'] &lt;= 2004)\n]['BA'].dropna()\n\nprint(f'Pre-steroid: n={len(pre_steroid)}, mean={pre_steroid.mean():.4f}, std={pre_steroid.std():.4f}')\nprint(f'Steroid era: n={len(steroid_era)}, mean={steroid_era.mean():.4f}, std={steroid_era.std():.4f}')\n\nVisualize the distributions before testing:\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.kdeplot(pre_steroid, label='Pre-steroid (1980–93)', fill=True, alpha=0.3, ax=ax)\nsns.kdeplot(steroid_era, label='Steroid era (1994–2004)', fill=True, alpha=0.3, ax=ax)\nax.set_xlabel('Batting Average')\nax.set_title('Batting Average Distribution: Pre-Steroid vs. Steroid Era')\nax.legend()\nplt.tight_layout()\nplt.show()\n\nNow run the t-test:\n\nt_stat, p_value = stats.ttest_ind(pre_steroid, steroid_era)\n\nprint(f't-statistic: {t_stat:.3f}')\nprint(f'p-value: {p_value:.4f}')\n\n\n\n20.6.2 Interpreting the result\nThe mean difference between the two eras can be computed directly:\n\ndiff = steroid_era.mean() - pre_steroid.mean()\nprint(f'Mean difference: {diff:.4f}')\n\nHere is what you can conclude: if the p-value is below 0.05, the difference in mean batting average between the two eras is statistically significant — unlikely to have arisen by chance. The effect size (the mean difference) tells you whether the difference is large enough to be practically meaningful. A difference of 0.005 in batting average is detectable with thousands of player-seasons but may not be substantively interesting. A difference of 0.015 would be more notable.\nWhat you cannot conclude: that steroids caused the difference. These are different groups of players measured in different years with different rules, ballparks, and training methods. The comparison is between-subjects and observational — all the caveats from Chapter 3 apply.\n\n\n20.6.3 Effect size: Cohen’s d\nCohen’s d measures the difference in means in terms of standard deviations. It provides a standardized measure of effect size that is comparable across different variables and studies.\n\npooled_std = np.sqrt((pre_steroid.std()**2 + steroid_era.std()**2) / 2)\ncohens_d = (steroid_era.mean() - pre_steroid.mean()) / pooled_std\n\nprint(f\"Cohen's d: {cohens_d:.3f}\")\n\nRules of thumb for interpreting Cohen’s d: 0.2 is a small effect, 0.5 is medium, and 0.8 is large. These are guidelines, not thresholds — context determines what counts as meaningful in your domain.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#comparing-two-related-measurements-the-paired-t-test",
-    "href": "20-hypothesis-testing.html#comparing-two-related-measurements-the-paired-t-test",
-    "title": "20  Hypothesis Testing and Comparisons",
+    "objectID": "20-comparative.html#comparing-two-related-measurements-the-paired-t-test",
+    "href": "20-comparative.html#comparing-two-related-measurements-the-paired-t-test",
+    "title": "20  Comparative Exploration",
     "section": "20.7 Comparing Two Related Measurements: The Paired t-Test",
     "text": "20.7 Comparing Two Related Measurements: The Paired t-Test\nA paired t-test is appropriate when you have two measurements from the same entity — for example, medical and retail cannabis sales from the same county in the same month. The question is: Is there a systematic difference between the two measurements?\n\n# Compare medical vs retail sales for county-months where both exist\npaired = cannabis[cannabis['medical'].notna() & cannabis['retail'].notna()].copy()\n\nprint(f'Paired observations: {len(paired)}')\nprint(f'Mean medical: ${paired[\"medical\"].mean():,.0f}')\nprint(f'Mean retail:  ${paired[\"retail\"].mean():,.0f}')\n\nt_stat, p_value = stats.ttest_rel(paired['retail'], paired['medical'])\n\nprint(f'\\nPaired t-test:')\nprint(f't-statistic: {t_stat:.3f}')\nprint(f'p-value: {p_value:.6f}')\n\nHere is what you can conclude: if the p-value is very small, retail sales are systematically different from medical sales across county-months. The direction and magnitude of the difference tell you which is larger and by how much. This is a within-subjects comparison — the same counties are measured on both variables — so many county-level confounds (population, geography) are controlled for.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#comparing-categorical-variables-the-chi-square-test",
-    "href": "20-hypothesis-testing.html#comparing-categorical-variables-the-chi-square-test",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.8 Comparing Categorical Variables: The Chi-Square Test",
-    "text": "20.8 Comparing Categorical Variables: The Chi-Square Test\nThe chi-square test of independence asks: Are two categorical variables associated, or are they independent? Use it when both your variables are categorical.\n\n20.8.1 Example: Has the distribution of home run tiers changed across eras?\n\n# Bin HR into categories\nhr_data = qualified[qualified['decade'].isin([1980, 2000])].copy()\nhr_data['hr_tier'] = pd.cut(\n    hr_data['HR'], bins=[-1, 5, 15, 30, 100],\n    labels=['0-5', '6-15', '16-30', '31+']\n)\nhr_data['era'] = hr_data['decade'].map({1980: '1980s', 2000: '2000s'})\n\n# Build contingency table\ncontingency = pd.crosstab(hr_data['era'], hr_data['hr_tier'])\nprint('Contingency table:')\nprint(contingency)\n\n\nchi2, p_value, dof, expected = stats.chi2_contingency(contingency)\n\nprint(f'\\nChi-square statistic: {chi2:.2f}')\nprint(f'Degrees of freedom: {dof}')\nprint(f'p-value: {p_value:.6f}')\n\nHere is what you can conclude: if the p-value is small, the distribution of home run tiers differs significantly between the two eras — the two variables (era and HR tier) are not independent. To understand how they differ, compare the observed counts to the expected counts (what you would see if era and HR tier were independent):\n\nexpected_df = pd.DataFrame(\n    expected, index=contingency.index, columns=contingency.columns\n).round(1)\n\nprint('Expected counts (if independent):')\nprint(expected_df)\nprint('\\nObserved - Expected:')\nprint((contingency - expected_df).round(1))\n\nPositive residuals indicate cells with more observations than expected; negative residuals indicate fewer. This tells you which specific categories drive the overall association.\n\n\n20.8.2 Effect size: Cramér’s V\nCramér’s V is the chi-square analog of Cohen’s d — a measure of how strongly the two categorical variables are associated, scaled from 0 (independent) to 1 (perfectly associated):\n\nn = contingency.sum().sum()\nmin_dim = min(contingency.shape) - 1\ncramers_v = np.sqrt(chi2 / (n * min_dim))\n\nprint(f\"Cramér's V: {cramers_v:.3f}\")",
+    "objectID": "20-comparative.html#comparing-three-or-more-groups-one-way-anova",
+    "href": "20-comparative.html#comparing-three-or-more-groups-one-way-anova",
+    "title": "20  Comparative Exploration",
+    "section": "20.8 Comparing Three or More Groups: One-Way ANOVA",
+    "text": "20.8 Comparing Three or More Groups: One-Way ANOVA\nA t-test compares two groups. When you have three or more groups and you want to ask whether any of them differ from the others, use a one-way ANOVA (Analysis of Variance). The test produces an F-statistic — the ratio of between-group variance to within-group variance. A large F (and correspondingly small p-value) means the group means are farther apart than you would expect under the null hypothesis that every group was drawn from the same distribution.\n\n20.8.1 Example: Batting average across decades\nDid mean batting average differ across the 1980s, 1990s, 2000s, and 2010s?\n\ngroups = {}\nfor decade in [1980, 1990, 2000, 2010]:\n    groups[decade] = qualified[qualified['decade'] == decade]['BA'].dropna()\n    print(f\"{decade}s: n={len(groups[decade])}, mean={groups[decade].mean():.4f}\")\n\nf_stat, p_value = stats.f_oneway(*groups.values())\nprint(f'\\nF-statistic: {f_stat:.2f}')\nprint(f'p-value: {p_value:.6f}')\n\nHere is what you can conclude: a small p-value means at least one decade’s mean batting average differs from the others. ANOVA does not tell you which. For that, you need a post-hoc test — conventionally Tukey’s HSD (Honestly Significant Difference), which compares every pair while controlling the family-wise error rate.\n\nfrom statsmodels.stats.multicomp import pairwise_tukeyhsd\n\ndecade_ba = qualified[qualified['decade'].isin([1980, 1990, 2000, 2010])].dropna(subset=['BA'])\ntukey = pairwise_tukeyhsd(\n    endog=decade_ba['BA'],\n    groups=decade_ba['decade'].astype(int),\n    alpha=0.05,\n)\nprint(tukey.summary())\n\nThe Tukey output lists every pair with an adjusted p-value and whether the difference is significant at the specified alpha. This is the table to report alongside the ANOVA.\n\n\n20.8.2 Effect size: eta-squared\nThe F-statistic itself depends heavily on sample size, so for effect size you use eta-squared (η²) — the fraction of total variance explained by group membership. Interpretively, it’s the ANOVA analog of R² in regression.\n\n# Manual eta-squared from the ANOVA decomposition\ngrand_mean = decade_ba['BA'].mean()\nss_total = ((decade_ba['BA'] - grand_mean) ** 2).sum()\nss_between = sum(\n    len(g) * (g.mean() - grand_mean) ** 2 for g in groups.values()\n)\neta_sq = ss_between / ss_total\nprint(f\"η² = {eta_sq:.3f}\")\n\nConventional interpretation: η² ≈ 0.01 is small, 0.06 is medium, 0.14 is large. In large samples, even tiny η² can produce a significant F — report η² explicitly and interpret its magnitude.\n\n\n20.8.3 Assumptions and robustness\nANOVA assumes roughly normal distributions within each group and roughly equal variances across groups. Both are often violated in real data. If the group sizes are reasonably balanced, the test is fairly robust. If variances differ substantially, use Welch’s ANOVA (stats.alexandergovern or, more commonly, scipy.stats.f_oneway with data that has been checked via Levene’s test first). For small samples with non-normal data, use the non-parametric Kruskal–Wallis test (stats.kruskal) as a robust alternative.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#measuring-linear-relationships-correlation",
-    "href": "20-hypothesis-testing.html#measuring-linear-relationships-correlation",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.9 Measuring Linear Relationships: Correlation",
-    "text": "20.9 Measuring Linear Relationships: Correlation\nThe Pearson correlation coefficient (r) measures the strength and direction of a linear relationship between two numeric variables. It ranges from -1 (perfect negative linear relationship) to +1 (perfect positive linear relationship), with 0 indicating no linear relationship.\n\n20.9.1 Example: Salary and performance\n\n# Filter to a single recent season with enough data\nseason_2015 = bat_sal[bat_sal['yearID'] == 2015].dropna(subset=['salary', 'OPS'])\n\nr, p_value = stats.pearsonr(season_2015['salary'], season_2015['OPS'])\n\nprint(f'Pearson r: {r:.3f}')\nprint(f'p-value: {p_value:.4f}')\nprint(f'n: {len(season_2015)}')\n\nVisualize alongside the statistic:\n\nfig, ax = plt.subplots(figsize=(8, 5))\nax.scatter(season_2015['salary'] / 1e6, season_2015['OPS'], alpha=0.4, s=20)\nax.set_xlabel('Salary (millions $)')\nax.set_ylabel('OPS')\nax.set_title(f'Salary vs. OPS (2015) — r = {r:.3f}, p = {p_value:.4f}')\nplt.tight_layout()\nplt.show()\n\nHere is what you can conclude: the correlation coefficient tells you the strength and direction of the linear relationship. A positive r means higher salary is associated with higher OPS. The p-value tells you whether this correlation is statistically significant. The magnitude of r tells you how tightly the points cluster around a line — an r of 0.3 indicates a weak-to-moderate positive relationship, meaning salary explains about 9% (r² = 0.09) of the variation in OPS.\nWhat you cannot conclude: that paying a player more would improve their performance. As discussed in Chapter 3, the causal arrow is ambiguous, and the relationship is confounded by age, experience, and roster construction.\n\n\n20.9.2 Spearman correlation for non-linear monotonic relationships\nPearson’s r measures linear relationships. If the relationship is monotonic but curved (both variables increase together, but not in a straight line), Spearman’s rank correlation is more appropriate:\n\nrho, p_value = stats.spearmanr(season_2015['salary'], season_2015['OPS'])\n\nprint(f'Spearman rho: {rho:.3f}')\nprint(f'p-value: {p_value:.4f}')\n\nSpearman’s ρ (rho) works by ranking both variables and computing the Pearson correlation on the ranks. It is robust to outliers and does not assume the relationship is linear.",
+    "objectID": "20-comparative.html#comparing-categorical-variables-the-chi-square-test",
+    "href": "20-comparative.html#comparing-categorical-variables-the-chi-square-test",
+    "title": "20  Comparative Exploration",
+    "section": "20.9 Comparing Categorical Variables: The Chi-Square Test",
+    "text": "20.9 Comparing Categorical Variables: The Chi-Square Test\nThe chi-square test of independence asks: Are two categorical variables associated, or are they independent? Use it when both your variables are categorical.\n\n20.9.1 Example: Has the distribution of home run tiers changed across eras?\n\n# Bin HR into categories\nhr_data = qualified[qualified['decade'].isin([1980, 2000])].copy()\nhr_data['hr_tier'] = pd.cut(\n    hr_data['HR'], bins=[-1, 5, 15, 30, 100],\n    labels=['0-5', '6-15', '16-30', '31+']\n)\nhr_data['era'] = hr_data['decade'].map({1980: '1980s', 2000: '2000s'})\n\n# Build contingency table\ncontingency = pd.crosstab(hr_data['era'], hr_data['hr_tier'])\nprint('Contingency table:')\nprint(contingency)\n\n\nchi2, p_value, dof, expected = stats.chi2_contingency(contingency)\n\nprint(f'\\nChi-square statistic: {chi2:.2f}')\nprint(f'Degrees of freedom: {dof}')\nprint(f'p-value: {p_value:.6f}')\n\nHere is what you can conclude: if the p-value is small, the distribution of home run tiers differs significantly between the two eras — the two variables (era and HR tier) are not independent. To understand how they differ, compare the observed counts to the expected counts (what you would see if era and HR tier were independent):\n\nexpected_df = pd.DataFrame(\n    expected, index=contingency.index, columns=contingency.columns\n).round(1)\n\nprint('Expected counts (if independent):')\nprint(expected_df)\nprint('\\nObserved - Expected:')\nprint((contingency - expected_df).round(1))\n\nPositive residuals indicate cells with more observations than expected; negative residuals indicate fewer. This tells you which specific categories drive the overall association.\n\n\n20.9.2 Effect size: Cramér’s V\nCramér’s V is the chi-square analog of Cohen’s d — a measure of how strongly the two categorical variables are associated, scaled from 0 (independent) to 1 (perfectly associated):\n\nn = contingency.sum().sum()\nmin_dim = min(contingency.shape) - 1\ncramers_v = np.sqrt(chi2 / (n * min_dim))\n\nprint(f\"Cramér's V: {cramers_v:.3f}\")",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#correlation-across-many-variables",
-    "href": "20-hypothesis-testing.html#correlation-across-many-variables",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.10 Correlation Across Many Variables",
-    "text": "20.10 Correlation Across Many Variables\nWhen you have several numeric columns, compute the full pairwise correlation matrix and identify which pairs have the strongest relationships:\n\nmetrics = bat_sal[['AB', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS', 'salary']].dropna()\ncorr = metrics.corr()\n\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', center=0,\n            square=True, linewidths=0.5, ax=ax)\nax.set_title('Correlation Matrix — Batting Metrics and Salary')\nplt.tight_layout()\nplt.show()\n\nLook for the cells with the strongest colors. Correlations between derived metrics (like OBP and OPS) will be high by construction. The interesting correlations are between conceptually distinct variables — salary and performance metrics, counting stats and rate stats.",
+    "objectID": "20-comparative.html#measuring-linear-relationships-correlation",
+    "href": "20-comparative.html#measuring-linear-relationships-correlation",
+    "title": "20  Comparative Exploration",
+    "section": "20.10 Measuring Linear Relationships: Correlation",
+    "text": "20.10 Measuring Linear Relationships: Correlation\nThe Pearson correlation coefficient (r) measures the strength and direction of a linear relationship between two numeric variables. It ranges from -1 (perfect negative linear relationship) to +1 (perfect positive linear relationship), with 0 indicating no linear relationship.\n\n20.10.1 Example: Salary and performance\n\n# Filter to a single recent season with enough data\nseason_2015 = bat_sal[bat_sal['yearID'] == 2015].dropna(subset=['salary', 'OPS'])\n\nr, p_value = stats.pearsonr(season_2015['salary'], season_2015['OPS'])\n\nprint(f'Pearson r: {r:.3f}')\nprint(f'p-value: {p_value:.4f}')\nprint(f'n: {len(season_2015)}')\n\nVisualize alongside the statistic:\n\nfig, ax = plt.subplots(figsize=(8, 5))\nax.scatter(season_2015['salary'] / 1e6, season_2015['OPS'], alpha=0.4, s=20)\nax.set_xlabel('Salary (millions $)')\nax.set_ylabel('OPS')\nax.set_title(f'Salary vs. OPS (2015) — r = {r:.3f}, p = {p_value:.4f}')\nplt.tight_layout()\nplt.show()\n\nHere is what you can conclude: the correlation coefficient tells you the strength and direction of the linear relationship. A positive r means higher salary is associated with higher OPS. The p-value tells you whether this correlation is statistically significant. The magnitude of r tells you how tightly the points cluster around a line — an r of 0.3 indicates a weak-to-moderate positive relationship, meaning salary explains about 9% (r² = 0.09) of the variation in OPS.\nWhat you cannot conclude: that paying a player more would improve their performance. As discussed in Chapter 3, the causal arrow is ambiguous, and the relationship is confounded by age, experience, and roster construction.\n\n\n20.10.2 Spearman correlation for non-linear monotonic relationships\nPearson’s r measures linear relationships. If the relationship is monotonic but curved (both variables increase together, but not in a straight line), Spearman’s rank correlation is more appropriate:\n\nrho, p_value = stats.spearmanr(season_2015['salary'], season_2015['OPS'])\n\nprint(f'Spearman rho: {rho:.3f}')\nprint(f'p-value: {p_value:.4f}')\n\nSpearman’s ρ (rho) works by ranking both variables and computing the Pearson correlation on the ranks. It is robust to outliers and does not assume the relationship is linear.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#summary-choosing-a-test",
-    "href": "20-hypothesis-testing.html#summary-choosing-a-test",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.11 Summary: Choosing a Test",
-    "text": "20.11 Summary: Choosing a Test\n\n\n\n\n\n\n\n\nQuestion\nTest\nInput\n\n\n\n\nIs the mean different between two independent groups?\nIndependent t-test (stats.ttest_ind)\nOne numeric + one binary categorical\n\n\nIs there a systematic difference between two paired measurements?\nPaired t-test (stats.ttest_rel)\nTwo numeric columns from the same entity\n\n\nAre two categorical variables associated?\nChi-square test (stats.chi2_contingency)\nTwo categorical variables (contingency table)\n\n\nHow strong is the linear relationship between two variables?\nPearson correlation (stats.pearsonr)\nTwo numeric variables\n\n\nHow strong is the monotonic (but possibly non-linear) relationship?\nSpearman correlation (stats.spearmanr)\nTwo numeric variables",
+    "objectID": "20-comparative.html#correlation-across-many-variables",
+    "href": "20-comparative.html#correlation-across-many-variables",
+    "title": "20  Comparative Exploration",
+    "section": "20.11 Correlation Across Many Variables",
+    "text": "20.11 Correlation Across Many Variables\nWhen you have several numeric columns, compute the full pairwise correlation matrix and identify which pairs have the strongest relationships:\n\nmetrics = bat_sal[['AB', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS', 'salary']].dropna()\ncorr = metrics.corr()\n\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', center=0,\n            square=True, linewidths=0.5, ax=ax)\nax.set_title('Correlation Matrix — Batting Metrics and Salary')\nplt.tight_layout()\nplt.show()\n\nLook for the cells with the strongest colors. Correlations between derived metrics (like OBP and OPS) will be high by construction. The interesting correlations are between conceptually distinct variables — salary and performance metrics, counting stats and rate stats.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#reporting-results",
-    "href": "20-hypothesis-testing.html#reporting-results",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.12 Reporting Results",
-    "text": "20.12 Reporting Results\nWhen reporting the result of a statistical test, include four elements:\n\nWhat you tested: “We compared mean batting average between the pre-steroid (1980–93) and steroid (1994–2004) eras.”\nThe result: “The steroid era had a slightly higher mean batting average (0.271 vs. 0.267).”\nThe test statistic and p-value: “t(8452) = -3.21, p = 0.001”\nThe effect size and interpretation: “Cohen’s d = 0.07, a small effect. While the difference is statistically significant due to the large sample size, the practical difference of 4 points of batting average is modest.”\n\nThis pattern — what, result, statistics, interpretation — keeps your reporting honest and complete. It prevents the common mistake of reporting a p-value without context about the magnitude of the effect.",
+    "objectID": "20-comparative.html#summary-choosing-a-test",
+    "href": "20-comparative.html#summary-choosing-a-test",
+    "title": "20  Comparative Exploration",
+    "section": "20.12 Summary: Choosing a Test",
+    "text": "20.12 Summary: Choosing a Test\n\n\n\n\n\n\n\n\nQuestion\nTest\nInput\n\n\n\n\nIs the mean different between two independent groups?\nIndependent t-test (stats.ttest_ind)\nOne numeric + one binary categorical\n\n\nIs there a systematic difference between two paired measurements?\nPaired t-test (stats.ttest_rel)\nTwo numeric columns from the same entity\n\n\nIs the mean different across three or more groups?\nOne-way ANOVA (stats.f_oneway), followed by Tukey HSD for pairwise comparisons\nOne numeric + one categorical with 3+ levels\n\n\nAre two categorical variables associated?\nChi-square test (stats.chi2_contingency)\nTwo categorical variables (contingency table)\n\n\nHow strong is the linear relationship between two variables?\nPearson correlation (stats.pearsonr)\nTwo numeric variables\n\n\nHow strong is the monotonic (but possibly non-linear) relationship?\nSpearman correlation (stats.spearmanr)\nTwo numeric variables",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#common-issues-in-this-chapter",
-    "href": "20-hypothesis-testing.html#common-issues-in-this-chapter",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.13 Common Issues in This Chapter",
-    "text": "20.13 Common Issues in This Chapter\n\n\n\n\n\n\nWarningYour p-value is tiny but the effect is invisible\n\n\n\nWhat it means: With a large sample, almost any non-zero difference is “statistically significant.” This is a feature of the test, not evidence that the difference matters.\nHow to fix it: Always report effect size (Cohen’s d, Cramér’s V, r) alongside the p-value. Interpret the magnitude in plain language — “a 4-point difference in batting average” — not the p-value in isolation.\n\n\n\n\n\n\n\n\nWarningttest_ind complains about unequal variances or NaN values\n\n\n\nWhat it means: By default ttest_ind assumes equal variances and breaks on NaN. If one group has much more spread than the other, or if either input has missing values, you will get misleading results or errors.\nHow to fix it: Drop NaNs with .dropna() before passing to the test. If variances differ substantially, use stats.ttest_ind(a, b, equal_var=False) to run Welch’s t-test.\n\n\n\n\n\n\n\n\nWarningChi-square warns about low expected counts\n\n\n\nWhat it means: The chi-square approximation breaks down when any expected cell count is below 5. The test still runs but the p-value may be unreliable.\nHow to fix it: Collapse rare categories before testing, or use stats.fisher_exact for 2×2 tables. The expected array returned by chi2_contingency tells you which cells are problematic.\n\n\n\n\n\n\n\n\nWarningPearson r is near zero but the scatter plot shows a clear pattern\n\n\n\nWhat it means: Pearson measures linear relationships. A U-shaped or curved pattern can have near-zero Pearson correlation but obvious structure.\nHow to fix it: Visualize first, always. If the pattern is monotonic but curved, switch to Spearman. If the pattern is not monotonic, correlation is not the right tool — consider binning the predictor and comparing means across bins.",
+    "objectID": "20-comparative.html#reporting-results",
+    "href": "20-comparative.html#reporting-results",
+    "title": "20  Comparative Exploration",
+    "section": "20.13 Reporting Results",
+    "text": "20.13 Reporting Results\nWhen reporting the result of a statistical test, include four elements:\n\nWhat you tested: “We compared mean batting average between the pre-steroid (1980–93) and steroid (1994–2004) eras.”\nThe result: “The steroid era had a slightly higher mean batting average (0.271 vs. 0.267).”\nThe test statistic and p-value: “t(8452) = -3.21, p = 0.001”\nThe effect size and interpretation: “Cohen’s d = 0.07, a small effect. While the difference is statistically significant due to the large sample size, the practical difference of 4 points of batting average is modest.”\n\nThis pattern — what, result, statistics, interpretation — keeps your reporting honest and complete. It prevents the common mistake of reporting a p-value without context about the magnitude of the effect.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#key-takeaways",
-    "href": "20-hypothesis-testing.html#key-takeaways",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.14 Key Takeaways",
-    "text": "20.14 Key Takeaways\n\nEvery test follows the same structure: state the hypotheses, compute the statistic, interpret the p-value and the effect size.\nA p-value tells you how surprising your data would be under the null hypothesis — not the probability that the null is true.\nStatistical significance ≠ practical significance. Always report effect sizes. Tiny differences can be “significant” with a large enough sample.\nPearson for linear, Spearman for monotonic-but-curved, t-test for two groups, chi-square for two categorical variables, paired t-test for repeated measurements on the same entity.\nVisualize before you test. A scatter plot or histogram catches the problems a p-value cannot.",
+    "objectID": "20-comparative.html#common-issues-in-this-chapter",
+    "href": "20-comparative.html#common-issues-in-this-chapter",
+    "title": "20  Comparative Exploration",
+    "section": "20.14 Common Issues in This Chapter",
+    "text": "20.14 Common Issues in This Chapter\n\n\n\n\n\n\nWarningYour p-value is tiny but the effect is invisible\n\n\n\nWhat it means: With a large sample, almost any non-zero difference is “statistically significant.” This is a feature of the test, not evidence that the difference matters.\nHow to fix it: Always report effect size (Cohen’s d, Cramér’s V, r) alongside the p-value. Interpret the magnitude in plain language — “a 4-point difference in batting average” — not the p-value in isolation.\n\n\n\n\n\n\n\n\nWarningttest_ind complains about unequal variances or NaN values\n\n\n\nWhat it means: By default ttest_ind assumes equal variances and breaks on NaN. If one group has much more spread than the other, or if either input has missing values, you will get misleading results or errors.\nHow to fix it: Drop NaNs with .dropna() before passing to the test. If variances differ substantially, use stats.ttest_ind(a, b, equal_var=False) to run Welch’s t-test.\n\n\n\n\n\n\n\n\nWarningChi-square warns about low expected counts\n\n\n\nWhat it means: The chi-square approximation breaks down when any expected cell count is below 5. The test still runs but the p-value may be unreliable.\nHow to fix it: Collapse rare categories before testing, or use stats.fisher_exact for 2×2 tables. The expected array returned by chi2_contingency tells you which cells are problematic.\n\n\n\n\n\n\n\n\nWarningPearson r is near zero but the scatter plot shows a clear pattern\n\n\n\nWhat it means: Pearson measures linear relationships. A U-shaped or curved pattern can have near-zero Pearson correlation but obvious structure.\nHow to fix it: Visualize first, always. If the pattern is monotonic but curved, switch to Spearman. If the pattern is not monotonic, correlation is not the right tool — consider binning the predictor and comparing means across bins.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#further-reading",
-    "href": "20-hypothesis-testing.html#further-reading",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.15 Further Reading",
-    "text": "20.15 Further Reading\n\n\n\n\n\n\nTip📚 Going deeper on statistical inference\n\n\n\n\n\n\nscipy.stats reference — docs.scipy.org/doc/scipy/reference/stats.html covers every test introduced in this chapter and many more.\nscipy.stats tutorial — docs.scipy.org/doc/scipy/tutorial/stats.html walks through distributions, tests, and descriptive statistics.\n“Statistical Thinking for the 21st Century” by Russell Poldrack — free online at statsthinking21.org. A modern introduction that emphasizes interpretation over mechanics.\nASA Statement on p-values — amstat.org is the American Statistical Association’s short, authoritative statement on what p-values mean and do not mean. Two pages; worth a careful read.\nstatsmodels — For regression, ANOVA, and generalized linear models beyond the tests covered here, see statsmodels. Its formula-based interface will feel familiar if you have used R or Stata.\nscikit-learn — When your question shifts from inference (what explains my outcome?) to prediction (what outcome should I expect?), scikit-learn provides a consistent API for classical machine learning algorithms.",
+    "objectID": "20-comparative.html#key-takeaways",
+    "href": "20-comparative.html#key-takeaways",
+    "title": "20  Comparative Exploration",
+    "section": "20.15 Key Takeaways",
+    "text": "20.15 Key Takeaways\n\nEvery test follows the same structure: state the hypotheses, compute the statistic, interpret the p-value and the effect size.\nA p-value tells you how surprising your data would be under the null hypothesis — not the probability that the null is true.\nStatistical significance ≠ practical significance. Always report effect sizes. Tiny differences can be “significant” with a large enough sample.\nPearson for linear, Spearman for monotonic-but-curved, t-test for two groups, chi-square for two categorical variables, paired t-test for repeated measurements on the same entity.\nVisualize before you test. A scatter plot or histogram catches the problems a p-value cannot.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
     ]
   },
   {
-    "objectID": "20-hypothesis-testing.html#exercises",
-    "href": "20-hypothesis-testing.html#exercises",
-    "title": "20  Hypothesis Testing and Comparisons",
-    "section": "20.16 Exercises",
-    "text": "20.16 Exercises\n\n\n\n\n\n\nNoteExercise 1: t-test for home runs\n\n\n\n\n\nCompare the mean number of home runs per qualified player-season between the 1980s and the 2010s. Run an independent t-test and compute Cohen’s d. Is the difference statistically significant? Is it practically meaningful?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nhr_80s = qualified[qualified['decade'] == 1980]['HR'].dropna()\nhr_10s = qualified[qualified['decade'] == 2010]['HR'].dropna()\n\nprint(f'1980s: n={len(hr_80s)}, mean={hr_80s.mean():.2f}')\nprint(f'2010s: n={len(hr_10s)}, mean={hr_10s.mean():.2f}')\n\nt, p = stats.ttest_ind(hr_80s, hr_10s)\npooled = np.sqrt((hr_80s.std()**2 + hr_10s.std()**2) / 2)\nd = (hr_10s.mean() - hr_80s.mean()) / pooled\n\nprint(f'\\nt = {t:.3f}, p = {p:.4f}')\nprint(f\"Cohen's d = {d:.3f}\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 2: Chi-square for cannabis counties\n\n\n\n\n\nCreate a contingency table of Colorado counties by year (pick two years at least 5 years apart) and whether they reported any retail sales (yes/no). Run a chi-square test. Has the proportion of counties with retail sales changed significantly?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nfor_chi = cannabis[cannabis['year'].isin([2016, 2023])].copy()\nfor_chi['has_retail'] = for_chi['retail'].notna() & (for_chi['retail'] &gt; 0)\nyearly = for_chi.groupby(['year', 'county'])['has_retail'].any().reset_index()\n\nct = pd.crosstab(yearly['year'], yearly['has_retail'])\nct.columns = ['No Retail', 'Has Retail']\nprint(ct)\n\nchi2, p, dof, exp = stats.chi2_contingency(ct)\nprint(f'\\nChi-square = {chi2:.2f}, p = {p:.4f}')\n\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 3: Correlation exploration\n\n\n\n\n\nCompute the Pearson and Spearman correlations between at-bats (AB) and salary for the 2010s. Which is larger, and what does the difference tell you about the shape of the relationship? Produce a scatter plot to visually confirm your interpretation.\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nrecent = bat_sal[bat_sal['decade'] == 2010].dropna(subset=['AB', 'salary'])\n\nr_pearson, p_pearson = stats.pearsonr(recent['AB'], recent['salary'])\nr_spearman, p_spearman = stats.spearmanr(recent['AB'], recent['salary'])\n\nprint(f'Pearson r = {r_pearson:.3f} (p = {p_pearson:.4f})')\nprint(f'Spearman ρ = {r_spearman:.3f} (p = {p_spearman:.4f})')\n\nfig, ax = plt.subplots(figsize=(8, 5))\nax.scatter(recent['AB'], recent['salary']/1e6, alpha=0.3, s=15)\nax.set_xlabel('At Bats')\nax.set_ylabel('Salary (millions $)')\nax.set_title(f'AB vs. Salary — Pearson r={r_pearson:.3f}, Spearman ρ={r_spearman:.3f}')\nplt.tight_layout()\nplt.show()\n\nIf Spearman is larger than Pearson, the relationship is monotonic but nonlinear — likely because salary increases steeply at high AB counts but flattens at low counts.",
+    "objectID": "20-comparative.html#further-reading",
+    "href": "20-comparative.html#further-reading",
+    "title": "20  Comparative Exploration",
+    "section": "20.16 Further Reading",
+    "text": "20.16 Further Reading\n\n\n\n\n\n\nTip📚 Going deeper on statistical inference\n\n\n\n\n\n\nscipy.stats reference — docs.scipy.org/doc/scipy/reference/stats.html covers every test introduced in this chapter and many more.\nscipy.stats tutorial — docs.scipy.org/doc/scipy/tutorial/stats.html walks through distributions, tests, and descriptive statistics.\n“Statistical Thinking for the 21st Century” by Russell Poldrack — free online at statsthinking21.org. A modern introduction that emphasizes interpretation over mechanics.\nASA Statement on p-values — amstat.org is the American Statistical Association’s short, authoritative statement on what p-values mean and do not mean. Two pages; worth a careful read.\nstatsmodels — For regression, ANOVA, and generalized linear models beyond the tests covered here, see statsmodels. Its formula-based interface will feel familiar if you have used R or Stata.\nscikit-learn — When your question shifts from inference (what explains my outcome?) to prediction (what outcome should I expect?), scikit-learn provides a consistent API for classical machine learning algorithms.",
     "crumbs": [
       "Analysis",
-      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Hypothesis Testing and Comparisons</span>"
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "20-comparative.html#exercises",
+    "href": "20-comparative.html#exercises",
+    "title": "20  Comparative Exploration",
+    "section": "20.17 Exercises",
+    "text": "20.17 Exercises\n\n\n\n\n\n\nNoteExercise 1: t-test for home runs\n\n\n\n\n\nCompare the mean number of home runs per qualified player-season between the 1980s and the 2010s. Run an independent t-test and compute Cohen’s d. Is the difference statistically significant? Is it practically meaningful?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nhr_80s = qualified[qualified['decade'] == 1980]['HR'].dropna()\nhr_10s = qualified[qualified['decade'] == 2010]['HR'].dropna()\n\nprint(f'1980s: n={len(hr_80s)}, mean={hr_80s.mean():.2f}')\nprint(f'2010s: n={len(hr_10s)}, mean={hr_10s.mean():.2f}')\n\nt, p = stats.ttest_ind(hr_80s, hr_10s)\npooled = np.sqrt((hr_80s.std()**2 + hr_10s.std()**2) / 2)\nd = (hr_10s.mean() - hr_80s.mean()) / pooled\n\nprint(f'\\nt = {t:.3f}, p = {p:.4f}')\nprint(f\"Cohen's d = {d:.3f}\")\n\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 2: Chi-square for cannabis counties\n\n\n\n\n\nCreate a contingency table of Colorado counties by year (pick two years at least 5 years apart) and whether they reported any retail sales (yes/no). Run a chi-square test. Has the proportion of counties with retail sales changed significantly?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nfor_chi = cannabis[cannabis['year'].isin([2016, 2023])].copy()\nfor_chi['has_retail'] = for_chi['retail'].notna() & (for_chi['retail'] &gt; 0)\nyearly = for_chi.groupby(['year', 'county'])['has_retail'].any().reset_index()\n\nct = pd.crosstab(yearly['year'], yearly['has_retail'])\nct.columns = ['No Retail', 'Has Retail']\nprint(ct)\n\nchi2, p, dof, exp = stats.chi2_contingency(ct)\nprint(f'\\nChi-square = {chi2:.2f}, p = {p:.4f}')\n\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 3: Correlation exploration\n\n\n\n\n\nCompute the Pearson and Spearman correlations between at-bats (AB) and salary for the 2010s. Which is larger, and what does the difference tell you about the shape of the relationship? Produce a scatter plot to visually confirm your interpretation.\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nrecent = bat_sal[bat_sal['decade'] == 2010].dropna(subset=['AB', 'salary'])\n\nr_pearson, p_pearson = stats.pearsonr(recent['AB'], recent['salary'])\nr_spearman, p_spearman = stats.spearmanr(recent['AB'], recent['salary'])\n\nprint(f'Pearson r = {r_pearson:.3f} (p = {p_pearson:.4f})')\nprint(f'Spearman ρ = {r_spearman:.3f} (p = {p_spearman:.4f})')\n\nfig, ax = plt.subplots(figsize=(8, 5))\nax.scatter(recent['AB'], recent['salary']/1e6, alpha=0.3, s=15)\nax.set_xlabel('At Bats')\nax.set_ylabel('Salary (millions $)')\nax.set_title(f'AB vs. Salary — Pearson r={r_pearson:.3f}, Spearman ρ={r_spearman:.3f}')\nplt.tight_layout()\nplt.show()\n\nIf Spearman is larger than Pearson, the relationship is monotonic but nonlinear — likely because salary increases steeply at high AB counts but flattens at low counts.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>20</span>  <span class='chapter-title'>Comparative Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html",
+    "href": "21-visualization.html",
+    "title": "21  Visual Exploration",
+    "section": "",
+    "text": "21.1 Learning Objectives\nBy the end of this chapter, you will be able to:",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#learning-objectives",
+    "href": "21-visualization.html#learning-objectives",
+    "title": "21  Visual Exploration",
+    "section": "",
+    "text": "Build matplotlib figures using plt.subplots and annotate them with titles, labels, and reference lines.\nVisualize distributions with histograms, KDEs, box plots, and seaborn violin plots.\nExplore relationships with scatter plots, seaborn pair plots, and correlation heatmaps.\nPlot trends over time with sns.lineplot, including confidence bands.\nUse seaborn’s FacetGrid for small-multiple comparisons across groups.\nChoose the right plot type for a given analytical question.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#why-visualize",
+    "href": "21-visualization.html#why-visualize",
+    "title": "21  Visual Exploration",
+    "section": "21.2 Why Visualize",
+    "text": "21.2 Why Visualize\nA well-chosen visualization reveals structure that no table of numbers can convey: the shape of a distribution, the trajectory of a trend, the clustering of groups, the isolation of outliers. This chapter introduces a systematic repertoire of plot types for exploratory data analysis using matplotlib and seaborn, organized by what you are trying to see — distributions, relationships, trends, and comparisons. The goal is not to produce publication-ready graphics (though some of these will be close) but to build visual intuitions that inform your analytical decisions.\nEvery plot in this chapter answers a question. Before writing any plotting code, state the question in a Markdown cell. After producing the plot, write one or two sentences interpreting what it shows. This habit turns exploratory plots from pretty pictures into analytical evidence.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#setup",
+    "href": "21-visualization.html#setup",
+    "title": "21  Visual Exploration",
+    "section": "21.3 Setup",
+    "text": "21.3 Setup\nThis chapter uses pandas, numpy, matplotlib, and seaborn.\n\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\npd.set_option('display.max_columns', None)\npd.set_option('display.float_format', '{:.3f}'.format)\n\n# Seaborn defaults: clean, readable, and appropriately sized\nsns.set_style('whitegrid')\nsns.set_context('notebook', font_scale=1.1)\n\n\n\n\n\n\n\nWarningIf you get an ImportError\n\n\n\n\n\nInstall missing packages with conda install pandas numpy matplotlib seaborn (or pip install pandas numpy matplotlib seaborn) and restart the Jupyter kernel. seaborn depends on matplotlib, so if one is missing, the other likely is too. See Chapter 1.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#datasets",
+    "href": "21-visualization.html#datasets",
+    "title": "21  Visual Exploration",
+    "section": "21.4 Datasets",
+    "text": "21.4 Datasets\n\n# Lahman batting — qualified player-seasons\nbatting = pd.read_csv('Batting.csv')\nbatting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))\nbatting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']\nbatting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))\nbatting['HBP'] = batting['HBP'].fillna(0)\nbatting['SF'] = batting['SF'].fillna(0)\nbatting['OBP'] = (\n    (batting['H'] + batting['BB'] + batting['HBP'])\n    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))\n)\nbatting['OPS'] = batting['OBP'] + batting['SLG']\nbatting['decade'] = (batting['yearID'] // 10) * 10\nqualified = batting[batting['AB'] &gt;= 100].copy()\n\n# Salaries\nsalaries = pd.read_csv('Salaries.csv')\nbat_sal = pd.merge(\n    qualified, salaries[['playerID', 'yearID', 'salary']],\n    on=['playerID', 'yearID'], how='inner'\n)\n\n\n# Colorado population\nurl = 'https://storage.googleapis.com/co-publicdata/sya-county.csv'\npop = pd.read_csv(url, skiprows=1, dtype={'countyfips': str})\nestimates = pop[pop['datatype'] == 'Estimate'].copy()\nestimates['age_band'] = pd.cut(\n    estimates['age'], bins=[0, 18, 65, 101],\n    labels=['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)'],\n    right=False\n)\n\n\n# Cannabis sales\ncannabis = pd.read_csv(\n    'colorado_cannabis_sales_by_county.csv',\n    header=2, skipfooter=8, engine='python', na_values=['NR']\n)\ncannabis.columns = ['month', 'year', 'county', 'medical', 'retail']\ncannabis['county'] = cannabis['county'].str.strip()\nfor col in ['medical', 'retail']:\n    cannabis[col] = pd.to_numeric(\n        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False),\n        errors='coerce'\n    )\ncannabis = cannabis[cannabis['county'] != 'Total']",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#visualizing-distributions",
+    "href": "21-visualization.html#visualizing-distributions",
+    "title": "21  Visual Exploration",
+    "section": "21.5 Visualizing Distributions",
+    "text": "21.5 Visualizing Distributions\nThe first question to ask about any numeric variable is: what does its distribution look like? Is it symmetric, skewed, bimodal, or uniform? Distributions guide your choice of summary statistics (mean vs. median), your approach to outliers, and your selection of statistical tests.\n\n21.5.1 Histograms\nA histogram divides the range of values into bins and counts how many observations fall in each. It is the most direct visualization of a distribution’s shape.\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.hist(qualified['BA'], bins=50, edgecolor='white', alpha=0.7)\nax.set_xlabel('Batting Average')\nax.set_ylabel('Count')\nax.set_title('Distribution of Batting Average (qualified player-seasons, AB ≥ 100)')\nax.axvline(qualified['BA'].mean(), color='red', linestyle='--', label=f'Mean: {qualified[\"BA\"].mean():.3f}')\nax.axvline(qualified['BA'].median(), color='orange', linestyle='--', label=f'Median: {qualified[\"BA\"].median():.3f}')\nax.legend()\nplt.tight_layout()\nplt.show()\n\nThe mean and median are close together, suggesting a roughly symmetric distribution. If they diverged substantially, the distribution would be skewed.\n\n\n21.5.2 Kernel density estimation (KDE)\nA KDE plot smooths the histogram into a continuous curve, making it easier to see the overall shape:\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.kdeplot(data=qualified, x='BA', ax=ax, fill=True, alpha=0.3)\nax.set_title('KDE of Batting Average')\nax.set_xlabel('Batting Average')\nplt.tight_layout()\nplt.show()\n\n\n\n21.5.3 Comparing distributions across groups\nOverlaying distributions for different groups reveals how they differ. Here we compare batting averages across eras:\n\nera_filter = qualified['decade'].isin([1920, 1960, 2000])\nera_data = qualified[era_filter].copy()\nera_data['era'] = era_data['decade'].map({1920: '1920s', 1960: '1960s', 2000: '2000s'})\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.kdeplot(data=era_data, x='BA', hue='era', ax=ax, fill=True, alpha=0.3)\nax.set_title('Batting Average Distribution by Era')\nax.set_xlabel('Batting Average')\nplt.tight_layout()\nplt.show()\n\n\n\n21.5.4 Box plots\nBox plots show the five-number summary (min, Q1, median, Q3, max) plus individual outlier points. They are especially effective for comparing distributions across many groups:\n\nfig, ax = plt.subplots(figsize=(10, 5))\ndecade_data = qualified[qualified['decade'] &gt;= 1900]\nsns.boxplot(data=decade_data, x='decade', y='BA', ax=ax, color='lightblue')\nax.set_title('Batting Average by Decade (AB ≥ 100)')\nax.set_xlabel('Decade')\nax.set_ylabel('Batting Average')\nplt.xticks(rotation=45)\nplt.tight_layout()\nplt.show()\n\nThe boxes show the interquartile range (middle 50%), the horizontal line is the median, and the dots are outliers beyond the IQR fences.\n\n\n21.5.5 Violin plots\nA violin plot combines a box plot with a KDE, showing the full shape of each group’s distribution:\n\nfig, ax = plt.subplots(figsize=(10, 5))\nselected_decades = decade_data[decade_data['decade'].isin([1920, 1950, 1980, 2010])]\nsns.violinplot(data=selected_decades, x='decade', y='HR', ax=ax, inner='quartile')\nax.set_title('Home Run Distribution by Selected Decades')\nax.set_xlabel('Decade')\nax.set_ylabel('Home Runs')\nplt.tight_layout()\nplt.show()",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#visualizing-relationships",
+    "href": "21-visualization.html#visualizing-relationships",
+    "title": "21  Visual Exploration",
+    "section": "21.6 Visualizing Relationships",
+    "text": "21.6 Visualizing Relationships\nWhen you want to understand how two numeric variables relate to each other, scatter plots and correlation heatmaps are your primary tools.\n\n21.6.1 Scatter plots\n\nfig, ax = plt.subplots(figsize=(8, 6))\nsample = bat_sal[bat_sal['yearID'] == 2015].copy()\nax.scatter(sample['salary'] / 1e6, sample['OPS'], alpha=0.4, s=20)\nax.set_xlabel('Salary (millions $)')\nax.set_ylabel('OPS')\nax.set_title('Salary vs. OPS (2015 season, qualified batters)')\nplt.tight_layout()\nplt.show()\n\nIf the points form a rising cloud, the variables are positively correlated. If the cloud is flat or shapeless, there is little linear relationship. If the cloud curves, the relationship may be nonlinear — something a correlation coefficient alone would not reveal.\n\n\n21.6.2 Adding context with color and size\nSeaborn’s scatterplot() can encode additional variables using color (hue) and size:\n\nfig, ax = plt.subplots(figsize=(9, 6))\nsns.scatterplot(\n    data=sample, x=sample['salary']/1e6, y='OPS',\n    hue='AB', size='HR', sizes=(20, 200), alpha=0.6, ax=ax\n)\nax.set_xlabel('Salary (millions $)')\nax.set_title('Salary vs. OPS — sized by HR, colored by AB')\nplt.tight_layout()\nplt.show()\n\n\n\n21.6.3 Pair plots\nWhen you have several numeric variables, a pair plot shows every pairwise scatter plot and each variable’s distribution in a single figure:\n\npair_cols = ['BA', 'SLG', 'OBP', 'HR']\npair_data = qualified[qualified['decade'] == 2010][pair_cols].dropna().sample(500, random_state=42)\n\nsns.pairplot(pair_data, diag_kind='kde', plot_kws={'alpha': 0.3, 's': 15})\nplt.suptitle('Pairwise Relationships — 2010s Batting (sample)', y=1.02)\nplt.tight_layout()\nplt.show()\n\n\n\n21.6.4 Correlation heatmaps\nA heatmap visualizes the correlation matrix from Chapter 18, making it easy to spot strong relationships at a glance:\n\nmetrics = qualified[['AB', 'H', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS']].dropna()\ncorr = metrics.corr()\n\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(corr, annot=True, fmt='.2f', cmap='coolwarm', center=0, ax=ax,\n            square=True, linewidths=0.5)\nax.set_title('Correlation Matrix — Batting Metrics')\nplt.tight_layout()\nplt.show()\n\nRed cells indicate strong positive correlations, blue cells indicate negative correlations, and white cells indicate little linear relationship.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#visualizing-trends-over-time",
+    "href": "21-visualization.html#visualizing-trends-over-time",
+    "title": "21  Visual Exploration",
+    "section": "21.7 Visualizing Trends Over Time",
+    "text": "21.7 Visualizing Trends Over Time\nTime series plots — line charts showing how a variable changes across time — are essential for longitudinal analysis.\n\n21.7.1 Single trend line\n\n# Statewide cannabis retail sales by year\nannual_state = cannabis.groupby('year')['retail'].sum().reset_index()\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.plot(annual_state['year'], annual_state['retail'] / 1e9, marker='o')\nax.set_xlabel('Year')\nax.set_ylabel('Retail Sales ($ billions)')\nax.set_title('Colorado Statewide Retail Cannabis Sales')\nplt.tight_layout()\nplt.show()\n\n\n\n21.7.2 Multiple trend lines for comparison\n\n# Compare top 5 counties\ntop_counties = (\n    cannabis.groupby('county')['retail'].sum()\n    .nlargest(5).index.tolist()\n)\ntop_data = cannabis[cannabis['county'].isin(top_counties)]\ncounty_annual = top_data.groupby(['year', 'county'])['retail'].sum().reset_index()\n\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.lineplot(data=county_annual, x='year', y='retail', hue='county', marker='o', ax=ax)\nax.set_ylabel('Annual Retail Sales ($)')\nax.set_title('Retail Cannabis Sales — Top 5 Counties')\nax.legend(title='County', bbox_to_anchor=(1.05, 1), loc='upper left')\nplt.tight_layout()\nplt.show()\n\n\n\n21.7.3 Trends with confidence bands\nSeaborn can compute and display confidence intervals around aggregated trends:\n\ndecade_ba = qualified[qualified['decade'] &gt;= 1900]\n\nfig, ax = plt.subplots(figsize=(10, 5))\nsns.lineplot(data=decade_ba, x='yearID', y='BA', ax=ax, ci=95)\nax.set_xlabel('Year')\nax.set_ylabel('Batting Average')\nax.set_title('League-Wide Batting Average Over Time (95% CI)')\nplt.tight_layout()\nplt.show()\n\nThe shaded band shows the 95% confidence interval around the mean at each year, giving you a sense of both the trend and the variability.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#visualizing-comparisons",
+    "href": "21-visualization.html#visualizing-comparisons",
+    "title": "21  Visual Exploration",
+    "section": "21.8 Visualizing Comparisons",
+    "text": "21.8 Visualizing Comparisons\nWhen you want to compare a metric across categorical groups, bar charts, grouped bar charts, and faceted plots make the differences visible.\n\n21.8.1 Bar charts for group comparisons\n\n# Dependency ratio by county type (top vs bottom 10)\ndep_wide = (\n    estimates[estimates['year'] == 2020]\n    .groupby(['county', 'age_band'], observed=True)\n    .agg(pop=('totalpopulation', 'sum'))\n    .reset_index()\n    .pivot_table(index='county', columns='age_band', values='pop', aggfunc='sum')\n    .reset_index()\n)\ndep_wide.columns.name = None\ndep_wide['dep_ratio'] = (\n    (dep_wide['Children (0-17)'] + dep_wide['Seniors (65+)'])\n    / dep_wide['Working Age (18-64)']\n)\n\ntop5 = dep_wide.nlargest(5, 'dep_ratio')\nbot5 = dep_wide.nsmallest(5, 'dep_ratio')\ncomparison = pd.concat([top5, bot5]).sort_values('dep_ratio', ascending=True)\n\nfig, ax = plt.subplots(figsize=(8, 5))\ncolors = ['steelblue' if x in bot5['county'].values else 'coral' for x in comparison['county']]\nax.barh(comparison['county'], comparison['dep_ratio'], color=colors)\nax.set_xlabel('Dependency Ratio')\nax.set_title('Highest and Lowest Dependency Ratios — Colorado Counties (2020)')\nax.axvline(dep_wide['dep_ratio'].median(), color='gray', linestyle='--', alpha=0.5, label='Median')\nax.legend()\nplt.tight_layout()\nplt.show()\n\n\n\n21.8.2 Faceted plots (small multiples)\nFaceting breaks a single plot into a grid of subplots, one per group. This is one of the most effective techniques for comparing patterns across categories:\n\n# Batting average distribution across four selected decades\nfour_decades = qualified[qualified['decade'].isin([1930, 1960, 1990, 2020])].copy()\nfour_decades['era'] = four_decades['decade'].astype(str) + 's'\n\ng = sns.FacetGrid(four_decades, col='era', col_wrap=2, height=3.5, aspect=1.3)\ng.map(sns.histplot, 'BA', bins=30, kde=True)\ng.set_axis_labels('Batting Average', 'Count')\ng.set_titles('{col_name}')\ng.figure.suptitle('Batting Average Distribution by Era', y=1.02)\nplt.tight_layout()\nplt.show()",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#choosing-the-right-plot",
+    "href": "21-visualization.html#choosing-the-right-plot",
+    "title": "21  Visual Exploration",
+    "section": "21.9 Choosing the Right Plot",
+    "text": "21.9 Choosing the Right Plot\n\n\n\n\n\n\n\n\nQuestion\nPlot type\nWhen to use\n\n\n\n\nWhat does this variable look like?\nHistogram, KDE, box plot\nSingle numeric variable\n\n\nHow do distributions differ across groups?\nOverlaid KDE, grouped box plot, violin plot\nOne numeric + one categorical\n\n\nHow are two variables related?\nScatter plot, pair plot\nTwo numeric variables\n\n\nWhat are all pairwise relationships?\nCorrelation heatmap, pair plot\nMany numeric variables\n\n\nHow has a variable changed over time?\nLine plot\nNumeric variable + time\n\n\nHow do groups compare on a metric?\nBar chart, grouped bar chart\nOne numeric + one categorical\n\n\nHow do patterns vary across subgroups?\nFaceted plot (small multiples)\nAny plot + a grouping variable",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#common-issues-in-this-chapter",
+    "href": "21-visualization.html#common-issues-in-this-chapter",
+    "title": "21  Visual Exploration",
+    "section": "21.10 Common Issues in This Chapter",
+    "text": "21.10 Common Issues in This Chapter\n\n\n\n\n\n\nWarningThe plot is too small or text is overlapping\n\n\n\nWhat it means: The default figure size is often too small for more than a toy example.\nHow to fix it: Pass figsize=(10, 5) (or similar) to plt.subplots(). Call plt.tight_layout() before plt.show() to prevent label overlap. For long category labels, rotate with plt.xticks(rotation=45).\n\n\n\n\n\n\n\n\nWarningSeaborn’s ci parameter is deprecated\n\n\n\nWhat it means: In seaborn 0.12+, ci=95 was replaced with errorbar=('ci', 95) in functions like lineplot. Your code may throw a FutureWarning.\nHow to fix it: Replace ci=95 with errorbar=('ci', 95). For no confidence interval, use errorbar=None instead of ci=None. See seaborn’s release notes.\n\n\n\n\n\n\n\n\nWarningThe plot shows &lt;Figure size ... Axes: ...&gt; text instead of a figure\n\n\n\nWhat it means: You used a plotting call that returned the figure/axes object without rendering. This is common when the last expression in a notebook cell is a plot object.\nHow to fix it: End the cell with plt.show(), or assign the figure to an underscore: _ = ax.plot(...). Or put the call in a different cell.\n\n\n\n\n\n\n\n\nWarningFacetGrid or hue does not color the way you expect\n\n\n\nWhat it means: Seaborn infers color order from the column’s dtype. Numeric columns get a continuous palette; categorical columns get a discrete one.\nHow to fix it: Cast the column to str or category before plotting if you want a discrete palette. Or pass an explicit palette argument: palette='Set2'.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#key-takeaways",
+    "href": "21-visualization.html#key-takeaways",
+    "title": "21  Visual Exploration",
+    "section": "21.11 Key Takeaways",
+    "text": "21.11 Key Takeaways\n\nEvery plot should answer a specific question. Write the question first, the code second, the interpretation third.\nDistributions: histograms, KDEs, box plots, violin plots. Relationships: scatter, pairplot, heatmap. Trends: line plots. Comparisons: bar charts, faceted plots.\nSeaborn and matplotlib compose. You can start a plot with sns. and keep refining it with ax. methods.\nAlways label axes, set a title, and include units. A plot without labels is not evidence.\nSmall multiples (faceted plots) beat one crowded plot almost every time.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#further-reading",
+    "href": "21-visualization.html#further-reading",
+    "title": "21  Visual Exploration",
+    "section": "21.12 Further Reading",
+    "text": "21.12 Further Reading\n\n\n\n\n\n\nTip📚 Going deeper on visualization\n\n\n\n\n\n\nmatplotlib gallery — matplotlib.org/stable/gallery/ is the single best place to find a plot that resembles what you want, with code you can adapt.\nseaborn tutorial — seaborn.pydata.org/tutorial.html walks through each plot family with realistic datasets.\nseaborn API reference — seaborn.pydata.org/api.html documents every function.\n“Fundamentals of Data Visualization” by Claus Wilke — free online at clauswilke.com/dataviz/. The best modern textbook on designing plots that communicate.\nFrom Data to Viz — data-to-viz.com is a decision tree for choosing a plot type based on your data shape.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "21-visualization.html#exercises",
+    "href": "21-visualization.html#exercises",
+    "title": "21  Visual Exploration",
+    "section": "21.13 Exercises",
+    "text": "21.13 Exercises\n\n\n\n\n\n\nNoteExercise 1: Distribution comparison\n\n\n\n\n\nCreate overlaid KDE plots comparing home run distributions for the 1990s and 2010s. What differences do you observe in the shape, center, and spread of the two distributions?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\nera_hr = qualified[qualified['decade'].isin([1990, 2010])].copy()\nera_hr['era'] = era_hr['decade'].map({1990: '1990s', 2010: '2010s'})\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.kdeplot(data=era_hr, x='HR', hue='era', fill=True, alpha=0.3, ax=ax)\nax.set_title('Home Run Distribution: 1990s vs 2010s')\nplt.tight_layout()\nplt.show()\n\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 2: Scatter plot with interpretation\n\n\n\n\n\nCreate a scatter plot of medical vs. retail cannabis sales by county-year. Add a 45-degree reference line. What does the plot tell you about the relationship between the two sales categories?\n\n\n\n\n\n\nNoteSolution\n\n\n\n\n\n\ncounty_year = cannabis.groupby(['county', 'year'])[['medical', 'retail']].sum().dropna().reset_index()\n\nfig, ax = plt.subplots(figsize=(7, 7))\nax.scatter(county_year['medical'], county_year['retail'], alpha=0.3, s=15)\nlim = max(county_year['medical'].max(), county_year['retail'].max())\nax.plot([0, lim], [0, lim], 'r--', alpha=0.5, label='1:1 line')\nax.set_xlabel('Medical Sales ($)')\nax.set_ylabel('Retail Sales ($)')\nax.set_title('Medical vs. Retail Cannabis Sales by County-Year')\nax.legend()\nplt.tight_layout()\nplt.show()\n\nMost points fall above the 1:1 line, indicating that retail sales generally exceed medical sales — increasingly so over time as the recreational market has grown.\n\n\n\n\n\n\n\n\n\n\n\n\nNoteExercise 3: Faceted trend plot\n\n\n\n\n\nCreate a faceted line plot showing the annual dependency ratio trend for four Colorado counties of your choice. Use FacetGrid or col_wrap in seaborn. What similarities and differences do you observe across counties?",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>21</span>  <span class='chapter-title'>Visual Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html",
+    "href": "22-modeling.html",
+    "title": "22  Modeling Exploration",
+    "section": "",
+    "text": "22.1 Learning Objectives\nBy the end of this chapter, you will be able to:",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#learning-objectives",
+    "href": "22-modeling.html#learning-objectives",
+    "title": "22  Modeling Exploration",
+    "section": "",
+    "text": "Fit a simple linear regression and a multiple linear regression using statsmodels with the formula interface.\nInterpret a regression table: coefficients, standard errors, p-values, confidence intervals, and R².\nApply log transformations and polynomial terms to handle skewed variables and curved relationships.\nEncode categorical variables into a regression using the C(...) formula syntax and explain what a reference category is.\nEvaluate a model with R², adjusted R², residual diagnostics, and multicollinearity checks.\nUse a fitted model to produce predictions with appropriate intervals, and recognize when extrapolation is unsafe.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#why-modeling-exploration",
+    "href": "22-modeling.html#why-modeling-exploration",
+    "title": "22  Modeling Exploration",
+    "section": "22.2 Why Modeling Exploration",
+    "text": "22.2 Why Modeling Exploration\nThe previous exploration chapters showed you how to compare two variables at a time — two groups via a t-test, three or more via ANOVA, two numeric variables via correlation. Modeling exploration extends those comparisons to the case you actually face in real analysis: many variables moving together, with effects that depend on which other variables you control for. A linear model lets you say “holding at-bats and year constant, each 0.100 increase in OPS is associated with about a 25% increase in salary” — a claim that requires the model, because no pairwise comparison can support it.\nThis chapter uses linear regression as the core tool. You’ll fit a single-predictor model, add more predictors, transform skewed variables, handle categorical predictors, check the assumptions the model makes, and use the model to predict new values. The dataset carries through from the previous chapters: Lahman batting statistics merged with salaries.\nIf regression feels like a big conceptual leap, that’s expected. The first fit you run and interpret will settle more intuition than any amount of reading. Work through the examples in a notebook; come back to this chapter as a reference.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#setup",
+    "href": "22-modeling.html#setup",
+    "title": "22  Modeling Exploration",
+    "section": "22.3 Setup",
+    "text": "22.3 Setup\nYou’ll use pandas, numpy, matplotlib, and statsmodels. The smf.ols formula interface — the one with y ~ x + z — is the easiest starting point because it handles categorical variables and readable coefficient names automatically.\n\nimport pandas as pd\nimport numpy as np\nimport matplotlib.pyplot as plt\nimport statsmodels.api as sm\nimport statsmodels.formula.api as smf\n\n\n\n\n\n\n\nWarningIf you get an ImportError\n\n\n\n\n\nInstall missing packages with conda install pandas numpy matplotlib statsmodels (or pip install ...), then restart your Jupyter kernel. See Chapter 1.\n\n\n\n\n# Lahman batting + salaries (same pipeline as earlier Part V chapters)\nbatting = pd.read_csv('Batting.csv')\nbatting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))\nbatting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']\nbatting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))\nbatting['HBP'] = batting['HBP'].fillna(0)\nbatting['SF'] = batting['SF'].fillna(0)\nbatting['OBP'] = (\n    (batting['H'] + batting['BB'] + batting['HBP'])\n    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))\n)\nbatting['OPS'] = batting['OBP'] + batting['SLG']\nqualified = batting[batting['AB'] &gt;= 100].copy()\n\nsalaries = pd.read_csv('Salaries.csv')\nbat_sal = pd.merge(\n    qualified, salaries[['playerID', 'yearID', 'salary']],\n    on=['playerID', 'yearID'], how='inner'\n).dropna(subset=['OPS', 'salary'])\nprint('Shape:', bat_sal.shape)",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#simple-linear-regression",
+    "href": "22-modeling.html#simple-linear-regression",
+    "title": "22  Modeling Exploration",
+    "section": "22.4 Simple Linear Regression",
+    "text": "22.4 Simple Linear Regression\nA simple linear regression fits a straight line through a cloud of points: y = β₀ + β₁ x + ε. The coefficient β₁ is the slope — the average change in y for a one-unit change in x. The intercept β₀ is the model’s prediction when x = 0. The error term ε captures everything the line cannot explain.\nFit one with smf.ols (Ordinary Least Squares):\n\nmodel = smf.ols('salary ~ OPS', data=bat_sal).fit()\nprint(model.summary())\n\nThe result is a dense table. Read it in this order:\n\nCoefficients table. OPS has a coefficient, a standard error, a t statistic, a P&gt;|t| (the p-value), and a 95% confidence interval. The coefficient is the slope.\nR-squared. The fraction of variance in salary explained by the line. R² of 0.05 means the model captures 5% of the variation — small but possibly meaningful depending on the domain.\nF-statistic and its p-value. Tests whether the overall model explains more than nothing. For simple regression this matches the single predictor’s p-value.\n\nEvery regression output follows this shape. Once you can read it once, you can read it forever.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#interpreting-coefficients-and-significance",
+    "href": "22-modeling.html#interpreting-coefficients-and-significance",
+    "title": "22  Modeling Exploration",
+    "section": "22.5 Interpreting Coefficients and Significance",
+    "text": "22.5 Interpreting Coefficients and Significance\nA coefficient has four things worth naming explicitly.\nSign. Positive means y tends to rise as x rises. Negative means the opposite. Check the sign against your prior — if the direction surprises you, investigate before writing anything up.\nMagnitude. The size of the coefficient, in the units of the variables you fit. If salary is in dollars and OPS runs from about 0.5 to 1.2, a coefficient of 12,000,000 means “each full unit of OPS is associated with about $12 million of salary” — which reads better as “each 0.100 of OPS is associated with about $1.2 million.”\nSignificance. The p-value tests whether the coefficient is distinguishable from zero. A small p-value (conventionally &lt; 0.05) means the slope is unlikely to be purely noise. A large p-value does not mean “no effect” — it means “no evidence of an effect given this sample.”\nConfidence interval. The [0.025 0.975] columns give a 95% confidence interval for the coefficient. Always report it alongside the point estimate. A point estimate of 12,000,000 with an interval of [8,000,000, 16,000,000] tells a very different story than the same estimate with an interval of [-2,000,000, 26,000,000].\n\n\n\n\n\n\nWarningCausal language\n\n\n\nA regression coefficient measures association, not causation. “Each 0.100 of OPS is associated with an additional $1.2 million in salary” is a defensible claim. “Hitting better causes higher pay” is not — the causal arrow may run the other way (teams pay for expected future performance), and many confounds (age, position, team market size) are not in the model. The language discipline from Chapter 3 applies directly.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#multiple-linear-regression",
+    "href": "22-modeling.html#multiple-linear-regression",
+    "title": "22  Modeling Exploration",
+    "section": "22.6 Multiple Linear Regression",
+    "text": "22.6 Multiple Linear Regression\nMost interesting questions have more than one predictor. Multiple linear regression extends the line to a plane (or hyperplane): y = β₀ + β₁ x₁ + β₂ x₂ + … + ε. Each coefficient has the same interpretation as before, with one critical addition: it is the effect of that predictor holding the others constant.\n\nmodel_multi = smf.ols('salary ~ OPS + AB + yearID', data=bat_sal).fit()\nprint(model_multi.summary())\n\nOPS’s coefficient now answers “given two players with the same at-bats in the same year, what’s the salary difference associated with a one-unit OPS difference?” That’s a much more useful question than the simple-regression answer, which conflates OPS with everything correlated with OPS.\nAdding yearID also controls for salary inflation over time — a roughly linear trend. Without it, the OPS coefficient would absorb the fact that both salaries and home runs drifted up over the decades covered.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#transformations",
+    "href": "22-modeling.html#transformations",
+    "title": "22  Modeling Exploration",
+    "section": "22.7 Transformations",
+    "text": "22.7 Transformations\nReal variables rarely satisfy linear regression’s assumptions out of the box. Two transformations fix the majority of problems you’ll meet.\n\n22.7.1 Log transforms for skewed variables\nSalaries are right-skewed: most players earn modestly, a few earn stratospherically. Regressing untransformed salary gives disproportionate leverage to the highest earners. Taking the log compresses the tail:\n\nbat_sal['log_salary'] = np.log(bat_sal['salary'])\n\nmodel_log = smf.ols('log_salary ~ OPS + AB + yearID', data=bat_sal).fit()\nprint(model_log.summary())\n\nThe interpretation changes. When the dependent variable is logged, a coefficient of β on a predictor means “a one-unit change in the predictor is associated with roughly a 100 × β % change in the outcome.” A coefficient of 2.5 on OPS in the log-salary model means “each full unit of OPS is associated with about a 250% increase in salary” — or, more realistically, “each 0.100 of OPS is associated with about a 25% increase.”\nYou can also log a predictor (useful when the predictor is skewed) or log both sides (an elasticity: % change in y per % change in x).\n\n\n22.7.2 Polynomial terms for curved relationships\nWhen the relationship between x and y curves rather than runs straight, a linear term alone won’t capture it. Add a squared term:\n\nmodel_poly = smf.ols('log_salary ~ OPS + I(OPS**2) + AB + yearID', data=bat_sal).fit()\nprint(model_poly.summary())\n\nI(OPS**2) tells the formula parser to treat OPS**2 as arithmetic, not as a formula operator. If the squared term is significant with the opposite sign of the linear term, the relationship is concave (rises, then levels off or falls).\nInteraction terms let two predictors jointly modify the outcome. OPS:AB says “the effect of OPS depends on at-bats”; OPS*AB is shorthand for “include both main effects and the interaction.” Use interactions sparingly — they’re easy to over-fit and hard to interpret.\nTake a moment to appreciate what you just did: you’ve extended a straight line to a curve, and expressed it in one line of formula.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#categorical-variables",
+    "href": "22-modeling.html#categorical-variables",
+    "title": "22  Modeling Exploration",
+    "section": "22.8 Categorical Variables",
+    "text": "22.8 Categorical Variables\nNot every predictor is numeric. Team, position, league, and decade are categorical. statsmodels handles this automatically — wrap the column in C(...) in the formula:\n\nbat_sal['decade'] = (bat_sal['yearID'] // 10) * 10\n\nmodel_cat = smf.ols(\n    'log_salary ~ OPS + AB + C(decade)',\n    data=bat_sal\n).fit()\nprint(model_cat.summary())\n\nC(decade) creates a dummy variable for each decade except one. The omitted decade is the reference category, and every other coefficient reads as “the average log-salary difference between this decade and the reference decade, holding OPS and AB constant.”\nBy default statsmodels picks the first level alphabetically or numerically as the reference. Override it with the Treatment contrast when the default doesn’t make sense:\n\nmodel_cat2 = smf.ols(\n    \"log_salary ~ OPS + AB + C(decade, Treatment(reference=2010))\",\n    data=bat_sal\n).fit()\n\nNow every decade coefficient is the difference from the 2010s. Choose a reference category your readers will find intuitive — “compared to the 2010s” is almost always easier to read than “compared to the 1990s.”",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#model-evaluation",
+    "href": "22-modeling.html#model-evaluation",
+    "title": "22  Modeling Exploration",
+    "section": "22.9 Model Evaluation",
+    "text": "22.9 Model Evaluation\nA regression that looks good in the summary table can still be wrong. Three checks catch most problems.\n\n22.9.1 R² and adjusted R²\nR² is the fraction of variance explained. Adding more predictors always raises R², even if those predictors are noise. Adjusted R² penalizes the count of predictors, so it only rises when the new predictor actually helps. Report adjusted R² when comparing models with different numbers of predictors.\n\n\n22.9.2 Residual diagnostics\nLinear regression assumes the errors are roughly normal, have constant variance, and are independent. Check by plotting the residuals against the fitted values:\n\nfitted = model_log.fittedvalues\nresid = model_log.resid\n\nfig, axes = plt.subplots(1, 2, figsize=(11, 4))\n\naxes[0].scatter(fitted, resid, alpha=0.3, s=15)\naxes[0].axhline(0, color='red', linestyle='--')\naxes[0].set_xlabel('Fitted log-salary')\naxes[0].set_ylabel('Residual')\naxes[0].set_title('Residuals vs. Fitted')\n\nsm.qqplot(resid, line='45', fit=True, ax=axes[1])\naxes[1].set_title('Q-Q plot')\n\nplt.tight_layout()\nplt.show()\n\nA clean residuals-vs-fitted plot shows a flat band of points around zero. A funnel shape (variance grows with the prediction) violates the constant-variance assumption and usually means you need a log transform. A curved band means you’re missing a nonlinear term.\nA clean Q-Q plot shows the points close to the diagonal. Heavy tails (points pulling away at the extremes) are common in real data but worth noting.\n\n\n22.9.3 Multicollinearity\nWhen two predictors move together, the regression cannot cleanly separate their effects — their standard errors balloon and signs flip unpredictably. The variance inflation factor (VIF) quantifies this:\n\nfrom statsmodels.stats.outliers_influence import variance_inflation_factor\n\nX = sm.add_constant(bat_sal[['OPS', 'AB', 'yearID']])\nvifs = pd.DataFrame({\n    'variable': X.columns,\n    'VIF': [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]\n})\nprint(vifs)\n\nA common rule of thumb: VIF above 5 is concerning; above 10 is a problem. Fix by dropping one of the correlated predictors or combining them into a single derived variable.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#prediction-and-forecasting",
+    "href": "22-modeling.html#prediction-and-forecasting",
+    "title": "22  Modeling Exploration",
+    "section": "22.10 Prediction and Forecasting",
+    "text": "22.10 Prediction and Forecasting\nOnce a model is fit, predict() generates predictions for new data. The new data must have columns with the same names as the predictors in the formula.\n\nnew_data = pd.DataFrame({\n    'OPS': [0.700, 0.800, 0.900],\n    'AB':  [500, 500, 500],\n    'yearID': [2015, 2015, 2015],\n})\n\npredictions = model_log.get_prediction(new_data)\nsummary = predictions.summary_frame(alpha=0.05)  # 95% intervals\nprint(summary)\n\nsummary_frame returns several columns. Two matter most:\n\nmean_ci_lower / mean_ci_upper — confidence interval for the mean log-salary at these predictor values. Narrow.\nobs_ci_lower / obs_ci_upper — prediction interval for a single new observation. Wider, because it adds the irreducible noise in any individual case.\n\nTo get dollar predictions instead of log-dollar predictions, exponentiate: np.exp(summary['mean']). Confidence bands exponentiate asymmetrically — that’s fine, just remember the band is symmetric on the log scale, not the dollar scale.\n\n\n\n\n\n\nWarningExtrapolation is a trap\n\n\n\nA regression is only reliable within the range of the data you fit it on. Predicting salary for an OPS of 1.5 — higher than any player in the training data — is extrapolation. The model will happily hand you a number, but you have no evidence the linear relationship continues out there. Before trusting a forecast, verify that the predictor values fall inside the training-data range.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#public-interest-context-oversight-as-claim-making",
+    "href": "22-modeling.html#public-interest-context-oversight-as-claim-making",
+    "title": "22  Modeling Exploration",
+    "section": "22.11 Public Interest Context: Oversight as Claim-Making",
+    "text": "22.11 Public Interest Context: Oversight as Claim-Making\nA regression coefficient is an explicit claim. “For every 0.100 increase in OPS, controlling for at-bats and year, log-salary rises by 2.5” is a falsifiable statement: someone else can run the same model on the same data and confirm or refute it. That explicitness is what makes regression a tool of oversight. When a journalist reports that racial disparities in mortgage approvals persist after controlling for income and credit score, the public can evaluate — and contest — the specific model, the specific controls, and the specific data.\nThe flip side is that small choices about transformation, controls, reference category, and sample filter can meaningfully change coefficients. A regression is only as transparent as the analyst’s documentation of those choices. When you publish a regression result, publish the model specification, the sample definition, and the code. Would a reader be able to reproduce your coefficient table from what you shared?\n\n\n\n\n\n\nNoteConnection to Chapter 4\n\n\n\nThis section connects to the concept of oversight introduced in Chapter 4. A fitted regression is a specific, auditable claim about how variables relate; oversight requires that the specification be as public as the coefficient.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#common-issues-in-this-chapter",
+    "href": "22-modeling.html#common-issues-in-this-chapter",
+    "title": "22  Modeling Exploration",
+    "section": "22.12 Common Issues in This Chapter",
+    "text": "22.12 Common Issues in This Chapter\n\n\n\n\n\n\nWarningPatsyError: Error evaluating factor\n\n\n\nWhat it means: Your formula references a column that is not in the DataFrame, or the column has the wrong type (e.g., strings where a number is expected).\nHow to fix it: Print df.columns.tolist() and confirm every name in the formula is present. Cast columns to numeric or categorical before fitting. Column names with spaces or special characters may need Q('weird name') in the formula.\n\n\n\n\n\n\n\n\nWarningAll your coefficients have huge standard errors and the p-values are near 1\n\n\n\nWhat it means: Two or more predictors are highly collinear. The model cannot separate their effects.\nHow to fix it: Compute VIFs, drop the worst offender, and refit. If two predictors are measuring the same construct (OBP and OPS, for example), pick one.\n\n\n\n\n\n\n\n\nWarningResidual plot shows a funnel shape\n\n\n\nWhat it means: Heteroscedasticity — the variance of the errors changes with the fitted value. The assumption of constant variance is violated, so the standard errors and p-values are untrustworthy.\nHow to fix it: Log-transform the dependent variable. If that does not help, use heteroscedasticity-robust standard errors: model.fit(cov_type='HC3').\n\n\n\n\n\n\n\n\nWarningYou added a squared term and R² barely moved\n\n\n\nWhat it means: The relationship is close to linear, so the polynomial term is not earning its keep. Adding noise terms can raise R² very slightly even when they’re not useful.\nHow to fix it: Check the p-value on the squared term and adjusted R². If adjusted R² rises and the term is significant, keep it; otherwise drop it.\n\n\n\n\n\n\n\n\nWarningPrediction returns values wildly different from the training data\n\n\n\nWhat it means: You are extrapolating — predicting for predictor values outside the range of the training set. Extrapolations are unreliable.\nHow to fix it: Check that the new data’s predictor values fall inside the training-data range. If you must extrapolate, flag the predictions explicitly as out-of-sample and widen your uncertainty.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#key-takeaways",
+    "href": "22-modeling.html#key-takeaways",
+    "title": "22  Modeling Exploration",
+    "section": "22.13 Key Takeaways",
+    "text": "22.13 Key Takeaways\n\nLinear regression turns correlation into a quantitative description: slope, standard error, confidence interval, prediction.\nIn multiple regression, each coefficient is the effect of that predictor holding the others constant. That’s usually the claim worth reporting.\nLog-transform skewed outcomes and predictors. Add polynomial or interaction terms when relationships curve.\nCheck R², residual plots, and VIFs. A model that looks good in the summary table can still be wrong; the diagnostics catch most problems.\nPredictions require new data with the same columns as the formula. Use prediction intervals, not just confidence intervals, for single-case forecasts. Never extrapolate beyond your training range.\nA regression is an auditable public claim. Publish the specification with the result.",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#further-reading",
+    "href": "22-modeling.html#further-reading",
+    "title": "22  Modeling Exploration",
+    "section": "22.14 Further Reading",
+    "text": "22.14 Further Reading\n\n\n\n\n\n\nTip📚 Going deeper on linear models\n\n\n\n\n\n\nstatsmodels user guide — statsmodels.org/stable/user-guide.html documents every model and the formula syntax.\nstatsmodels: Linear regression — statsmodels.org/stable/regression.html.\n“An Introduction to Statistical Learning” (ISLR) — free online at statlearning.com. The linear-regression chapter is the best single treatment for working analysts.\n“Regression and Other Stories” by Gelman, Hill, and Vehtari — online at avehtari.github.io/ROS-Examples/. Modern, practical, and opinionated.\nscikit-learn — scikit-learn.org is the right next step when your question shifts from inference to prediction (cross-validation, regularization, non-linear models).",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
+    ]
+  },
+  {
+    "objectID": "22-modeling.html#exercises",
+    "href": "22-modeling.html#exercises",
+    "title": "22  Modeling Exploration",
+    "section": "22.15 Exercises",
+    "text": "22.15 Exercises\n\n\n\n\n\n\nNoteExercise 1: Fit and interpret a multiple regression\n\n\n\n\n\nFit a model predicting log_salary from OPS, AB, and C(decade) using the 1990s as the reference decade. Report the OPS coefficient with its 95% confidence interval in dollar terms for a 0.100 increase in OPS. Which decade’s coefficient is the largest, and what does that tell you about salary growth?\n\n\n\n\n\n\n\n\n\nNoteExercise 2: Diagnose and fix a model\n\n\n\n\n\nFit salary ~ OPS + AB + yearID on untransformed salary. Produce the residuals-vs-fitted plot and the Q-Q plot. Describe any assumption violations you see. Refit with log_salary as the outcome; did the diagnostics improve?\n\n\n\n\n\n\n\n\n\nNoteExercise 3: Predict out-of-sample\n\n\n\n\n\nTake your best model from Exercise 1. Generate predicted log_salary (and the corresponding dollar predictions with prediction intervals) for a hypothetical player with OPS = 0.850 and AB = 550 in each of the decades your model covers. Compare the intervals — are they wider in some decades than others? Why might that be?",
+    "crumbs": [
+      "Analysis",
+      "<span class='chapter-number'>22</span>  <span class='chapter-title'>Modeling Exploration</span>"
     ]
   },
   {

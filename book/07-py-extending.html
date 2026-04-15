@@ -341,19 +341,31 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -466,7 +478,7 @@ window.Quarto = {
 <section id="setup" class="level2" data-number="7.3">
 <h2 data-number="7.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">7.3</span> Setup</h2>
 <p>This chapter uses <a href="https://pandas.pydata.org/docs/">pandas</a> and <a href="https://numpy.org/doc/stable/">numpy</a>.</p>
-<div id="aeb67c6c" class="cell" data-execution_count="1">
+<div id="8643821e" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -495,14 +507,14 @@ window.Quarto = {
 <p>This chapter uses two datasets that illustrate different aspects of extending data.</p>
 <p>The <strong>Lahman Baseball Database</strong> contains historical statistics for every Major League Baseball player and team. Each row in the Batting table represents one player’s performance for one team in one season. We will compute derived metrics like batting average and slugging percentage, then aggregate them across teams and decades.</p>
 <p>The <strong>Colorado State Demography Office</strong> publishes single-year-of-age population estimates by county. Each row represents one county, one year, and one single-year age group. We will bin ages into demographic bands and compute the dependency ratio — a standard population metric.</p>
-<div id="5c907295" class="cell" data-execution_count="2">
+<div id="e49f44b8" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>batting <span class="op">=</span> pd.read_csv(<span class="st">'Batting.csv'</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Shape:'</span>, batting.shape)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Year range:'</span>, batting[<span class="st">'yearID'</span>].<span class="bu">min</span>(), <span class="st">'–'</span>, batting[<span class="st">'yearID'</span>].<span class="bu">max</span>())</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>batting.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="1b23fcb8" class="cell" data-execution_count="3">
+<div id="a58c0188" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">'https://storage.googleapis.com/co-publicdata/sya-county.csv'</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pop <span class="op">=</span> pd.read_csv(url, skiprows<span class="op">=</span><span class="dv">1</span>, dtype<span class="op">=</span>{<span class="st">'countyfips'</span>: <span class="bu">str</span>})</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -518,7 +530,7 @@ window.Quarto = {
 <section id="arithmetic-batting-average" class="level3" data-number="7.5.1">
 <h3 data-number="7.5.1" class="anchored" data-anchor-id="arithmetic-batting-average"><span class="header-section-number">7.5.1</span> Arithmetic: Batting Average</h3>
 <p>Batting average is hits divided by at-bats. The formula is simple, but the implementation requires a decision about what to do when at-bats is zero:</p>
-<div id="d30be606" class="cell" data-execution_count="4">
+<div id="4d601d89" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'BA'</span>] <span class="op">=</span> batting[<span class="st">'H'</span>] <span class="op">/</span> batting[<span class="st">'AB'</span>].replace(<span class="dv">0</span>, <span class="bu">float</span>(<span class="st">'nan'</span>))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'BA stats:'</span>)</span>
@@ -530,7 +542,7 @@ window.Quarto = {
 <section id="multi-step-formulas-slugging-percentage-and-obp" class="level3" data-number="7.5.2">
 <h3 data-number="7.5.2" class="anchored" data-anchor-id="multi-step-formulas-slugging-percentage-and-obp"><span class="header-section-number">7.5.2</span> Multi-step formulas: Slugging Percentage and OBP</h3>
 <p>More complex metrics require computing intermediate values. Slugging percentage measures batting productivity by weighting different types of hits:</p>
-<div id="cbd3fed6" class="cell" data-execution_count="5">
+<div id="80414378" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'TB'</span>] <span class="op">=</span> (</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    batting[<span class="st">'H'</span>]</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> <span class="dv">2</span> <span class="op">*</span> batting[<span class="st">'2B'</span>]</span>
@@ -542,7 +554,7 @@ window.Quarto = {
 </div>
 <p>On-base percentage measures how frequently a batter reaches base. It uses a formula with four variables in the numerator and denominator:</p>
 <p><span class="math display">\[OBP = \frac{H + BB + HBP}{AB + BB + HBP + SF}\]</span></p>
-<div id="171e7228" class="cell" data-execution_count="6">
+<div id="56c6bf16" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'HBP'</span>] <span class="op">=</span> batting[<span class="st">'HBP'</span>].fillna(<span class="dv">0</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'SF'</span>] <span class="op">=</span> batting[<span class="st">'SF'</span>].fillna(<span class="dv">0</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -557,7 +569,7 @@ window.Quarto = {
 <section id="binning-with-pd.cut" class="level3" data-number="7.5.3">
 <h3 data-number="7.5.3" class="anchored" data-anchor-id="binning-with-pd.cut"><span class="header-section-number">7.5.3</span> Binning with <code>pd.cut()</code></h3>
 <p>Binning transforms a continuous variable into categories. The Colorado population data has single-year ages (0 through 100); we want three demographic bands:</p>
-<div id="25b3f6fb" class="cell" data-execution_count="7">
+<div id="3c643545" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bins <span class="op">=</span> [<span class="dv">0</span>, <span class="dv">18</span>, <span class="dv">65</span>, <span class="dv">101</span>]</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="st">'Children (0-17)'</span>, <span class="st">'Working Age (18-64)'</span>, <span class="st">'Seniors (65+)'</span>]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -568,14 +580,14 @@ window.Quarto = {
 </div>
 <p>The <code>right=False</code> parameter makes bins left-inclusive: <code>[0, 18)</code> means ages 0 through 17. This puts 18-year-olds in the Working Age band, which is the standard demographic convention.</p>
 <p>Always verify that no values fell outside the bins:</p>
-<div id="c90ff00d" class="cell" data-execution_count="8">
+<div id="4e482b89" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'NaN age bands:'</span>, pop[<span class="st">'age_band'</span>].isna().<span class="bu">sum</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="integer-division-for-decades" class="level3" data-number="7.5.4">
 <h3 data-number="7.5.4" class="anchored" data-anchor-id="integer-division-for-decades"><span class="header-section-number">7.5.4</span> Integer division for decades</h3>
 <p>A quick way to create decade bins from year values:</p>
-<div id="f4ac0ca3" class="cell" data-execution_count="9">
+<div id="cec02170" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'decade'</span>] <span class="op">=</span> (batting[<span class="st">'yearID'</span>] <span class="op">//</span> <span class="dv">10</span>) <span class="op">*</span> <span class="dv">10</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Decades:'</span>)</span>
@@ -585,7 +597,7 @@ window.Quarto = {
 <section id="parsing-dates-cannabis-sales" class="level3" data-number="7.5.5">
 <h3 data-number="7.5.5" class="anchored" data-anchor-id="parsing-dates-cannabis-sales"><span class="header-section-number">7.5.5</span> Parsing Dates: Cannabis Sales</h3>
 <p>Government datasets frequently store dates as separate integer columns — <code>Month</code> and <code>Year</code> rather than a single date column. The cannabis sales data is a typical example. <code>pd.to_datetime()</code> can reconstruct a proper datetime from integer month and year values:</p>
-<div id="522b16c7" class="cell" data-execution_count="10">
+<div id="548ac523" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cannabis <span class="op">=</span> pd.read_csv(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'colorado_cannabis_sales_by_county.csv'</span>,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="dv">2</span>,</span>
@@ -612,7 +624,7 @@ window.Quarto = {
 </div>
 <p><code>pd.to_datetime()</code> accepts a DataFrame with <code>year</code>, <code>month</code>, and <code>day</code> columns. The <code>.assign(Day=1)</code> adds a constant day-of-month, and <code>.rename()</code> converts the column names to lowercase as required.</p>
 <p>Once parsed as a proper datetime, the column unlocks time-series operations — sorting chronologically, computing time differences, and resampling by period:</p>
-<div id="c97683eb" class="cell" data-execution_count="11">
+<div id="96871dd5" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Quarterly retail sales, statewide</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>quarterly <span class="op">=</span> (</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    cannabis</span>
@@ -644,7 +656,7 @@ window.Quarto = {
 <p>The <code>groupby()</code> → <code>agg()</code> pattern is the programmatic equivalent of a spreadsheet pivot table. It splits the data into groups, applies an aggregation function to each group, and combines the results.</p>
 <section id="basic-groupby-total-hr-per-team" class="level3" data-number="7.6.1">
 <h3 data-number="7.6.1" class="anchored" data-anchor-id="basic-groupby-total-hr-per-team"><span class="header-section-number">7.6.1</span> Basic groupby: Total HR per Team</h3>
-<div id="724a259e" class="cell" data-execution_count="12">
+<div id="f1bcfa94" class="cell" data-execution_count="12">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>latest_year <span class="op">=</span> batting[<span class="st">'yearID'</span>].<span class="bu">max</span>()</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>yr_df <span class="op">=</span> batting[batting[<span class="st">'yearID'</span>] <span class="op">==</span> latest_year]</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -662,7 +674,7 @@ window.Quarto = {
 <section id="filtering-before-aggregating" class="level3" data-number="7.6.2">
 <h3 data-number="7.6.2" class="anchored" data-anchor-id="filtering-before-aggregating"><span class="header-section-number">7.6.2</span> Filtering before aggregating</h3>
 <p>When computing averages, filter to meaningful subsets first. A player with 2 at-bats and 1 hit has a .500 batting average, but that tells you nothing useful:</p>
-<div id="155b73c8" class="cell" data-execution_count="13">
+<div id="2cf6e562" class="cell" data-execution_count="13">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>qualified <span class="op">=</span> batting[batting[<span class="st">'AB'</span>] <span class="op">&gt;=</span> <span class="dv">100</span>]</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>decade_ba <span class="op">=</span> (</span>
@@ -677,7 +689,7 @@ window.Quarto = {
 <section id="the-dependency-ratio-a-real-world-grouped-summary" class="level3" data-number="7.6.3">
 <h3 data-number="7.6.3" class="anchored" data-anchor-id="the-dependency-ratio-a-real-world-grouped-summary"><span class="header-section-number">7.6.3</span> The dependency ratio: a real-world grouped summary</h3>
 <p>The dependency ratio — the number of children and seniors per working-age adult — is a standard demographic metric that requires grouped aggregation to compute:</p>
-<div id="f66636e5" class="cell" data-execution_count="14">
+<div id="49f18ea1" class="cell" data-execution_count="14">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>estimates <span class="op">=</span> pop[pop[<span class="st">'datatype'</span>] <span class="op">==</span> <span class="st">'Estimate'</span>].copy()</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>co_2020 <span class="op">=</span> estimates[estimates[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2020</span>]</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -727,7 +739,7 @@ window.Quarto = {
 </table>
 <section id="groupby.agg-long-format-output" class="level3" data-number="7.7.1">
 <h3 data-number="7.7.1" class="anchored" data-anchor-id="groupby.agg-long-format-output"><span class="header-section-number">7.7.1</span> <code>groupby().agg()</code> — long format output</h3>
-<div id="a210c9ff" class="cell" data-execution_count="15">
+<div id="6f78ef7a" class="cell" data-execution_count="15">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>modern <span class="op">=</span> batting[(batting[<span class="st">'yearID'</span>] <span class="op">&gt;=</span> <span class="dv">1990</span>) <span class="op">&amp;</span> (batting[<span class="st">'yearID'</span>] <span class="op">&lt;=</span> <span class="dv">2022</span>)].copy()</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>hr_long <span class="op">=</span> (</span>
@@ -744,7 +756,7 @@ window.Quarto = {
 </section>
 <section id="pivot_table-wide-format-in-one-step" class="level3" data-number="7.7.2">
 <h3 data-number="7.7.2" class="anchored" data-anchor-id="pivot_table-wide-format-in-one-step"><span class="header-section-number">7.7.2</span> <code>pivot_table()</code> — wide format in one step</h3>
-<div id="50037f9a" class="cell" data-execution_count="16">
+<div id="e24e49ee" class="cell" data-execution_count="16">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>hr_wide_pt <span class="op">=</span> modern.pivot_table(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span><span class="st">'teamID'</span>,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span><span class="st">'decade'</span>,</span>
@@ -760,7 +772,7 @@ window.Quarto = {
 <section id="pivot-reshape-only-no-aggregation" class="level3" data-number="7.7.3">
 <h3 data-number="7.7.3" class="anchored" data-anchor-id="pivot-reshape-only-no-aggregation"><span class="header-section-number">7.7.3</span> <code>pivot()</code> — reshape only, no aggregation</h3>
 <p><code>pivot()</code> requires every <code>(index, columns)</code> combination to appear exactly once in the data. It will raise a <code>ValueError</code> if there are duplicates, because it cannot aggregate:</p>
-<div id="772f32fa" class="cell" data-execution_count="17">
+<div id="be6ed840" class="cell" data-execution_count="17">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This WORKS because hr_long has one row per (team, decade)</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>hr_wide_pv <span class="op">=</span> hr_long.pivot(</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span><span class="st">'teamID'</span>,</span>
@@ -773,7 +785,7 @@ window.Quarto = {
 </section>
 <section id="verifying-all-three-agree" class="level3" data-number="7.7.4">
 <h3 data-number="7.7.4" class="anchored" data-anchor-id="verifying-all-three-agree"><span class="header-section-number">7.7.4</span> Verifying all three agree</h3>
-<div id="e1a6f112" class="cell" data-execution_count="18">
+<div id="076d9fa7" class="cell" data-execution_count="18">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>total_long <span class="op">=</span> hr_long[<span class="st">'total_HR'</span>].<span class="bu">sum</span>()</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>total_pt <span class="op">=</span> hr_wide_pt.values.<span class="bu">sum</span>()</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>total_pv <span class="op">=</span> hr_wide_pv.fillna(<span class="dv">0</span>).values.<span class="bu">sum</span>()</span>
@@ -788,7 +800,7 @@ window.Quarto = {
 <section id="agg-vs.-transform" class="level2" data-number="7.8">
 <h2 data-number="7.8" class="anchored" data-anchor-id="agg-vs.-transform"><span class="header-section-number">7.8</span> <code>agg()</code> vs.&nbsp;<code>transform()</code></h2>
 <p>Both operate on groups, but they produce fundamentally different outputs. The <code>agg()</code> method produces one row per group — the output is smaller than the input. The <code>transform()</code> method broadcasts the group-level result back to every row in the original DataFrame — the output has the same number of rows as the input.</p>
-<div id="fd5c3d6c" class="cell" data-execution_count="19">
+<div id="856748bf" class="cell" data-execution_count="19">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># agg() — summary table</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>team_totals <span class="op">=</span> (</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    batting[batting[<span class="st">'yearID'</span>] <span class="op">==</span> <span class="dv">2022</span>]</span>
@@ -798,7 +810,7 @@ window.Quarto = {
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'agg() shape:'</span>, team_totals.shape, <span class="st">'(one row per team)'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="89c381fa" class="cell" data-execution_count="20">
+<div id="4a8101cc" class="cell" data-execution_count="20">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># transform() — adds group stat to every row</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'team_total_HR'</span>] <span class="op">=</span> (</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    batting</span>
@@ -949,7 +961,7 @@ window.Quarto = {
 </div>
 <div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="e1a5e6da" class="cell" data-execution_count="21">
+<div id="a9d946b9" class="cell" data-execution_count="21">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>batting[<span class="st">'OPS'</span>] <span class="op">=</span> batting[<span class="st">'OBP'</span>] <span class="op">+</span> batting[<span class="st">'SLG'</span>]</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>top_ops <span class="op">=</span> (</span>
@@ -991,7 +1003,7 @@ window.Quarto = {
 </div>
 <div id="callout-11" class="callout-11-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="3defeebb" class="cell" data-execution_count="22">
+<div id="ab6d860e" class="cell" data-execution_count="22">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>co_2020 <span class="op">=</span> estimates[estimates[<span class="st">'year'</span>] <span class="op">==</span> <span class="dv">2020</span>].copy()</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>wide <span class="op">=</span> co_2020.groupby([<span class="st">'county'</span>, <span class="st">'age_band'</span>], observed<span class="op">=</span><span class="va">True</span>).agg(</span>
@@ -1040,7 +1052,7 @@ window.Quarto = {
 </div>
 <div id="callout-13" class="callout-13-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="21661c7b" class="cell" data-execution_count="23">
+<div id="17e915ff" class="cell" data-execution_count="23">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Path A: pivot_table (one step)</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>wide_pt <span class="op">=</span> co_2020.pivot_table(</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span><span class="st">'county'</span>, columns<span class="op">=</span><span class="st">'age_band'</span>, values<span class="op">=</span><span class="st">'totalpopulation'</span>, aggfunc<span class="op">=</span><span class="st">'sum'</span></span>

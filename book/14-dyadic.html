@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -427,7 +439,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2" data-number="14.3">
 <h2 data-number="14.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">14.3</span> Setup</h2>
 <p>You’ll use <a href="https://networkx.org/documentation/stable/">NetworkX</a> for graph objects and algorithms, <a href="https://pandas.pydata.org/docs/">pandas</a> for conversion to and from DataFrames, and <a href="https://matplotlib.org/stable/">matplotlib</a> for drawing.</p>
-<div id="9dd8ccf7" class="cell" data-execution_count="1">
+<div id="047a3ca1" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -454,7 +466,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="building-a-graph-by-hand" class="level2" data-number="14.4">
 <h2 data-number="14.4" class="anchored" data-anchor-id="building-a-graph-by-hand"><span class="header-section-number">14.4</span> Building a Graph by Hand</h2>
 <p>The simplest way to understand a graph is to build one. Create an empty undirected graph, then add nodes and edges:</p>
-<div id="d8ec7a44" class="cell" data-execution_count="2">
+<div id="79e01001" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>G.add_edges_from([</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'Alice'</span>, <span class="st">'Bob'</span>),</span>
@@ -469,7 +481,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Number of edges:'</span>, G.number_of_edges())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Notice you never had to declare the nodes separately — NetworkX infers them from the edges you add. Four names, four edges, and a small graph takes shape. Draw it with <code>nx.draw()</code>:</p>
-<div id="56cd69f1" class="cell" data-execution_count="3">
+<div id="460fca01" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">4</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>nx.draw(G, with_labels<span class="op">=</span><span class="va">True</span>, node_color<span class="op">=</span><span class="st">'lightblue'</span>, node_size<span class="op">=</span><span class="dv">1200</span>, ax<span class="op">=</span>ax)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -480,7 +492,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Four distinctions cover most real-world networks:</p>
 <p><strong>Undirected vs.&nbsp;directed.</strong> In an undirected graph, “Alice knows Bob” is the same edge as “Bob knows Alice.” In a directed graph (use <code>nx.DiGraph</code>), the two are different — think of Twitter follows, email chains, or citations. The class you choose controls how NetworkX counts edges, computes degree, and runs algorithms.</p>
 <p><strong>Unweighted vs.&nbsp;weighted.</strong> An edge can carry a numeric attribute — a weight — representing how strong or frequent the relationship is. Friendship ties might be weighted by number of messages sent; flight networks by number of seats; citation networks by number of co-citations.</p>
-<div id="f538eab5" class="cell" data-execution_count="4">
+<div id="614034a3" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>DG <span class="op">=</span> nx.DiGraph()</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>DG.add_edge(<span class="st">'Alice'</span>, <span class="st">'Bob'</span>, weight<span class="op">=</span><span class="fl">3.0</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>DG.add_edge(<span class="st">'Bob'</span>, <span class="st">'Alice'</span>, weight<span class="op">=</span><span class="fl">1.0</span>)   <span class="co"># reverse direction, different weight</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -491,7 +503,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="data-structure-nodes-edges-and-attributes" class="level2" data-number="14.6">
 <h2 data-number="14.6" class="anchored" data-anchor-id="data-structure-nodes-edges-and-attributes"><span class="header-section-number">14.6</span> Data Structure: Nodes, Edges, and Attributes</h2>
 <p>Every node and edge can carry arbitrary attribute data — like a pandas row, but keyed by the node or edge rather than by an index.</p>
-<div id="74634caf" class="cell" data-execution_count="5">
+<div id="d30a4c12" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>G.add_node(<span class="st">'Alice'</span>, age<span class="op">=</span><span class="dv">29</span>, city<span class="op">=</span><span class="st">'Boulder'</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>G.add_edge(<span class="st">'Alice'</span>, <span class="st">'Bob'</span>, weight<span class="op">=</span><span class="fl">4.0</span>, since<span class="op">=</span><span class="dv">2020</span>)</span>
@@ -500,7 +512,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(G.edges[<span class="st">'Alice'</span>, <span class="st">'Bob'</span>])  <span class="co"># {'weight': 4.0, 'since': 2020}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>When your data lives in a pandas DataFrame, use <a href="https://networkx.org/documentation/stable/reference/generated/networkx.convert_matrix.from_pandas_edgelist.html"><code>nx.from_pandas_edgelist</code></a> to convert it to a graph:</p>
-<div id="b4ecdcf1" class="cell" data-execution_count="6">
+<div id="cb7bebf2" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>edges_df <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'source'</span>: [<span class="st">'A'</span>, <span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>],</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'target'</span>: [<span class="st">'B'</span>, <span class="st">'C'</span>, <span class="st">'D'</span>, <span class="st">'D'</span>],</span>
@@ -523,7 +535,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="degree-the-simplest-centrality" class="level3" data-number="14.7.1">
 <h3 data-number="14.7.1" class="anchored" data-anchor-id="degree-the-simplest-centrality"><span class="header-section-number">14.7.1</span> Degree: the simplest centrality</h3>
 <p><strong>Degree</strong> is the number of edges a node has. In a directed graph, you distinguish <strong>in-degree</strong> (incoming) and <strong>out-degree</strong> (outgoing).</p>
-<div id="5c3093b2" class="cell" data-execution_count="7">
+<div id="869fdf2a" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>degrees <span class="op">=</span> <span class="bu">dict</span>(G.degree())</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sorted</span>(degrees.items(), key<span class="op">=</span><span class="kw">lambda</span> x: <span class="op">-</span>x[<span class="dv">1</span>])[:<span class="dv">5</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -538,7 +550,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Closeness centrality</strong> — the inverse of the mean shortest-path distance to every other node. Who can reach everyone quickly?</li>
 <li><strong>Eigenvector centrality</strong> (and its variants, PageRank) — a node is important if its neighbors are important. Who is connected to the well-connected?</li>
 </ul>
-<div id="c1b20dcb" class="cell" data-execution_count="8">
+<div id="0eedd25a" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bet <span class="op">=</span> nx.betweenness_centrality(G)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>close <span class="op">=</span> nx.closeness_centrality(G)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pagerank <span class="op">=</span> nx.pagerank(G)</span>
@@ -562,7 +574,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="14.8" class="anchored" data-anchor-id="network-dynamics"><span class="header-section-number">14.8</span> Network Dynamics</h2>
 <p>Some of the most interesting questions are about how networks change. Who joins the network first? Which communities form?</p>
 <p><strong>Community detection</strong> finds clusters of nodes that are more densely connected to each other than to the rest of the graph. NetworkX includes several algorithms under <a href="https://networkx.org/documentation/stable/reference/algorithms/community.html"><code>nx.community</code></a>:</p>
-<div id="1a869f00" class="cell" data-execution_count="9">
+<div id="6133d19f" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> networkx.algorithms <span class="im">import</span> community</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>communities <span class="op">=</span> community.greedy_modularity_communities(G)</span>
@@ -580,7 +592,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong><a href="https://networkrepository.com/">Network Repository</a></strong> — a large visual index, searchable by graph size and category.</li>
 </ul>
 <p>Most datasets from these repositories arrive as an <strong>edge list</strong> — a text file where each line lists a pair of nodes (and optionally a weight or timestamp). Parsing one looks like:</p>
-<div id="57f7d08e" class="cell" data-execution_count="10">
+<div id="752c2f5a" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>edges_df <span class="op">=</span> pd.read_csv(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'data/soc-karate.edges'</span>,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    sep<span class="op">=</span><span class="st">' '</span>,</span>

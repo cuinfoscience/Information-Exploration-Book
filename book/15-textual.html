@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -436,7 +448,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2" data-number="15.3">
 <h2 data-number="15.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">15.3</span> Setup</h2>
 <p>You’ll use <a href="https://www.nltk.org/">NLTK</a> for tokenization and classic NLP operations, <a href="https://pandas.pydata.org/docs/">pandas</a> for the DataFrames that hold your corpus, and <a href="https://scikit-learn.org/">scikit-learn</a>’s <a href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html"><code>TfidfVectorizer</code></a> for TF-IDF.</p>
-<div id="c5d4dcfd" class="cell" data-execution_count="1">
+<div id="002e8d9a" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -481,7 +493,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="loading-and-inspecting-text" class="level2" data-number="15.4">
 <h2 data-number="15.4" class="anchored" data-anchor-id="loading-and-inspecting-text"><span class="header-section-number">15.4</span> Loading and Inspecting Text</h2>
 <p>Text data arrives in many containers. A single <code>.txt</code> file (a novel, a speech); a folder of text files (a corpus); a DataFrame with a text column (tweets, reviews); a compressed archive (court filings, Wikipedia dumps). The first step is always to get the text into a list of strings, one per document.</p>
-<div id="2d86ebad" class="cell" data-execution_count="2">
+<div id="ca34de30" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'data/inaugural/2021-biden.txt'</span>, encoding<span class="op">=</span><span class="st">'utf-8'</span>) <span class="im">as</span> f:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> f.read()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -496,7 +508,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="tokenization" class="level3" data-number="15.5.1">
 <h3 data-number="15.5.1" class="anchored" data-anchor-id="tokenization"><span class="header-section-number">15.5.1</span> Tokenization</h3>
 <p><strong>Tokenization</strong> splits a string into individual words (tokens). NLTK’s <code>word_tokenize</code> handles punctuation and contractions better than a plain <code>text.split()</code>.</p>
-<div id="44ba6151" class="cell" data-execution_count="3">
+<div id="49509b58" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.tokenize <span class="im">import</span> word_tokenize, sent_tokenize</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> word_tokenize(text)</span>
@@ -508,7 +520,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="case-normalization-and-punctuation" class="level3" data-number="15.5.2">
 <h3 data-number="15.5.2" class="anchored" data-anchor-id="case-normalization-and-punctuation"><span class="header-section-number">15.5.2</span> Case normalization and punctuation</h3>
 <p>Most analyses treat <code>"The"</code> and <code>"the"</code> as the same word. Lowercase everything, then filter out pure punctuation:</p>
-<div id="6da618fe" class="cell" data-execution_count="4">
+<div id="8d92aaab" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> [t.lower() <span class="cf">for</span> t <span class="kw">in</span> tokens <span class="cf">if</span> t.isalpha()]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'After normalization:'</span>, tokens[:<span class="dv">20</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -517,7 +529,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="stopword-removal" class="level3" data-number="15.5.3">
 <h3 data-number="15.5.3" class="anchored" data-anchor-id="stopword-removal"><span class="header-section-number">15.5.3</span> Stopword removal</h3>
 <p><strong>Stopwords</strong> are common words like “the,” “and,” “of” that carry little topical meaning. NLTK ships with stopword lists for dozens of languages:</p>
-<div id="15e5c6b3" class="cell" data-execution_count="5">
+<div id="b36a05a2" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.corpus <span class="im">import</span> stopwords</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>stop <span class="op">=</span> <span class="bu">set</span>(stopwords.words(<span class="st">'english'</span>))</span>
@@ -529,7 +541,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="stemming-vs.-lemmatization" class="level3" data-number="15.5.4">
 <h3 data-number="15.5.4" class="anchored" data-anchor-id="stemming-vs.-lemmatization"><span class="header-section-number">15.5.4</span> Stemming vs.&nbsp;lemmatization</h3>
 <p>Both operations reduce inflected forms to a base form, but differently. <strong>Stemming</strong> chops off endings with simple rules — fast but sometimes crude (<code>"running"</code> → <code>"run"</code>, but <code>"better"</code> → <code>"better"</code>). <strong>Lemmatization</strong> uses a dictionary to find the canonical form (<code>"better"</code> → <code>"good"</code>). Lemmatization is slower but more linguistically principled.</p>
-<div id="460ba4f4" class="cell" data-execution_count="6">
+<div id="5b7e5550" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.stem <span class="im">import</span> PorterStemmer, WordNetLemmatizer</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>stemmer <span class="op">=</span> PorterStemmer()</span>
@@ -552,7 +564,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 data-number="15.6.2" class="anchored" data-anchor-id="tf-idf"><span class="header-section-number">15.6.2</span> TF-IDF</h3>
 <p><strong>TF-IDF</strong> (term frequency × inverse document frequency) is a weighted refinement. Each term’s weight in a document is its frequency in that document, scaled <em>down</em> by how common it is across the whole corpus. Words that appear everywhere (even after stopword removal) get low weights; words that appear in a few documents but repeatedly get high weights.</p>
 <p>The scikit-learn implementation hides the messy details:</p>
-<div id="79ade370" class="cell" data-execution_count="7">
+<div id="7166041b" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.feature_extraction.text <span class="im">import</span> TfidfVectorizer</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>corpus <span class="op">=</span> [</span>
@@ -579,7 +591,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Before any advanced modeling, compute a few descriptive statistics about your corpus.</p>
 <section id="word-frequency" class="level3" data-number="15.7.1">
 <h3 data-number="15.7.1" class="anchored" data-anchor-id="word-frequency"><span class="header-section-number">15.7.1</span> Word frequency</h3>
-<div id="e721cd7f" class="cell" data-execution_count="8">
+<div id="9a3c70de" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>freq <span class="op">=</span> Counter(tokens)</span>
@@ -592,7 +604,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="lexical-diversity" class="level3" data-number="15.7.2">
 <h3 data-number="15.7.2" class="anchored" data-anchor-id="lexical-diversity"><span class="header-section-number">15.7.2</span> Lexical diversity</h3>
 <p><strong>Lexical diversity</strong> is the ratio of unique tokens to total tokens — how varied the vocabulary is.</p>
-<div id="301c9c50" class="cell" data-execution_count="9">
+<div id="ddd7d41e" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>diversity <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(tokens)) <span class="op">/</span> <span class="bu">len</span>(tokens)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Lexical diversity: </span><span class="sc">{</span>diversity<span class="sc">:.3f}</span><span class="ss">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -601,7 +613,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="sentiment" class="level3" data-number="15.7.3">
 <h3 data-number="15.7.3" class="anchored" data-anchor-id="sentiment"><span class="header-section-number">15.7.3</span> Sentiment</h3>
 <p>NLTK’s <strong>VADER</strong> sentiment analyzer is a rule-based tool tuned for short, informal English (reviews, tweets). It returns compound scores from -1 (most negative) to +1 (most positive).</p>
-<div id="f04bef76" class="cell" data-execution_count="10">
+<div id="14f36061" class="cell" data-execution_count="10">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.sentiment <span class="im">import</span> SentimentIntensityAnalyzer</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>sia <span class="op">=</span> SentimentIntensityAnalyzer()</span>
@@ -619,7 +631,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>NLTK built-in corpora</strong> — <code>nltk.corpus.inaugural</code> (US inaugural addresses, 1789–present), <code>nltk.corpus.gutenberg</code> (a selection of classics), and <code>nltk.corpus.reuters</code> (news articles by category).</li>
 </ul>
 <p>Here’s a small pipeline that loads every inaugural address, tokenizes it, and computes word counts per president:</p>
-<div id="79a52c83" class="cell" data-execution_count="11">
+<div id="aaf282ac" class="cell" data-execution_count="11">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.corpus <span class="im">import</span> inaugural</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> []</span>

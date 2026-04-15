@@ -312,19 +312,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  <a href="./19-qualitative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Qualitative Exploration</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  <a href="./20-comparative.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Comparative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./22-modeling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Modeling Exploration</span></span></a>
   </div>
 </li>
       </ul>
@@ -446,7 +458,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="setup" class="level2" data-number="17.4">
 <h2 data-number="17.4" class="anchored" data-anchor-id="setup"><span class="header-section-number">17.4</span> Setup</h2>
 <p>You’ll use <a href="https://requests.readthedocs.io/en/latest/">requests</a> for HTTP, <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">Beautiful Soup</a> for HTML parsing, and Python’s standard library <a href="https://docs.python.org/3/library/json.html"><code>json</code></a> and <a href="https://docs.python.org/3/library/xml.etree.elementtree.html"><code>xml.etree.ElementTree</code></a> modules for the other two formats.</p>
-<div id="dad70746" class="cell" data-execution_count="1">
+<div id="ce49d680" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
@@ -477,7 +489,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>JSON</strong> (JavaScript Object Notation) is the dominant data format for modern web APIs. It encodes two structures: <strong>objects</strong> (like Python dicts) and <strong>arrays</strong> (like Python lists), which can nest arbitrarily.</p>
 <section id="parsing-a-json-string" class="level3" data-number="17.5.1">
 <h3 data-number="17.5.1" class="anchored" data-anchor-id="parsing-a-json-string"><span class="header-section-number">17.5.1</span> Parsing a JSON string</h3>
-<div id="49ea1754" class="cell" data-execution_count="2">
+<div id="77592023" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> <span class="st">'''{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">  "title": "Information Exploration",</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">  "authors": ["Brian Keegan"],</span></span>
@@ -497,7 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="from-nested-json-to-a-flat-dataframe" class="level3" data-number="17.5.2">
 <h3 data-number="17.5.2" class="anchored" data-anchor-id="from-nested-json-to-a-flat-dataframe"><span class="header-section-number">17.5.2</span> From nested JSON to a flat DataFrame</h3>
 <p>Real API responses are usually deeply nested. <a href="https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html"><code>pd.json_normalize()</code></a> flattens nesting into columns with dot-separated names.</p>
-<div id="fa1241cf" class="cell" data-execution_count="3">
+<div id="c1f33c97" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> [</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  {<span class="st">'id'</span>: <span class="dv">1</span>, <span class="st">'title'</span>: <span class="st">'A'</span>, <span class="st">'author'</span>: {<span class="st">'name'</span>: <span class="st">'Alice'</span>, <span class="st">'org'</span>: <span class="st">'ORG1'</span>}},</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  {<span class="st">'id'</span>: <span class="dv">2</span>, <span class="st">'title'</span>: <span class="st">'B'</span>, <span class="st">'author'</span>: {<span class="st">'name'</span>: <span class="st">'Bob'</span>, <span class="st">'org'</span>: <span class="st">'ORG2'</span>}},</span>
@@ -512,7 +524,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="xml" class="level2" data-number="17.6">
 <h2 data-number="17.6" class="anchored" data-anchor-id="xml"><span class="header-section-number">17.6</span> XML</h2>
 <p><strong>XML</strong> (eXtensible Markup Language) is older and more verbose than JSON but still common in government filings (SEC EDGAR, congressional records) and scientific data.</p>
-<div id="6ee324a3" class="cell" data-execution_count="4">
+<div id="c5c36bde" class="cell" data-execution_count="4">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> <span class="st">'''&lt;?xml version="1.0"?&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;catalog&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">  &lt;book id="1"&gt;</span></span>
@@ -537,7 +549,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>When a publisher offers neither an API nor a downloadable file, but does publish the data on a web page, scraping is the fallback.</p>
 <section id="fetching-a-page" class="level3" data-number="17.7.1">
 <h3 data-number="17.7.1" class="anchored" data-anchor-id="fetching-a-page"><span class="header-section-number">17.7.1</span> Fetching a page</h3>
-<div id="7cf84d0a" class="cell" data-execution_count="5">
+<div id="8be60c5e" class="cell" data-execution_count="5">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>headers <span class="op">=</span> {<span class="st">'User-Agent'</span>: <span class="st">'info3401-class-project (your-email@example.edu)'</span>}</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> requests.get(<span class="st">'https://en.wikipedia.org/wiki/Colorado'</span>, headers<span class="op">=</span>headers)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>response.raise_for_status()  <span class="co"># raise an exception if the request failed</span></span>
@@ -547,7 +559,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="parsing-with-beautiful-soup" class="level3" data-number="17.7.2">
 <h3 data-number="17.7.2" class="anchored" data-anchor-id="parsing-with-beautiful-soup"><span class="header-section-number">17.7.2</span> Parsing with Beautiful Soup</h3>
-<div id="7fbd5edd" class="cell" data-execution_count="6">
+<div id="acae5447" class="cell" data-execution_count="6">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> BeautifulSoup(response.text, <span class="st">'html.parser'</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># All links on the page</span></span>
@@ -562,7 +574,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="extracting-html-tables" class="level3" data-number="17.7.3">
 <h3 data-number="17.7.3" class="anchored" data-anchor-id="extracting-html-tables"><span class="header-section-number">17.7.3</span> Extracting HTML tables</h3>
 <p>When the page contains an actual <code>&lt;table&gt;</code> element, pandas has a shortcut:</p>
-<div id="8af514de" class="cell" data-execution_count="7">
+<div id="01b6ebac" class="cell" data-execution_count="7">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>tables <span class="op">=</span> pd.read_html(<span class="st">'https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States'</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f'Found </span><span class="sc">{</span><span class="bu">len</span>(tables)<span class="sc">}</span><span class="ss"> tables'</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tables[<span class="dv">0</span>].head())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -596,7 +608,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="working-with-apis" class="level2" data-number="17.8">
 <h2 data-number="17.8" class="anchored" data-anchor-id="working-with-apis"><span class="header-section-number">17.8</span> Working with APIs</h2>
 <p>APIs are the friendliest way to get structured data from a publisher, when they exist and are free. Here’s a short example querying the OpenAlex scholarly metadata API — no authentication required.</p>
-<div id="1cf7b837" class="cell" data-execution_count="8">
+<div id="abf6d2a0" class="cell" data-execution_count="8">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">'https://api.openalex.org/works'</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'search'</span>: <span class="st">'public interest data science'</span>,</span>
@@ -618,7 +630,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="pagination" class="level3" data-number="17.8.1">
 <h3 data-number="17.8.1" class="anchored" data-anchor-id="pagination"><span class="header-section-number">17.8.1</span> Pagination</h3>
 <p>Most APIs don’t return all results in one response — they paginate. OpenAlex paginates via a <code>page</code> parameter or a <code>cursor</code>. Always read the API docs, then loop.</p>
-<div id="fd09e290" class="cell" data-execution_count="9">
+<div id="4164d26f" class="cell" data-execution_count="9">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>all_results <span class="op">=</span> []</span>
@@ -1267,8 +1279,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./18-descriptive.html" class="pagination-link" aria-label="Descriptive and Qualitative Exploration">
-        <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./18-descriptive.html" class="pagination-link" aria-label="Descriptive Exploration">
+        <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive Exploration</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">

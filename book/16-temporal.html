@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>16&nbsp; Time Series Data – Information Exploration</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./17-structured.html" rel="next">
+<link href="./15-textual.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-abfa4615eba2ed0d4bb7fb949ed9c296.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./13-spatial.html">Non-Tabular Data</a></li><li class="breadcrumb-item"><a href="./16-temporal.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Time Series Data</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Information Exploration</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/cuinfoscience/Information-Exploration-Book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Foundations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Setting Up Your Workspace</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Documentation, Markdown, and Errors</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-research-questions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Research Questions and Study Designs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-public-interest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Public Interest Data Science</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Python</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-py-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Loading Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-py-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Cleaning Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-py-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Extending Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-py-reshaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Reshaping Data with pandas</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">SQL</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-sql-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Loading Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-sql-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Cleaning Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-sql-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Extending Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-sql-reshaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Non-Tabular Data</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-spatial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Spatial Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-dyadic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Network and Graph Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-textual.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Unstructured Text Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-temporal.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Time Series Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-structured.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Structured Web Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-datasets.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Datasets</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-llm-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AI Use Disclosure</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">16.1</span> Learning Objectives</a></li>
+  <li><a href="#why-time-series-data-matters" id="toc-why-time-series-data-matters" class="nav-link" data-scroll-target="#why-time-series-data-matters"><span class="header-section-number">16.2</span> Why Time Series Data Matters</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">16.3</span> Setup</a></li>
+  <li><a href="#time-series-concepts" id="toc-time-series-concepts" class="nav-link" data-scroll-target="#time-series-concepts"><span class="header-section-number">16.4</span> Time Series Concepts</a></li>
+  <li><a href="#building-a-proper-time-series" id="toc-building-a-proper-time-series" class="nav-link" data-scroll-target="#building-a-proper-time-series"><span class="header-section-number">16.5</span> Building a Proper Time Series</a></li>
+  <li><a href="#visualizing-a-time-series" id="toc-visualizing-a-time-series" class="nav-link" data-scroll-target="#visualizing-a-time-series"><span class="header-section-number">16.6</span> Visualizing a Time Series</a></li>
+  <li><a href="#decomposition" id="toc-decomposition" class="nav-link" data-scroll-target="#decomposition"><span class="header-section-number">16.7</span> Decomposition</a></li>
+  <li><a href="#autocorrelation-and-differencing" id="toc-autocorrelation-and-differencing" class="nav-link" data-scroll-target="#autocorrelation-and-differencing"><span class="header-section-number">16.8</span> Autocorrelation and Differencing</a></li>
+  <li><a href="#forecasting-with-arima" id="toc-forecasting-with-arima" class="nav-link" data-scroll-target="#forecasting-with-arima"><span class="header-section-number">16.9</span> Forecasting with ARIMA</a></li>
+  <li><a href="#advanced-forecasting-with-prophet" id="toc-advanced-forecasting-with-prophet" class="nav-link" data-scroll-target="#advanced-forecasting-with-prophet"><span class="header-section-number">16.10</span> Advanced: Forecasting with Prophet</a></li>
+  <li><a href="#working-with-real-economic-data" id="toc-working-with-real-economic-data" class="nav-link" data-scroll-target="#working-with-real-economic-data"><span class="header-section-number">16.11</span> Working with Real Economic Data</a></li>
+  <li><a href="#public-interest-context-broken-continuity" id="toc-public-interest-context-broken-continuity" class="nav-link" data-scroll-target="#public-interest-context-broken-continuity"><span class="header-section-number">16.12</span> Public Interest Context: Broken Continuity</a></li>
+  <li><a href="#common-issues-in-this-chapter" id="toc-common-issues-in-this-chapter" class="nav-link" data-scroll-target="#common-issues-in-this-chapter"><span class="header-section-number">16.13</span> Common Issues in This Chapter</a></li>
+  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways"><span class="header-section-number">16.14</span> Key Takeaways</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">16.15</span> Further Reading</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">16.16</span> Exercises</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/16-temporal.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./13-spatial.html">Non-Tabular Data</a></li><li class="breadcrumb-item"><a href="./16-temporal.html"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Time Series Data</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span id="sec-temporal" class="quarto-section-identifier"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Time Series Data</span></span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="16.1">
+<h2 data-number="16.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">16.1</span> Learning Objectives</h2>
+<p>By the end of this chapter, you will be able to:</p>
+<ul>
+<li>Parse dates and reshape a DataFrame into a proper time series indexed by a <a href="https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html"><code>DatetimeIndex</code></a>.</li>
+<li>Identify <strong>trend</strong>, <strong>seasonality</strong>, <strong>stationarity</strong>, and <strong>autocorrelation</strong> in a series, and visualize each with <a href="https://www.statsmodels.org/stable/generated/statsmodels.graphics.tsaplots.plot_acf.html"><code>plot_acf</code></a> and <a href="https://www.statsmodels.org/stable/generated/statsmodels.tsa.seasonal.seasonal_decompose.html"><code>seasonal_decompose</code></a>.</li>
+<li>Fit an <strong>ARIMA</strong> model with <a href="https://www.statsmodels.org/"><code>statsmodels</code></a> and produce a forecast with confidence intervals.</li>
+<li>Use <a href="https://facebook.github.io/prophet/">Prophet</a> as a higher-level forecasting tool when automation is more important than fine control.</li>
+<li>Load real economic data from <a href="https://fred.stlouisfed.org/">FRED</a>, <a href="https://data.worldbank.org/">World Bank Open Data</a>, and <a href="https://www.imf.org/en/Data">IMF Data</a>.</li>
+</ul>
+</section>
+<section id="why-time-series-data-matters" class="level2" data-number="16.2">
+<h2 data-number="16.2" class="anchored" data-anchor-id="why-time-series-data-matters"><span class="header-section-number">16.2</span> Why Time Series Data Matters</h2>
+<p>Most policy questions are time-series questions. Is unemployment rising or falling? When did housing prices take off? Did the new policy reduce overdose deaths, and if so, when? Time series data — a value measured repeatedly over time — is the backbone of how agencies, newsrooms, and researchers track change.</p>
+<p>This chapter covers the skills you need to work with time series: parsing dates, decomposing a series into trend and seasonality, diagnosing autocorrelation, and producing simple forecasts. You’ll start with <a href="https://www.statsmodels.org/">statsmodels</a>, which is already installed in most Python environments and gives you direct access to the underlying components of a forecast. Then you’ll meet <a href="https://facebook.github.io/prophet/">Prophet</a>, which automates many of the same choices and is worth reaching for when you want a working forecast fast.</p>
+<p>If this chapter feels dense, that’s expected. Time series has its own vocabulary — stationarity, differencing, ACF, PACF — that takes a few passes to internalize. Keep the definitions close and rerun the examples with different series until the intuition settles.</p>
+</section>
+<section id="setup" class="level2" data-number="16.3">
+<h2 data-number="16.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">16.3</span> Setup</h2>
+<p>You’ll use <a href="https://pandas.pydata.org/docs/">pandas</a> for date handling, <a href="https://www.statsmodels.org/">statsmodels</a> for decomposition and ARIMA, and <a href="https://matplotlib.org/stable/">matplotlib</a> for plotting.</p>
+<div id="b09a27dc" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.graphics.tsaplots <span class="im">import</span> plot_acf, plot_pacf</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.seasonal <span class="im">import</span> seasonal_decompose</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.arima.model <span class="im">import</span> ARIMA</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>If you get an <code>ImportError</code> or <code>ModuleNotFoundError</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This means the library isn’t installed in your current Python environment. Run this in a new cell:</p>
+<p><code>!pip install statsmodels</code></p>
+<p>Then restart your kernel (Kernel → Restart) and run the import cell again. If you’re using Anaconda, try <code>conda install -c conda-forge statsmodels</code> instead.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="time-series-concepts" class="level2" data-number="16.4">
+<h2 data-number="16.4" class="anchored" data-anchor-id="time-series-concepts"><span class="header-section-number">16.4</span> Time Series Concepts</h2>
+<p>Four concepts recur throughout time-series analysis. Learn the names now; the implementations follow.</p>
+<p><strong>Trend</strong> is the long-run direction of the series — slowly rising, slowly falling, or flat.</p>
+<p><strong>Seasonality</strong> is a recurring pattern that repeats at a fixed period — monthly retail sales peaking in December, hourly traffic peaking at rush hour, annual birth rates peaking in summer.</p>
+<p><strong>Stationarity</strong> is the property that the series’ mean and variance do not change over time. Most real series are <em>not</em> stationary as-is; many models require stationarity and use <strong>differencing</strong> (subtracting the previous value) to achieve it.</p>
+<p><strong>Autocorrelation</strong> is the correlation between a series and a lagged version of itself. A strong correlation at lag 12 in monthly data signals an annual seasonal pattern.</p>
+</section>
+<section id="building-a-proper-time-series" class="level2" data-number="16.5">
+<h2 data-number="16.5" class="anchored" data-anchor-id="building-a-proper-time-series"><span class="header-section-number">16.5</span> Building a Proper Time Series</h2>
+<p>A pandas DataFrame becomes a time series when its index is a <code>DatetimeIndex</code>. The first step is always: parse the date column, set it as the index, and sort.</p>
+<div id="b0370d3a" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>unrate <span class="op">=</span> pd.read_csv(<span class="st">'data/UNRATE.csv'</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>unrate[<span class="st">'DATE'</span>] <span class="op">=</span> pd.to_datetime(unrate[<span class="st">'DATE'</span>])</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>unrate <span class="op">=</span> unrate.set_index(<span class="st">'DATE'</span>).sort_index()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(unrate.head())</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Index type:'</span>, <span class="bu">type</span>(unrate.index))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Date range:'</span>, unrate.index.<span class="bu">min</span>(), <span class="st">'→'</span>, unrate.index.<span class="bu">max</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Check your frequency
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A time series has a <em>frequency</em>: monthly (<code>'MS'</code> = month start, <code>'ME'</code> = month end), quarterly (<code>'QS'</code>), daily (<code>'D'</code>), etc. Some statsmodels functions need to know the frequency explicitly. After setting the index, run <code>unrate.asfreq('MS')</code> to assert a monthly-start frequency and fill any gaps with <code>NaN</code>. If the result has unexpected NaN rows, there are missing months you need to address.</p>
+</div>
+</div>
+</section>
+<section id="visualizing-a-time-series" class="level2" data-number="16.6">
+<h2 data-number="16.6" class="anchored" data-anchor-id="visualizing-a-time-series"><span class="header-section-number">16.6</span> Visualizing a Time Series</h2>
+<p>Before any modeling, plot the series. Eyeballing the trend, seasonality, and outliers prevents a lot of downstream confusion.</p>
+<div id="04634e66" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ax.plot(unrate.index, unrate[<span class="st">'UNRATE'</span>])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'US Unemployment Rate (monthly)'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Unemployment rate (%)'</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>ax.axhline(unrate[<span class="st">'UNRATE'</span>].mean(), color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Mean'</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The line plot is usually enough to see the big picture. Recessions show up as sharp spikes; multi-year cycles are visible at a glance. Compare what you see to the known economic history of the series — the 2008 financial crisis and the 2020 COVID shock should be obvious.</p>
+</section>
+<section id="decomposition" class="level2" data-number="16.7">
+<h2 data-number="16.7" class="anchored" data-anchor-id="decomposition"><span class="header-section-number">16.7</span> Decomposition</h2>
+<p><strong>Seasonal decomposition</strong> splits the observed series into three components: trend, seasonal, and residual. The additive model assumes <code>observed = trend + seasonal + residual</code>; the multiplicative model assumes the three components multiply.</p>
+<div id="1a9a0d08" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>decomp <span class="op">=</span> seasonal_decompose(unrate[<span class="st">'UNRATE'</span>], model<span class="op">=</span><span class="st">'additive'</span>, period<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> decomp.plot()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">10</span>, <span class="dv">8</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>You get four panels: the original series, the extracted trend, the seasonal component, and the residuals. If the seasonal pattern looks messy or meaningless, try <code>period=4</code> for quarterly data or <code>period=7</code> for weekly.</p>
+</section>
+<section id="autocorrelation-and-differencing" class="level2" data-number="16.8">
+<h2 data-number="16.8" class="anchored" data-anchor-id="autocorrelation-and-differencing"><span class="header-section-number">16.8</span> Autocorrelation and Differencing</h2>
+<p>The <strong>autocorrelation function (ACF)</strong> plots the correlation between the series and its lagged versions. A slowly decaying ACF suggests a strong trend (non-stationary); sharp peaks at regular lags suggest seasonality.</p>
+<div id="3d8b9ce8" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>plot_acf(unrate[<span class="st">'UNRATE'</span>].dropna(), ax<span class="op">=</span>axes[<span class="dv">0</span>], lags<span class="op">=</span><span class="dv">48</span>, title<span class="op">=</span><span class="st">'ACF: Unemployment rate'</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>plot_pacf(unrate[<span class="st">'UNRATE'</span>].dropna(), ax<span class="op">=</span>axes[<span class="dv">1</span>], lags<span class="op">=</span><span class="dv">48</span>, title<span class="op">=</span><span class="st">'PACF: Unemployment rate'</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>To make a non-stationary series stationary, take the <strong>first difference</strong> (each observation minus its predecessor):</p>
+<div id="ad161a28" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>diff <span class="op">=</span> unrate[<span class="st">'UNRATE'</span>].diff().dropna()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>ax.plot(diff.index, diff)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'First-differenced unemployment rate'</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The differenced series should have no obvious trend and a roughly constant variance. If one difference isn’t enough, you can difference again.</p>
+</section>
+<section id="forecasting-with-arima" class="level2" data-number="16.9">
+<h2 data-number="16.9" class="anchored" data-anchor-id="forecasting-with-arima"><span class="header-section-number">16.9</span> Forecasting with ARIMA</h2>
+<p><strong>ARIMA</strong> — AutoRegressive Integrated Moving Average — is the classic statistical forecasting model. It has three parameters, written <code>(p, d, q)</code>:</p>
+<ul>
+<li><code>p</code> — number of autoregressive lags</li>
+<li><code>d</code> — number of differences applied</li>
+<li><code>q</code> — number of moving-average lags</li>
+</ul>
+<p>Picking good <code>(p, d, q)</code> is part art, part ritual. Start with <code>(1, 1, 1)</code> as a baseline, then use ACF/PACF plots and information criteria (AIC, BIC) to refine.</p>
+<div id="8c54a6e1" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ARIMA(unrate[<span class="st">'UNRATE'</span>], order<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>fit <span class="op">=</span> model.fit()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fit.summary())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The summary lists coefficient estimates, standard errors, and fit statistics. Non-significant coefficients (p &gt; 0.05) suggest you can simplify the model.</p>
+<p>To forecast the next 24 months:</p>
+<div id="b3fc3715" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>forecast <span class="op">=</span> fit.get_forecast(steps<span class="op">=</span><span class="dv">24</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> forecast.predicted_mean</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ci <span class="op">=</span> forecast.conf_int(alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ax.plot(unrate.index, unrate[<span class="st">'UNRATE'</span>], label<span class="op">=</span><span class="st">'Observed'</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>ax.plot(mean.index, mean, label<span class="op">=</span><span class="st">'Forecast'</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ax.fill_between(ci.index, ci.iloc[:, <span class="dv">0</span>], ci.iloc[:, <span class="dv">1</span>], alpha<span class="op">=</span><span class="fl">0.2</span>, label<span class="op">=</span><span class="st">'95% CI'</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Unemployment rate — 24-month forecast'</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The shaded band is the 95% confidence interval. The further out you forecast, the wider the band — that’s the model’s honesty about its own uncertainty.</p>
+<p>Take a moment to appreciate what you just did: you parsed a monthly series, diagnosed its structure, fit an ARIMA model, and produced a forecast with confidence bands in fewer than twenty lines of code.</p>
+</section>
+<section id="advanced-forecasting-with-prophet" class="level2" data-number="16.10">
+<h2 data-number="16.10" class="anchored" data-anchor-id="advanced-forecasting-with-prophet"><span class="header-section-number">16.10</span> Advanced: Forecasting with Prophet</h2>
+<p><a href="https://facebook.github.io/prophet/">Prophet</a> (originally from Meta/Facebook) is a higher-level forecasting tool. It automates most of the decisions ARIMA asks you to make — seasonality, trend changepoints, holidays — and exposes a scikit-learn-style <code>fit</code>/<code>predict</code> API. You give up some control; you gain speed.</p>
+<p>Prophet expects a specific DataFrame format: a column <code>ds</code> (the date) and a column <code>y</code> (the value).</p>
+<div id="33e449ca" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> prophet <span class="im">import</span> Prophet</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> unrate.reset_index().rename(columns<span class="op">=</span>{<span class="st">'DATE'</span>: <span class="st">'ds'</span>, <span class="st">'UNRATE'</span>: <span class="st">'y'</span>})</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> Prophet(yearly_seasonality<span class="op">=</span><span class="va">True</span>, weekly_seasonality<span class="op">=</span><span class="va">False</span>, daily_seasonality<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>m.fit(df)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>future <span class="op">=</span> m.make_future_dataframe(periods<span class="op">=</span><span class="dv">24</span>, freq<span class="op">=</span><span class="st">'MS'</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>forecast <span class="op">=</span> m.predict(future)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>m.plot(forecast)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Prophet forecast: unemployment rate'</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The <code>m.plot_components(forecast)</code> call splits the fit into trend and seasonal components — useful for presenting to non-technical stakeholders.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Prophet installation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Prophet requires a working C++ compiler and the <code>cmdstan</code> library, which can make installation tricky — especially on Windows. If <code>pip install prophet</code> fails, try <code>conda install -c conda-forge prophet</code>. If that also fails, the statsmodels ARIMA approach above will serve you well for this course. See the <a href="https://facebook.github.io/prophet/docs/installation.html">Prophet installation guide</a> for troubleshooting.</p>
+</div>
+</div>
+<p>When do you pick Prophet over ARIMA? Prophet is a good default for daily or sub-daily data with strong seasonality, for series with obvious changepoints (COVID is the canonical example), and when you need a working forecast in a meeting tomorrow. ARIMA is a better default when you need to understand every component of the model, when your data is short, or when your stakeholders expect statistical reporting (coefficients, p-values).</p>
+</section>
+<section id="working-with-real-economic-data" class="level2" data-number="16.11">
+<h2 data-number="16.11" class="anchored" data-anchor-id="working-with-real-economic-data"><span class="header-section-number">16.11</span> Working with Real Economic Data</h2>
+<p>Three reliable, free sources:</p>
+<ul>
+<li><strong><a href="https://fred.stlouisfed.org/">FRED</a></strong> — Federal Reserve Economic Data. Thousands of US macroeconomic series (unemployment, CPI, GDP, interest rates). Free CSV downloads, or use the FRED API (see <a href="17-structured.html" class="quarto-xref"><span>Chapter 17</span></a>).</li>
+<li><strong><a href="https://data.worldbank.org/">World Bank Open Data</a></strong> — country-level economic, health, and education indicators for ~200 countries from 1960 onward.</li>
+<li><strong><a href="https://www.imf.org/en/Data">IMF Data</a></strong> — international financial statistics, balance of payments, government finance.</li>
+</ul>
+<p>Each publishes CSV files with different date formats. Always check the first few rows to see how the publisher encoded dates, missing values, and frequency metadata. FRED uses a single <code>DATE</code> column; the World Bank uses a wide format with one column per year that you’ll need to <code>melt</code> into long format.</p>
+</section>
+<section id="public-interest-context-broken-continuity" class="level2" data-number="16.12">
+<h2 data-number="16.12" class="anchored" data-anchor-id="public-interest-context-broken-continuity"><span class="header-section-number">16.12</span> Public Interest Context: Broken Continuity</h2>
+<p>Time series depend on continuity. Monthly unemployment can only be compared across decades if the Bureau of Labor Statistics kept collecting it the same way, publishing it on the same schedule, defining “unemployed” the same way. When agencies change methodology — as the Census Bureau did for the American Community Survey, or as the CDC did during COVID-19 — the continuity needed for oversight breaks down. A break in a data series is also a break in public accountability.</p>
+<p>Some breaks are honest: new measurement technology, more granular categories. Some are less so: politically contested series that are discontinued, renamed, or reclassified under budget pressure. When you work with a long-running government series, it’s worth asking: what changed along the way, and whose story does the gap hide?</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Connection to <a href="04-public-interest.html" class="quarto-xref"><span>Chapter 4</span></a>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This section connects to the concepts of <strong>erosion</strong> and <strong>oversight</strong> introduced in <a href="./04-public-interest.html">Chapter 4</a>. A time series breaks whenever methodology or funding changes — and those breaks erode the continuity that oversight depends on.</p>
+</div>
+</div>
+</section>
+<section id="common-issues-in-this-chapter" class="level2" data-number="16.13">
+<h2 data-number="16.13" class="anchored" data-anchor-id="common-issues-in-this-chapter"><span class="header-section-number">16.13</span> Common Issues in This Chapter</h2>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span><code>ValueError: Inferred frequency None from passed values does not conform to passed frequency</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> There are missing dates in your index, or the index is not monotonically increasing.</p>
+<p><strong>How to fix it:</strong> Run <code>df = df.asfreq('MS')</code> (or whatever frequency fits). Check for gaps with <code>df[df['value'].isna()]</code>. Fill gaps with <code>.ffill()</code>, <code>.interpolate()</code>, or by imputing from a known baseline.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>ARIMA fit produces warnings about non-stationarity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> The <code>d</code> parameter is too low — your series is not yet stationary after the number of differences you specified.</p>
+<p><strong>How to fix it:</strong> Plot the differenced series. If it still has a trend, increase <code>d</code> to 2. Use the Augmented Dickey-Fuller test (<code>statsmodels.tsa.stattools.adfuller</code>) to test stationarity formally.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Prophet forecast looks wildly wrong on short series
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> Prophet expects at least a year of data to detect yearly seasonality. On shorter series it falls back on trend alone, which can overshoot.</p>
+<p><strong>How to fix it:</strong> Turn off seasonality components that aren’t supported by your data: <code>Prophet(yearly_seasonality=False, weekly_seasonality=False)</code>. Consider ARIMA instead — it’s more conservative on small samples.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Decomposition returns blank trend at the edges
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> <code>seasonal_decompose</code> uses a centered moving average, which requires observations on both sides. The first and last <code>period/2</code> points have NaN trend values.</p>
+<p><strong>How to fix it:</strong> This is expected behavior. Drop the NaN rows, or use a two-sided rolling mean with <code>min_periods</code> to get edge estimates.</p>
+</div>
+</div>
+</section>
+<section id="key-takeaways" class="level2" data-number="16.14">
+<h2 data-number="16.14" class="anchored" data-anchor-id="key-takeaways"><span class="header-section-number">16.14</span> Key Takeaways</h2>
+<ul>
+<li>A time series is a DataFrame with a <code>DatetimeIndex</code>. Parse, set, and sort the index before anything else.</li>
+<li>Trend, seasonality, stationarity, autocorrelation — the four concepts to get comfortable with. Visualize each one.</li>
+<li>ARIMA gives you fine control; Prophet gives you automation. Pick based on what your audience expects and how much time you have.</li>
+<li>Always plot your forecast alongside the observed data with a confidence band. A forecast without uncertainty is a dangerous graph.</li>
+<li>Long government time series are public infrastructure. Methodology breaks matter.</li>
+</ul>
+</section>
+<section id="further-reading" class="level2" data-number="16.15">
+<h2 data-number="16.15" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">16.15</span> Further Reading</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>📚 Going deeper on time series analysis
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>statsmodels time-series analysis</strong> — <a href="https://www.statsmodels.org/stable/tsa.html">statsmodels.org/stable/tsa.html</a> is the canonical reference.</li>
+<li><strong>Prophet documentation</strong> — <a href="https://facebook.github.io/prophet/docs/quick_start.html">facebook.github.io/prophet/docs/quick_start.html</a> has a clear walk-through.</li>
+<li><strong>sktime</strong> — <a href="https://www.sktime.net/">sktime.net/</a> is a unified interface to many forecasting algorithms (classical, ML, deep learning).</li>
+<li><strong>“Forecasting: Principles and Practice” by Hyndman &amp; Athanasopoulos</strong> — free online at <a href="https://otexts.com/fpp3/">otexts.com/fpp3/</a>. Uses R, but the concepts transfer directly.</li>
+<li><strong>FRED</strong> — <a href="https://fred.stlouisfed.org/">fred.stlouisfed.org/</a> is the single best source of US economic time series for teaching and analysis.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="16.16">
+<h2 data-number="16.16" class="anchored" data-anchor-id="exercises"><span class="header-section-number">16.16</span> Exercises</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 1: Decompose a FRED series
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Download a monthly FRED series of your choice (e.g., <code>CPIAUCSL</code> for CPI, <code>HOUST</code> for housing starts, <code>RSAFS</code> for retail sales). Set up the time-series DataFrame, run <code>seasonal_decompose</code> with an additive model and period=12, and interpret the four panels in a paragraph. Does the seasonal component match your prior intuition about the series?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 2: Compare ARIMA and Prophet forecasts
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Using the same FRED series from Exercise 1, fit an ARIMA(1,1,1) model and produce a 12-month forecast with confidence bands. Then fit a Prophet model and produce a 12-month forecast. Overlay both forecasts on the same plot. Where do they agree? Where do they differ? Write a short paragraph explaining which forecast you would trust more and why. If Prophet fails to install, discuss which choices ARIMA required you to make that Prophet would have automated.</p>
+</div>
+</div>
+</div>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./15-textual.html" class="pagination-link" aria-label="Unstructured Text Data">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Unstructured Text Data</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./17-structured.html" class="pagination-link" aria-label="Structured Web Data">
+        <span class="nav-page-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Structured Web Data</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Time Series Data {#sec-temporal}</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Learning Objectives</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you will be able to:</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Parse dates and reshape a DataFrame into a proper time series indexed by a <span class="co">[</span><span class="ot">`DatetimeIndex`</span><span class="co">](https://pandas.pydata.org/docs/reference/api/pandas.DatetimeIndex.html)</span>.</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Identify **trend**, **seasonality**, **stationarity**, and **autocorrelation** in a series, and visualize each with <span class="co">[</span><span class="ot">`plot_acf`</span><span class="co">](https://www.statsmodels.org/stable/generated/statsmodels.graphics.tsaplots.plot_acf.html)</span> and <span class="co">[</span><span class="ot">`seasonal_decompose`</span><span class="co">](https://www.statsmodels.org/stable/generated/statsmodels.tsa.seasonal.seasonal_decompose.html)</span>.</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Fit an **ARIMA** model with <span class="co">[</span><span class="ot">`statsmodels`</span><span class="co">](https://www.statsmodels.org/)</span> and produce a forecast with confidence intervals.</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use <span class="co">[</span><span class="ot">Prophet</span><span class="co">](https://facebook.github.io/prophet/)</span> as a higher-level forecasting tool when automation is more important than fine control.</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Load real economic data from <span class="co">[</span><span class="ot">FRED</span><span class="co">](https://fred.stlouisfed.org/)</span>, <span class="co">[</span><span class="ot">World Bank Open Data</span><span class="co">](https://data.worldbank.org/)</span>, and <span class="co">[</span><span class="ot">IMF Data</span><span class="co">](https://www.imf.org/en/Data)</span>.</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why Time Series Data Matters</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>Most policy questions are time-series questions. Is unemployment rising or falling? When did housing prices take off? Did the new policy reduce overdose deaths, and if so, when? Time series data — a value measured repeatedly over time — is the backbone of how agencies, newsrooms, and researchers track change.</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>This chapter covers the skills you need to work with time series: parsing dates, decomposing a series into trend and seasonality, diagnosing autocorrelation, and producing simple forecasts. You'll start with <span class="co">[</span><span class="ot">statsmodels</span><span class="co">](https://www.statsmodels.org/)</span>, which is already installed in most Python environments and gives you direct access to the underlying components of a forecast. Then you'll meet <span class="co">[</span><span class="ot">Prophet</span><span class="co">](https://facebook.github.io/prophet/)</span>, which automates many of the same choices and is worth reaching for when you want a working forecast fast.</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>If this chapter feels dense, that's expected. Time series has its own vocabulary — stationarity, differencing, ACF, PACF — that takes a few passes to internalize. Keep the definitions close and rerun the examples with different series until the intuition settles.</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## Setup</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>You'll use <span class="co">[</span><span class="ot">pandas</span><span class="co">](https://pandas.pydata.org/docs/)</span> for date handling, <span class="co">[</span><span class="ot">statsmodels</span><span class="co">](https://www.statsmodels.org/)</span> for decomposition and ARIMA, and <span class="co">[</span><span class="ot">matplotlib</span><span class="co">](https://matplotlib.org/stable/)</span> for plotting.</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.graphics.tsaplots <span class="im">import</span> plot_acf, plot_pacf</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.seasonal <span class="im">import</span> seasonal_decompose</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> statsmodels.tsa.arima.model <span class="im">import</span> ARIMA</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a><span class="fu">## If you get an `ImportError` or `ModuleNotFoundError`</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>This means the library isn't installed in your current Python environment. Run this in a new cell:</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a><span class="in">`!pip install statsmodels`</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>Then restart your kernel (Kernel → Restart) and run the import cell again. If you're using Anaconda, try <span class="in">`conda install -c conda-forge statsmodels`</span> instead.</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a><span class="fu">## Time Series Concepts</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>Four concepts recur throughout time-series analysis. Learn the names now; the implementations follow.</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>**Trend** is the long-run direction of the series — slowly rising, slowly falling, or flat.</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>**Seasonality** is a recurring pattern that repeats at a fixed period — monthly retail sales peaking in December, hourly traffic peaking at rush hour, annual birth rates peaking in summer.</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>**Stationarity** is the property that the series' mean and variance do not change over time. Most real series are *not* stationary as-is; many models require stationarity and use **differencing** (subtracting the previous value) to achieve it.</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>**Autocorrelation** is the correlation between a series and a lagged version of itself. A strong correlation at lag 12 in monthly data signals an annual seasonal pattern.</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a><span class="fu">## Building a Proper Time Series</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>A pandas DataFrame becomes a time series when its index is a <span class="in">`DatetimeIndex`</span>. The first step is always: parse the date column, set it as the index, and sort.</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>unrate <span class="op">=</span> pd.read_csv(<span class="st">'data/UNRATE.csv'</span>)</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>unrate[<span class="st">'DATE'</span>] <span class="op">=</span> pd.to_datetime(unrate[<span class="st">'DATE'</span>])</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>unrate <span class="op">=</span> unrate.set_index(<span class="st">'DATE'</span>).sort_index()</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(unrate.head())</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Index type:'</span>, <span class="bu">type</span>(unrate.index))</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Date range:'</span>, unrate.index.<span class="bu">min</span>(), <span class="st">'→'</span>, unrate.index.<span class="bu">max</span>())</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="fu">## Check your frequency</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>A time series has a *frequency*: monthly (<span class="in">`'MS'`</span> = month start, <span class="in">`'ME'`</span> = month end), quarterly (<span class="in">`'QS'`</span>), daily (<span class="in">`'D'`</span>), etc. Some statsmodels functions need to know the frequency explicitly. After setting the index, run <span class="in">`unrate.asfreq('MS')`</span> to assert a monthly-start frequency and fill any gaps with <span class="in">`NaN`</span>. If the result has unexpected NaN rows, there are missing months you need to address.</span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## Visualizing a Time Series</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>Before any modeling, plot the series. Eyeballing the trend, seasonality, and outliers prevents a lot of downstream confusion.</span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>ax.plot(unrate.index, unrate[<span class="st">'UNRATE'</span>])</span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'US Unemployment Rate (monthly)'</span>)</span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">'Unemployment rate (%)'</span>)</span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>ax.axhline(unrate[<span class="st">'UNRATE'</span>].mean(), color<span class="op">=</span><span class="st">'gray'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">'Mean'</span>)</span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a>The line plot is usually enough to see the big picture. Recessions show up as sharp spikes; multi-year cycles are visible at a glance. Compare what you see to the known economic history of the series — the 2008 financial crisis and the 2020 COVID shock should be obvious.</span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a><span class="fu">## Decomposition</span></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>**Seasonal decomposition** splits the observed series into three components: trend, seasonal, and residual. The additive model assumes <span class="in">`observed = trend + seasonal + residual`</span>; the multiplicative model assumes the three components multiply.</span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>decomp <span class="op">=</span> seasonal_decompose(unrate[<span class="st">'UNRATE'</span>], model<span class="op">=</span><span class="st">'additive'</span>, period<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> decomp.plot()</span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">10</span>, <span class="dv">8</span>)</span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>You get four panels: the original series, the extracted trend, the seasonal component, and the residuals. If the seasonal pattern looks messy or meaningless, try <span class="in">`period=4`</span> for quarterly data or <span class="in">`period=7`</span> for weekly.</span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a><span class="fu">## Autocorrelation and Differencing</span></span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>The **autocorrelation function (ACF)** plots the correlation between the series and its lagged versions. A slowly decaying ACF suggests a strong trend (non-stationary); sharp peaks at regular lags suggest seasonality.</span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">6</span>))</span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a>plot_acf(unrate[<span class="st">'UNRATE'</span>].dropna(), ax<span class="op">=</span>axes[<span class="dv">0</span>], lags<span class="op">=</span><span class="dv">48</span>, title<span class="op">=</span><span class="st">'ACF: Unemployment rate'</span>)</span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>plot_pacf(unrate[<span class="st">'UNRATE'</span>].dropna(), ax<span class="op">=</span>axes[<span class="dv">1</span>], lags<span class="op">=</span><span class="dv">48</span>, title<span class="op">=</span><span class="st">'PACF: Unemployment rate'</span>)</span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a>To make a non-stationary series stationary, take the **first difference** (each observation minus its predecessor):</span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a>diff <span class="op">=</span> unrate[<span class="st">'UNRATE'</span>].diff().dropna()</span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span>))</span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a>ax.plot(diff.index, diff)</span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'First-differenced unemployment rate'</span>)</span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a>The differenced series should have no obvious trend and a roughly constant variance. If one difference isn't enough, you can difference again.</span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a><span class="fu">## Forecasting with ARIMA</span></span>
+<span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a>**ARIMA** — AutoRegressive Integrated Moving Average — is the classic statistical forecasting model. It has three parameters, written <span class="in">`(p, d, q)`</span>:</span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`p`</span> — number of autoregressive lags</span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`d`</span> — number of differences applied</span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`q`</span> — number of moving-average lags</span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a>Picking good <span class="in">`(p, d, q)`</span> is part art, part ritual. Start with <span class="in">`(1, 1, 1)`</span> as a baseline, then use ACF/PACF plots and information criteria (AIC, BIC) to refine.</span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ARIMA(unrate[<span class="st">'UNRATE'</span>], order<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a>fit <span class="op">=</span> model.fit()</span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(fit.summary())</span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a>The summary lists coefficient estimates, standard errors, and fit statistics. Non-significant coefficients (p &gt; 0.05) suggest you can simplify the model.</span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>To forecast the next 24 months:</span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a>forecast <span class="op">=</span> fit.get_forecast(steps<span class="op">=</span><span class="dv">24</span>)</span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a>mean <span class="op">=</span> forecast.predicted_mean</span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>ci <span class="op">=</span> forecast.conf_int(alpha<span class="op">=</span><span class="fl">0.05</span>)</span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a>ax.plot(unrate.index, unrate[<span class="st">'UNRATE'</span>], label<span class="op">=</span><span class="st">'Observed'</span>)</span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a>ax.plot(mean.index, mean, label<span class="op">=</span><span class="st">'Forecast'</span>)</span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>ax.fill_between(ci.index, ci.iloc[:, <span class="dv">0</span>], ci.iloc[:, <span class="dv">1</span>], alpha<span class="op">=</span><span class="fl">0.2</span>, label<span class="op">=</span><span class="st">'95% CI'</span>)</span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Unemployment rate — 24-month forecast'</span>)</span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a>The shaded band is the 95% confidence interval. The further out you forecast, the wider the band — that's the model's honesty about its own uncertainty.</span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a>Take a moment to appreciate what you just did: you parsed a monthly series, diagnosed its structure, fit an ARIMA model, and produced a forecast with confidence bands in fewer than twenty lines of code.</span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## Advanced: Forecasting with Prophet</span></span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Prophet</span><span class="co">](https://facebook.github.io/prophet/)</span> (originally from Meta/Facebook) is a higher-level forecasting tool. It automates most of the decisions ARIMA asks you to make — seasonality, trend changepoints, holidays — and exposes a scikit-learn-style <span class="in">`fit`</span>/<span class="in">`predict`</span> API. You give up some control; you gain speed.</span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>Prophet expects a specific DataFrame format: a column <span class="in">`ds`</span> (the date) and a column <span class="in">`y`</span> (the value).</span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> prophet <span class="im">import</span> Prophet</span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> unrate.reset_index().rename(columns<span class="op">=</span>{<span class="st">'DATE'</span>: <span class="st">'ds'</span>, <span class="st">'UNRATE'</span>: <span class="st">'y'</span>})</span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> Prophet(yearly_seasonality<span class="op">=</span><span class="va">True</span>, weekly_seasonality<span class="op">=</span><span class="va">False</span>, daily_seasonality<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a>m.fit(df)</span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a>future <span class="op">=</span> m.make_future_dataframe(periods<span class="op">=</span><span class="dv">24</span>, freq<span class="op">=</span><span class="st">'MS'</span>)</span>
+<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>forecast <span class="op">=</span> m.predict(future)</span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a>m.plot(forecast)</span>
+<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Prophet forecast: unemployment rate'</span>)</span>
+<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a>The <span class="in">`m.plot_components(forecast)`</span> call splits the fit into trend and seasonal components — useful for presenting to non-technical stakeholders.</span>
+<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prophet installation</span></span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a>Prophet requires a working C++ compiler and the <span class="in">`cmdstan`</span> library, which can make installation tricky — especially on Windows. If <span class="in">`pip install prophet`</span> fails, try <span class="in">`conda install -c conda-forge prophet`</span>. If that also fails, the statsmodels ARIMA approach above will serve you well for this course. See the <span class="co">[</span><span class="ot">Prophet installation guide</span><span class="co">](https://facebook.github.io/prophet/docs/installation.html)</span> for troubleshooting.</span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>When do you pick Prophet over ARIMA? Prophet is a good default for daily or sub-daily data with strong seasonality, for series with obvious changepoints (COVID is the canonical example), and when you need a working forecast in a meeting tomorrow. ARIMA is a better default when you need to understand every component of the model, when your data is short, or when your stakeholders expect statistical reporting (coefficients, p-values).</span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a><span class="fu">## Working with Real Economic Data</span></span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a>Three reliable, free sources:</span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**[FRED](https://fred.stlouisfed.org/)** — Federal Reserve Economic Data. Thousands of US macroeconomic series (unemployment, CPI, GDP, interest rates). Free CSV downloads, or use the FRED API (see @sec-structured).</span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**[World Bank Open Data](https://data.worldbank.org/)** — country-level economic, health, and education indicators for ~200 countries from 1960 onward.</span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**[IMF Data](https://www.imf.org/en/Data)** — international financial statistics, balance of payments, government finance.</span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>Each publishes CSV files with different date formats. Always check the first few rows to see how the publisher encoded dates, missing values, and frequency metadata. FRED uses a single <span class="in">`DATE`</span> column; the World Bank uses a wide format with one column per year that you'll need to <span class="in">`melt`</span> into long format.</span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a><span class="fu">## Public Interest Context: Broken Continuity</span></span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>Time series depend on continuity. Monthly unemployment can only be compared across decades if the Bureau of Labor Statistics kept collecting it the same way, publishing it on the same schedule, defining "unemployed" the same way. When agencies change methodology — as the Census Bureau did for the American Community Survey, or as the CDC did during COVID-19 — the continuity needed for oversight breaks down. A break in a data series is also a break in public accountability.</span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a>Some breaks are honest: new measurement technology, more granular categories. Some are less so: politically contested series that are discontinued, renamed, or reclassified under budget pressure. When you work with a long-running government series, it's worth asking: what changed along the way, and whose story does the gap hide?</span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a><span class="fu">## Connection to @sec-public-interest</span></span>
+<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a>This section connects to the concepts of **erosion** and **oversight** introduced in <span class="co">[</span><span class="ot">Chapter 4</span><span class="co">](04-public-interest.qmd)</span>. A time series breaks whenever methodology or funding changes — and those breaks erode the continuity that oversight depends on.</span>
+<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common Issues in This Chapter</span></span>
+<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## `ValueError: Inferred frequency None from passed values does not conform to passed frequency`</span></span>
+<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a>**What it means:** There are missing dates in your index, or the index is not monotonically increasing.</span>
+<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a>**How to fix it:** Run <span class="in">`df = df.asfreq('MS')`</span> (or whatever frequency fits). Check for gaps with <span class="in">`df[df['value'].isna()]`</span>. Fill gaps with <span class="in">`.ffill()`</span>, <span class="in">`.interpolate()`</span>, or by imputing from a known baseline.</span>
+<span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a><span class="fu">## ARIMA fit produces warnings about non-stationarity</span></span>
+<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a>**What it means:** The <span class="in">`d`</span> parameter is too low — your series is not yet stationary after the number of differences you specified.</span>
+<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a>**How to fix it:** Plot the differenced series. If it still has a trend, increase <span class="in">`d`</span> to 2. Use the Augmented Dickey-Fuller test (<span class="in">`statsmodels.tsa.stattools.adfuller`</span>) to test stationarity formally.</span>
+<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a><span class="fu">## Prophet forecast looks wildly wrong on short series</span></span>
+<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a>**What it means:** Prophet expects at least a year of data to detect yearly seasonality. On shorter series it falls back on trend alone, which can overshoot.</span>
+<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a>**How to fix it:** Turn off seasonality components that aren't supported by your data: <span class="in">`Prophet(yearly_seasonality=False, weekly_seasonality=False)`</span>. Consider ARIMA instead — it's more conservative on small samples.</span>
+<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a><span class="fu">## Decomposition returns blank trend at the edges</span></span>
+<span id="cb10-277"><a href="#cb10-277" aria-hidden="true" tabindex="-1"></a>**What it means:** <span class="in">`seasonal_decompose`</span> uses a centered moving average, which requires observations on both sides. The first and last <span class="in">`period/2`</span> points have NaN trend values.</span>
+<span id="cb10-278"><a href="#cb10-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-279"><a href="#cb10-279" aria-hidden="true" tabindex="-1"></a>**How to fix it:** This is expected behavior. Drop the NaN rows, or use a two-sided rolling mean with <span class="in">`min_periods`</span> to get edge estimates.</span>
+<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Takeaways</span></span>
+<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>A time series is a DataFrame with a <span class="in">`DatetimeIndex`</span>. Parse, set, and sort the index before anything else.</span>
+<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Trend, seasonality, stationarity, autocorrelation — the four concepts to get comfortable with. Visualize each one.</span>
+<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ARIMA gives you fine control; Prophet gives you automation. Pick based on what your audience expects and how much time you have.</span>
+<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Always plot your forecast alongside the observed data with a confidence band. A forecast without uncertainty is a dangerous graph.</span>
+<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Long government time series are public infrastructure. Methodology breaks matter.</span>
+<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further Reading</span></span>
+<span id="cb10-291"><a href="#cb10-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-292"><a href="#cb10-292" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📚 Going deeper on time series analysis</span></span>
+<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**statsmodels time-series analysis** — <span class="co">[</span><span class="ot">statsmodels.org/stable/tsa.html</span><span class="co">](https://www.statsmodels.org/stable/tsa.html)</span> is the canonical reference.</span>
+<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Prophet documentation** — <span class="co">[</span><span class="ot">facebook.github.io/prophet/docs/quick_start.html</span><span class="co">](https://facebook.github.io/prophet/docs/quick_start.html)</span> has a clear walk-through.</span>
+<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**sktime** — <span class="co">[</span><span class="ot">sktime.net/</span><span class="co">](https://www.sktime.net/)</span> is a unified interface to many forecasting algorithms (classical, ML, deep learning).</span>
+<span id="cb10-298"><a href="#cb10-298" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**"Forecasting: Principles and Practice" by Hyndman &amp; Athanasopoulos** — free online at <span class="co">[</span><span class="ot">otexts.com/fpp3/</span><span class="co">](https://otexts.com/fpp3/)</span>. Uses R, but the concepts transfer directly.</span>
+<span id="cb10-299"><a href="#cb10-299" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**FRED** — <span class="co">[</span><span class="ot">fred.stlouisfed.org/</span><span class="co">](https://fred.stlouisfed.org/)</span> is the single best source of US economic time series for teaching and analysis.</span>
+<span id="cb10-300"><a href="#cb10-300" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-301"><a href="#cb10-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-302"><a href="#cb10-302" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb10-303"><a href="#cb10-303" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-304"><a href="#cb10-304" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb10-305"><a href="#cb10-305" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 1: Decompose a FRED series</span></span>
+<span id="cb10-306"><a href="#cb10-306" aria-hidden="true" tabindex="-1"></a>Download a monthly FRED series of your choice (e.g., <span class="in">`CPIAUCSL`</span> for CPI, <span class="in">`HOUST`</span> for housing starts, <span class="in">`RSAFS`</span> for retail sales). Set up the time-series DataFrame, run <span class="in">`seasonal_decompose`</span> with an additive model and period=12, and interpret the four panels in a paragraph. Does the seasonal component match your prior intuition about the series?</span>
+<span id="cb10-307"><a href="#cb10-307" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb10-308"><a href="#cb10-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-309"><a href="#cb10-309" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb10-310"><a href="#cb10-310" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2: Compare ARIMA and Prophet forecasts</span></span>
+<span id="cb10-311"><a href="#cb10-311" aria-hidden="true" tabindex="-1"></a>Using the same FRED series from Exercise 1, fit an ARIMA(1,1,1) model and produce a 12-month forecast with confidence bands. Then fit a Prophet model and produce a 12-month forecast. Overlay both forecasts on the same plot. Where do they agree? Where do they differ? Write a short paragraph explaining which forecast you would trust more and why. If Prophet fails to install, discuss which choices ARIMA required you to make that Prophet would have automated.</span>
+<span id="cb10-312"><a href="#cb10-312" aria-hidden="true" tabindex="-1"></a>:::</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/16-temporal.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>

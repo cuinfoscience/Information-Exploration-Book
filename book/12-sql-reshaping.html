@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>12&nbsp; Reshaping Data with SQL – Information Exploration</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./13-spatial.html" rel="next">
+<link href="./11-sql-extending.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-abfa4615eba2ed0d4bb7fb949ed9c296.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./09-sql-loading.html">SQL</a></li><li class="breadcrumb-item"><a href="./12-sql-reshaping.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Information Exploration</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/cuinfoscience/Information-Exploration-Book" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Foundations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Setting Up Your Workspace</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Documentation, Markdown, and Errors</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-research-questions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Research Questions and Study Designs</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-public-interest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Public Interest Data Science</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Python</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-py-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Loading Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-py-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Cleaning Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-py-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Extending Data with pandas</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-py-reshaping.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Reshaping Data with pandas</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">SQL</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-sql-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Loading Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-sql-cleaning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Cleaning Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-sql-extending.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Extending Data with SQL</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-sql-reshaping.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Non-Tabular Data</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./13-spatial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Spatial Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./14-dyadic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Network and Graph Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./15-textual.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Unstructured Text Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./16-temporal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Time Series Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./17-structured.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Structured Web Data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./18-descriptive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Descriptive and Qualitative Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./19-visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Visual Exploration</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./20-hypothesis-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Hypothesis Testing and Comparisons</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-datasets.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Datasets</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix-llm-methods.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AI Use Disclosure</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link active" data-scroll-target="#learning-objectives"><span class="header-section-number">12.1</span> Learning Objectives</a></li>
+  <li><a href="#why-joining-demands-discipline" id="toc-why-joining-demands-discipline" class="nav-link" data-scroll-target="#why-joining-demands-discipline"><span class="header-section-number">12.2</span> Why Joining Demands Discipline</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup"><span class="header-section-number">12.3</span> Setup</a></li>
+  <li><a href="#part-1-join-type-review" id="toc-part-1-join-type-review" class="nav-link" data-scroll-target="#part-1-join-type-review"><span class="header-section-number">12.4</span> Part 1: Join Type Review</a>
+  <ul class="collapse">
+  <li><a href="#toy-example" id="toc-toy-example" class="nav-link" data-scroll-target="#toy-example"><span class="header-section-number">12.4.1</span> Toy example</a></li>
+  </ul></li>
+  <li><a href="#part-2-cardinality-auditing" id="toc-part-2-cardinality-auditing" class="nav-link" data-scroll-target="#part-2-cardinality-auditing"><span class="header-section-number">12.5</span> Part 2: Cardinality Auditing</a>
+  <ul class="collapse">
+  <li><a href="#grain-of-each-table" id="toc-grain-of-each-table" class="nav-link" data-scroll-target="#grain-of-each-table"><span class="header-section-number">12.5.1</span> Grain of each table</a></li>
+  <li><a href="#demonstrating-fan-out" id="toc-demonstrating-fan-out" class="nav-link" data-scroll-target="#demonstrating-fan-out"><span class="header-section-number">12.5.2</span> Demonstrating fan-out</a></li>
+  </ul></li>
+  <li><a href="#part-3-unmatched-record-audit" id="toc-part-3-unmatched-record-audit" class="nav-link" data-scroll-target="#part-3-unmatched-record-audit"><span class="header-section-number">12.6</span> Part 3: Unmatched Record Audit</a>
+  <ul class="collapse">
+  <li><a href="#anti-join-counties-in-one-table-but-not-another" id="toc-anti-join-counties-in-one-table-but-not-another" class="nav-link" data-scroll-target="#anti-join-counties-in-one-table-but-not-another"><span class="header-section-number">12.6.1</span> Anti-join: counties in one table but not another</a></li>
+  <li><a href="#full-cross-table-mismatch-audit" id="toc-full-cross-table-mismatch-audit" class="nav-link" data-scroll-target="#full-cross-table-mismatch-audit"><span class="header-section-number">12.6.2</span> Full cross-table mismatch audit</a></li>
+  </ul></li>
+  <li><a href="#part-4-granularity-alignment" id="toc-part-4-granularity-alignment" class="nav-link" data-scroll-target="#part-4-granularity-alignment"><span class="header-section-number">12.7</span> Part 4: Granularity Alignment</a>
+  <ul class="collapse">
+  <li><a href="#aggregate-deaths-to-county-year" id="toc-aggregate-deaths-to-county-year" class="nav-link" data-scroll-target="#aggregate-deaths-to-county-year"><span class="header-section-number">12.7.1</span> Aggregate deaths to county-year</a></li>
+  <li><a href="#aggregate-crime-to-county-year" id="toc-aggregate-crime-to-county-year" class="nav-link" data-scroll-target="#aggregate-crime-to-county-year"><span class="header-section-number">12.7.2</span> Aggregate crime to county-year</a></li>
+  <li><a href="#aggregate-population-to-county-year" id="toc-aggregate-population-to-county-year" class="nav-link" data-scroll-target="#aggregate-population-to-county-year"><span class="header-section-number">12.7.3</span> Aggregate population to county-year</a></li>
+  <li><a href="#verify-uniqueness-after-aggregation" id="toc-verify-uniqueness-after-aggregation" class="nav-link" data-scroll-target="#verify-uniqueness-after-aggregation"><span class="header-section-number">12.7.4</span> Verify uniqueness after aggregation</a></li>
+  </ul></li>
+  <li><a href="#part-5-building-the-analysis-ready-dataset" id="toc-part-5-building-the-analysis-ready-dataset" class="nav-link" data-scroll-target="#part-5-building-the-analysis-ready-dataset"><span class="header-section-number">12.8</span> Part 5: Building the Analysis-Ready Dataset</a></li>
+  <li><a href="#part-6-post-join-audit" id="toc-part-6-post-join-audit" class="nav-link" data-scroll-target="#part-6-post-join-audit"><span class="header-section-number">12.9</span> Part 6: Post-Join Audit</a>
+  <ul class="collapse">
+  <li><a href="#row-count-audit" id="toc-row-count-audit" class="nav-link" data-scroll-target="#row-count-audit"><span class="header-section-number">12.9.1</span> Row count audit</a></li>
+  <li><a href="#totals-audit" id="toc-totals-audit" class="nav-link" data-scroll-target="#totals-audit"><span class="header-section-number">12.9.2</span> Totals audit</a></li>
+  <li><a href="#null-audit" id="toc-null-audit" class="nav-link" data-scroll-target="#null-audit"><span class="header-section-number">12.9.3</span> NULL audit</a></li>
+  </ul></li>
+  <li><a href="#part-7-the-join-quality-report" id="toc-part-7-the-join-quality-report" class="nav-link" data-scroll-target="#part-7-the-join-quality-report"><span class="header-section-number">12.10</span> Part 7: The Join-Quality Report</a></li>
+  <li><a href="#public-interest-context-ownership" id="toc-public-interest-context-ownership" class="nav-link" data-scroll-target="#public-interest-context-ownership"><span class="header-section-number">12.11</span> Public Interest Context: Ownership</a></li>
+  <li><a href="#pandas-cross-check" id="toc-pandas-cross-check" class="nav-link" data-scroll-target="#pandas-cross-check"><span class="header-section-number">12.12</span> Pandas Cross-Check</a></li>
+  <li><a href="#post-join-audit-checklist" id="toc-post-join-audit-checklist" class="nav-link" data-scroll-target="#post-join-audit-checklist"><span class="header-section-number">12.13</span> Post-Join Audit Checklist</a></li>
+  <li><a href="#join-type-decision-guide" id="toc-join-type-decision-guide" class="nav-link" data-scroll-target="#join-type-decision-guide"><span class="header-section-number">12.14</span> Join Type Decision Guide</a></li>
+  <li><a href="#common-issues-in-this-chapter" id="toc-common-issues-in-this-chapter" class="nav-link" data-scroll-target="#common-issues-in-this-chapter"><span class="header-section-number">12.15</span> Common Issues in This Chapter</a></li>
+  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways"><span class="header-section-number">12.16</span> Key Takeaways</a></li>
+  <li><a href="#further-reading" id="toc-further-reading" class="nav-link" data-scroll-target="#further-reading"><span class="header-section-number">12.17</span> Further Reading</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">12.18</span> Exercises</a></li>
+  <li><a href="#sql-pandas-equivalents" id="toc-sql-pandas-equivalents" class="nav-link" data-scroll-target="#sql-pandas-equivalents"><span class="header-section-number">12.19</span> SQL ↔︎ pandas Equivalents</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/12-sql-reshaping.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./09-sql-loading.html">SQL</a></li><li class="breadcrumb-item"><a href="./12-sql-reshaping.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></a></li></ol></nav>
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span id="sec-sql-reshaping" class="quarto-section-identifier"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Reshaping Data with SQL</span></span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="learning-objectives" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="learning-objectives"><span class="header-section-number">12.1</span> Learning Objectives</h2>
+<p>By the end of this chapter, you will be able to:</p>
+<ul>
+<li>Choose the appropriate join type (<a href="https://www.sqlite.org/syntax/join-operator.html"><code>INNER</code>, <code>LEFT</code>, <code>RIGHT</code>, <code>FULL OUTER</code></a>) for a given analytical question.</li>
+<li>Audit <strong>cardinality</strong> (grain) in each source table before joining, to prevent row inflation.</li>
+<li>Use anti-join patterns (<code>LEFT JOIN ... WHERE IS NULL</code>) to find records present in one table but not another.</li>
+<li>Produce a <strong>join-quality report</strong> documenting matched/unmatched records, row counts, totals, and introduced NULLs.</li>
+<li>Replicate a SQL join in pandas as a cross-check on a complex multi-table analysis.</li>
+</ul>
+</section>
+<section id="why-joining-demands-discipline" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="why-joining-demands-discipline"><span class="header-section-number">12.2</span> Why Joining Demands Discipline</h2>
+<p>This chapter completes the SQL module by joining the three cleaned Colorado public health tables into a single analysis-ready result set — one row per (county, year) — that can support rate calculations and cross-domain comparisons. The chapter is not only about the <code>JOIN</code> syntax. It is about the audit discipline that distinguishes a reliable join from a dangerous one: checking cardinality, identifying unmatched records, verifying row counts, and documenting every decision.</p>
+<p>Joining tables is where the most consequential mistakes in data analysis happen — silently. A join that inflates row counts because of unexpected duplicates. A join that drops records because key formats do not match. A left join that introduces hundreds of NULL values you did not anticipate. The only defense is a systematic audit performed at every stage.</p>
+<p>This chapter is the culmination of Part III: if you can run a clean, audited, documented three-table join by the end of it, you have the SQL core you need for most analytical work.</p>
+</section>
+<section id="setup" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="setup"><span class="header-section-number">12.3</span> Setup</h2>
+<p>This chapter uses Python’s built-in <a href="https://docs.python.org/3/library/sqlite3.html"><code>sqlite3</code></a>, <a href="https://pandas.pydata.org/docs/">pandas</a>, and <a href="https://numpy.org/doc/stable/">numpy</a>.</p>
+<div id="90bff7b3" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="dv">20</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_colwidth'</span>, <span class="dv">55</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.float_format'</span>, <span class="st">'</span><span class="sc">{:.2f}</span><span class="st">'</span>.<span class="bu">format</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(<span class="st">'colorado_public_health.db'</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>cursor <span class="op">=</span> conn.cursor()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>If you get an <code>ImportError</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>sqlite3</code> is part of the Python standard library. For <code>pandas</code> or <code>numpy</code>: <code>conda install pandas numpy</code> or <code>pip install pandas numpy</code>, then restart the Jupyter kernel. See <a href="01-setup.html" class="quarto-xref"><span>Chapter 1</span></a>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Before you join: verify grain and key formats
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Two quick checks will save you hours. <strong>Grain</strong>: run <code>SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM &lt;table&gt;</code>. If the two numbers differ, the table is at a finer grain than the key; aggregate first. <strong>Key formats</strong>: run <code>SELECT DISTINCT &lt;key&gt; FROM &lt;table&gt;</code> on every source and eyeball the values. <code>"Adams"</code>, <code>"Adams County"</code>, and <code>"Adams County, CO"</code> will not match each other.</p>
+</div>
+</div>
+<p>We are working with the three tables loaded and cleaned in <a href="10-sql-cleaning.html" class="quarto-xref"><span>Chapter 10</span></a>: <code>deaths</code> (CDC mortality), <code>crime</code> (CBI offenses), and <code>population</code> (State Demography Office estimates). The county names have been standardized to a common format.</p>
+</section>
+<section id="part-1-join-type-review" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="part-1-join-type-review"><span class="header-section-number">12.4</span> Part 1: Join Type Review</h2>
+<p>SQL supports four join types. Each determines what happens to rows that exist in one table but not the other.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 39%">
+<col style="width: 25%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Join type</th>
+<th>Keeps</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>INNER JOIN</code></td>
+<td>Only rows that match in both tables</td>
+<td>You want complete cases only</td>
+</tr>
+<tr class="even">
+<td><code>LEFT JOIN</code></td>
+<td>All rows from the left table; NULLs where the right has no match</td>
+<td>You want to preserve the left table and add information where available</td>
+</tr>
+<tr class="odd">
+<td><code>RIGHT JOIN</code></td>
+<td>All rows from the right table; NULLs where the left has no match</td>
+<td>Less common; same as LEFT JOIN with tables swapped</td>
+</tr>
+<tr class="even">
+<td><code>FULL OUTER JOIN</code></td>
+<td>All rows from both tables; NULLs on both sides where no match</td>
+<td>You want to see everything, including mismatches (not supported in SQLite)</td>
+</tr>
+</tbody>
+</table>
+<p>For most analytical work, you will use <code>LEFT JOIN</code> (to preserve a base table and enrich it) or <code>INNER JOIN</code> (when you only want records present in all sources). The choice between them is a decision you must document — it determines which records appear in your analysis.</p>
+<section id="toy-example" class="level3" data-number="12.4.1">
+<h3 data-number="12.4.1" class="anchored" data-anchor-id="toy-example"><span class="header-section-number">12.4.1</span> Toy example</h3>
+<p>To build intuition, consider two tiny tables:</p>
+<div id="e9509378" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH left_t AS (</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Adams' AS county, 100 AS deaths UNION ALL</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Boulder', 200 UNION ALL</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Denver', 300</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">    right_t AS (</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Adams' AS county, 5000 AS pop UNION ALL</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Boulder', 3000 UNION ALL</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Costilla', 400</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT l.county AS l_county, l.deaths, r.county AS r_county, r.pop</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM left_t l</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN right_t r ON l.county = r.county;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Denver appears with NULL population (no match in the right table). Costilla does not appear at all (it is only in the right table, and this is a LEFT JOIN). An INNER JOIN would drop Denver entirely.</p>
+</section>
+</section>
+<section id="part-2-cardinality-auditing" class="level2" data-number="12.5">
+<h2 data-number="12.5" class="anchored" data-anchor-id="part-2-cardinality-auditing"><span class="header-section-number">12.5</span> Part 2: Cardinality Auditing</h2>
+<p>Before joining, you must understand the <strong>grain</strong> of each table — what combination of columns uniquely identifies a row — and verify that each table has exactly one row per key value. Joining tables with unexpected duplicates causes <strong>fan-out</strong>: row counts explode silently.</p>
+<section id="grain-of-each-table" class="level3" data-number="12.5.1">
+<h3 data-number="12.5.1" class="anchored" data-anchor-id="grain-of-each-table"><span class="header-section-number">12.5.1</span> Grain of each table</h3>
+<div id="1fb98826" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># What combination of columns is the key for each table?</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT 'deaths' AS tbl,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*) AS total_rows,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year) AS distinct_keys</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">    UNION ALL</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT 'crime',</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*),</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM crime</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">    UNION ALL</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT 'population',</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*),</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year)</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM population;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>If <code>total_rows</code> exceeds <code>distinct_keys</code>, the table has multiple rows per (county, year) — which means it is at a finer grain than county-year. You must aggregate it down to county-year before joining, or the join will create duplicates.</p>
+</section>
+<section id="demonstrating-fan-out" class="level3" data-number="12.5.2">
+<h3 data-number="12.5.2" class="anchored" data-anchor-id="demonstrating-fan-out"><span class="header-section-number">12.5.2</span> Demonstrating fan-out</h3>
+<div id="b87a7cec" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># If deaths has multiple rows per county-year (e.g., one per age group),</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># joining directly to population creates duplicates</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT d.county, d.year, COUNT(*) AS n_rows</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths d</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN population p ON d.county = p.county AND d.year = p.year</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY d.county, d.year</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="st">    HAVING n_rows &gt; 1</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="part-3-unmatched-record-audit" class="level2" data-number="12.6">
+<h2 data-number="12.6" class="anchored" data-anchor-id="part-3-unmatched-record-audit"><span class="header-section-number">12.6</span> Part 3: Unmatched Record Audit</h2>
+<p>Before joining, check which key values exist in one table but not the other. This tells you how many rows will get NULL values (in a LEFT JOIN) or be dropped entirely (in an INNER JOIN).</p>
+<section id="anti-join-counties-in-one-table-but-not-another" class="level3" data-number="12.6.1">
+<h3 data-number="12.6.1" class="anchored" data-anchor-id="anti-join-counties-in-one-table-but-not-another"><span class="header-section-number">12.6.1</span> Anti-join: counties in one table but not another</h3>
+<p>An anti-join finds records in one table that have no match in the other. SQL does not have a dedicated anti-join keyword, but you can achieve it with <code>LEFT JOIN ... WHERE right.key IS NULL</code> or with <code>NOT IN</code>:</p>
+<div id="36e54019" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Counties in deaths that are NOT in population</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT DISTINCT d.county</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths d</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN (SELECT DISTINCT county FROM population) p</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">        ON d.county = p.county</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE p.county IS NULL</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY d.county;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>If this returns rows, those counties will have NULL population values after joining — which means you cannot compute rates for them. This is essential information to document.</p>
+</section>
+<section id="full-cross-table-mismatch-audit" class="level3" data-number="12.6.2">
+<h3 data-number="12.6.2" class="anchored" data-anchor-id="full-cross-table-mismatch-audit"><span class="header-section-number">12.6.2</span> Full cross-table mismatch audit</h3>
+<div id="44378634" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH death_counties AS (SELECT DISTINCT county FROM deaths),</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">         crime_counties AS (SELECT DISTINCT county FROM crime),</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="st">         pop_counties AS (SELECT DISTINCT county FROM population)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(d.county, c.county, p.county) AS county,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE WHEN d.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_deaths,</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE WHEN c.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_crime,</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE WHEN p.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_pop</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM death_counties d</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="st">    FULL OUTER JOIN crime_counties c ON d.county = c.county</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="st">    FULL OUTER JOIN pop_counties p ON COALESCE(d.county, c.county) = p.county</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY county;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>SQLite does not support <code>FULL OUTER JOIN</code>. To achieve this in SQLite, use a <code>UNION</code> of left joins or create a reference table of all distinct counties and left-join each source table to it.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="part-4-granularity-alignment" class="level2" data-number="12.7">
+<h2 data-number="12.7" class="anchored" data-anchor-id="part-4-granularity-alignment"><span class="header-section-number">12.7</span> Part 4: Granularity Alignment</h2>
+<p>Each table may have a finer grain than county-year. Before joining, aggregate each table to the target grain — one row per (county, year).</p>
+<section id="aggregate-deaths-to-county-year" class="level3" data-number="12.7.1">
+<h3 data-number="12.7.1" class="anchored" data-anchor-id="aggregate-deaths-to-county-year"><span class="header-section-number">12.7.1</span> Aggregate deaths to county-year</h3>
+<div id="ed05df8f" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, SUM(deaths) AS total_deaths, COUNT(*) AS n_detail_rows</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY county, year</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="aggregate-crime-to-county-year" class="level3" data-number="12.7.2">
+<h3 data-number="12.7.2" class="anchored" data-anchor-id="aggregate-crime-to-county-year"><span class="header-section-number">12.7.2</span> Aggregate crime to county-year</h3>
+<div id="6a0f2fd3" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, COUNT(*) AS total_offenses</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM crime</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY county, year</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="aggregate-population-to-county-year" class="level3" data-number="12.7.3">
+<h3 data-number="12.7.3" class="anchored" data-anchor-id="aggregate-population-to-county-year"><span class="header-section-number">12.7.3</span> Aggregate population to county-year</h3>
+<div id="177daa88" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM population</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY county, year</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="verify-uniqueness-after-aggregation" class="level3" data-number="12.7.4">
+<h3 data-number="12.7.4" class="anchored" data-anchor-id="verify-uniqueness-after-aggregation"><span class="header-section-number">12.7.4</span> Verify uniqueness after aggregation</h3>
+<div id="2a981646" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_deaths AS (</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM deaths GROUP BY county, year</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT COUNT(*) AS total_rows,</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year) AS distinct_keys</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM agg_deaths;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Total rows and distinct keys should be equal. If they are not, the aggregation did not produce a unique key and the join will still fan out.</p>
+</section>
+</section>
+<section id="part-5-building-the-analysis-ready-dataset" class="level2" data-number="12.8">
+<h2 data-number="12.8" class="anchored" data-anchor-id="part-5-building-the-analysis-ready-dataset"><span class="header-section-number">12.8</span> Part 5: Building the Analysis-Ready Dataset</h2>
+<p>With each table aggregated to county-year and cardinality verified, we can now join them.</p>
+<div id="99de2d1f" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_deaths AS (</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM deaths</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY county, year</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_crime AS (</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, COUNT(*) AS total_offenses</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM crime</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY county, year</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_pop AS (</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM population</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY county, year</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(d.county, c.county, p.county) AS county,</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(d.year, c.year, p.year) AS year,</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="st">        d.total_deaths,</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="st">        c.total_offenses,</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="st">        p.total_pop,</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="st">        ROUND(1.0 * d.total_deaths / p.total_pop * 100000, 1) AS death_rate_per_100k,</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="st">        ROUND(1.0 * c.total_offenses / p.total_pop * 100000, 1) AS crime_rate_per_100k</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM agg_pop p</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN agg_deaths d ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN agg_crime c ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY county, year</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 20;</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The population table serves as the base (left) table because it has the most complete county-year coverage. Deaths and crime data are joined onto it. Counties or years with no death or crime records will show NULL in those columns — a known and documented gap, not an error.</p>
+</section>
+<section id="part-6-post-join-audit" class="level2" data-number="12.9">
+<h2 data-number="12.9" class="anchored" data-anchor-id="part-6-post-join-audit"><span class="header-section-number">12.9</span> Part 6: Post-Join Audit</h2>
+<p>After building the joined dataset, run a systematic audit.</p>
+<section id="row-count-audit" class="level3" data-number="12.9.1">
+<h3 data-number="12.9.1" class="anchored" data-anchor-id="row-count-audit"><span class="header-section-number">12.9.1</span> Row count audit</h3>
+<div id="fc00bd46" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_pop AS (</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM population GROUP BY county, year</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_deaths AS (</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM deaths GROUP BY county, year</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_crime AS (</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, COUNT(*) AS total_offenses</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM crime GROUP BY county, year</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="st">    joined AS (</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year, d.total_deaths, c.total_offenses, p.total_pop</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM agg_pop p</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN agg_deaths d ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN agg_crime c ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM agg_pop) AS pop_rows,</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM agg_deaths) AS death_rows,</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM agg_crime) AS crime_rows,</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM joined) AS joined_rows;</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The joined row count should equal the population row count (the base table in a LEFT JOIN). If it is larger, you have a fan-out problem. If it is smaller, something went wrong with the join.</p>
+</section>
+<section id="totals-audit" class="level3" data-number="12.9.2">
+<h3 data-number="12.9.2" class="anchored" data-anchor-id="totals-audit"><span class="header-section-number">12.9.2</span> Totals audit</h3>
+<div id="12b88f23" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify that aggregated totals in the joined result match the source tables</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH joined AS (</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="st">               d.total_deaths, c.total_offenses, p.total_pop</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, COUNT(*) AS total_offenses FROM crime GROUP BY county, year) c</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(total_pop) AS joined_pop_total,</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(total_deaths) AS joined_death_total,</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(total_offenses) AS joined_crime_total;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Compare these totals to <code>SELECT SUM(...) FROM</code> each source table individually. Any discrepancy indicates a join problem.</p>
+</section>
+<section id="null-audit" class="level3" data-number="12.9.3">
+<h3 data-number="12.9.3" class="anchored" data-anchor-id="null-audit"><span class="header-section-number">12.9.3</span> NULL audit</h3>
+<div id="f0fba0ca" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH joined AS (</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year,</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="st">               d.total_deaths, c.total_offenses, p.total_pop</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, COUNT(*) AS total_offenses FROM crime GROUP BY county, year) c</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS total_rows,</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE WHEN total_deaths IS NULL THEN 1 ELSE 0 END) AS null_deaths,</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE WHEN total_offenses IS NULL THEN 1 ELSE 0 END) AS null_crime,</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE WHEN total_pop IS NULL THEN 1 ELSE 0 END) AS null_pop</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM joined;</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="part-7-the-join-quality-report" class="level2" data-number="12.10">
+<h2 data-number="12.10" class="anchored" data-anchor-id="part-7-the-join-quality-report"><span class="header-section-number">12.10</span> Part 7: The Join-Quality Report</h2>
+</section>
+<section id="public-interest-context-ownership" class="level2" data-number="12.11">
+<h2 data-number="12.11" class="anchored" data-anchor-id="public-interest-context-ownership"><span class="header-section-number">12.11</span> Public Interest Context: Ownership</h2>
+<p>A SQL query that produces a summary is a reproducible analytical artifact. Given the same database, anyone can re-run your query and get the same result. The CTEs, joins, and aggregations you wrote above are not a one-time piece of code — they are a specification of <em>how</em> the summary was built, which means the next analyst can audit your method as easily as they can audit your numbers. That is what <strong>ownership</strong> means in practice: the provenance of the result is legible in the query itself.</p>
+<p>This matters in a public interest context because “the numbers say X” is often a contested claim. A journalist, a policy analyst, and a partisan think tank can all run similar-sounding queries against the same public database and reach different conclusions — because the joins, filters, and denominators they chose were different. The join-quality report from earlier in this chapter, plus the query itself, is how you make your choices auditable rather than asserted. Could you hand the query you just wrote to a skeptical reviewer and expect them to reproduce your result?</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Connection to <a href="04-public-interest.html" class="quarto-xref"><span>Chapter 4</span></a>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This section connects to the concept of <strong>ownership</strong> introduced in <a href="./04-public-interest.html">Chapter 4</a>. A SQL query records the exact analytical procedure that produced a summary — a form of ownership that makes public-interest claims reproducible and auditable.</p>
+</div>
+</div>
+<p>Every multi-table analysis should produce a brief report documenting the join. This is the SQL equivalent of the Known Issues Log from <a href="02-documentation.html" class="quarto-xref"><span>Chapter 2</span></a>. At minimum, it should cover:</p>
+<ol type="1">
+<li><strong>Join structure</strong>: which tables, which keys, which join type, and why</li>
+<li><strong>Granularity alignment</strong>: how each table was aggregated to the target grain</li>
+<li><strong>Cardinality checks</strong>: confirmation that each table has one row per key after aggregation</li>
+<li><strong>Unmatched record audit</strong>: which counties/years are missing from each source</li>
+<li><strong>Row count audit</strong>: joined rows vs.&nbsp;base table rows</li>
+<li><strong>Totals audit</strong>: aggregated values in joined result vs.&nbsp;source tables</li>
+<li><strong>NULL summary</strong>: how many NULLs were introduced by the join</li>
+<li><strong>Remaining uncertainties</strong>: what you could not verify or what might affect interpretation</li>
+</ol>
+</section>
+<section id="pandas-cross-check" class="level2" data-number="12.12">
+<h2 data-number="12.12" class="anchored" data-anchor-id="pandas-cross-check"><span class="header-section-number">12.12</span> Pandas Cross-Check</h2>
+<p>A valuable validation practice is to replicate the SQL join in pandas and compare results:</p>
+<div id="fe263aff" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the joined result from SQL</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>sql_result <span class="op">=</span> pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT p.county, p.year,</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(d.total_deaths) AS total_deaths,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(p.total_pop) AS total_pop</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="st">        ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY p.county, p.year</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>sql_result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="27d85262" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replicate in pandas</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># deaths_df = pd.read_sql_query("SELECT * FROM deaths", conn)</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># pop_df = pd.read_sql_query("SELECT * FROM population", conn)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ... aggregate and merge in pandas, then compare</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="post-join-audit-checklist" class="level2" data-number="12.13">
+<h2 data-number="12.13" class="anchored" data-anchor-id="post-join-audit-checklist"><span class="header-section-number">12.13</span> Post-Join Audit Checklist</h2>
+<p>Use this checklist after every multi-table join:</p>
+<ul class="task-list">
+<li><label><input type="checkbox">Row count: joined rows == base table rows (for LEFT JOIN)</label></li>
+<li><label><input type="checkbox">No fan-out: no (county, year) appears more than once</label></li>
+<li><label><input type="checkbox">Totals match: <code>SUM(col)</code> in joined result matches source tables</label></li>
+<li><label><input type="checkbox">NULLs explained: every NULL column has a documented reason</label></li>
+<li><label><input type="checkbox">Cross-check: pandas merge produces the same result</label></li>
+<li><label><input type="checkbox">Report written: join-quality report documents decisions and uncertainties</label></li>
+</ul>
+</section>
+<section id="join-type-decision-guide" class="level2" data-number="12.14">
+<h2 data-number="12.14" class="anchored" data-anchor-id="join-type-decision-guide"><span class="header-section-number">12.14</span> Join Type Decision Guide</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Join type</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>You need all records from your base table</td>
+<td>LEFT JOIN</td>
+<td>Preserves base; adds NULLs where no match</td>
+</tr>
+<tr class="even">
+<td>You need only complete cases</td>
+<td>INNER JOIN</td>
+<td>Drops any row missing from either table</td>
+</tr>
+<tr class="odd">
+<td>You want to see what is missing from each side</td>
+<td>Anti-join pattern</td>
+<td>LEFT JOIN + WHERE IS NULL</td>
+</tr>
+<tr class="even">
+<td>You need all records from both sides</td>
+<td>FULL OUTER JOIN</td>
+<td>Not available in SQLite; simulate with UNION</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="common-issues-in-this-chapter" class="level2" data-number="12.15">
+<h2 data-number="12.15" class="anchored" data-anchor-id="common-issues-in-this-chapter"><span class="header-section-number">12.15</span> Common Issues in This Chapter</h2>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Join fan-out (too many rows in the result)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> One or both tables have multiple rows per join key. A many-to-many join explodes: 5 rows × 3 rows for the same county-year = 15 output rows.</p>
+<p><strong>How to fix it:</strong> Run <code>SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM &lt;table&gt;</code> on each side. If they differ, aggregate to one-row-per-key before joining. Add the aggregation as a CTE so the fan-out fix is visible in the query.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Join returns zero rows despite matching keys
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> Silent mismatch — key formats, whitespace, or dtypes differ between the two tables. See <a href="10-sql-cleaning.html" class="quarto-xref"><span>Chapter 10</span></a> for the full diagnosis.</p>
+<p><strong>How to fix it:</strong> <code>SELECT DISTINCT &lt;key&gt; FROM &lt;table&gt;</code> on each side. Compare the values literally. Use <code>TRIM</code>, <code>UPPER</code>, or pandas pre-normalization to bring the formats into alignment before the join.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span><code>FULL OUTER JOIN</code> raises <code>Error: RIGHT and FULL OUTER JOINs are not currently supported</code>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> Older versions of SQLite (&lt; 3.39, released 2022) do not support <code>FULL OUTER JOIN</code>.</p>
+<p><strong>How to fix it:</strong> Upgrade SQLite (<code>conda install sqlite</code>), or simulate a <code>FULL OUTER</code> with <code>LEFT JOIN</code> + <code>UNION ALL</code> + the mirror <code>RIGHT-as-LEFT</code> join. The pattern is in <a href="#sec-sql-reshaping" class="quarto-xref"><span>Chapter 12</span></a> Part 3.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>All your per-capita rates are NaN for some counties
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> Those counties are missing from the population table, so <code>deaths / NULL</code> returns <code>NULL</code>. The rate is literally undefined, not zero.</p>
+<p><strong>How to fix it:</strong> List the unmatched counties explicitly (anti-join), document the gap in your Known Issues Log, and decide whether to drop those counties from the rate analysis or hand-source the population data.</p>
+</div>
+</div>
+</section>
+<section id="key-takeaways" class="level2" data-number="12.16">
+<h2 data-number="12.16" class="anchored" data-anchor-id="key-takeaways"><span class="header-section-number">12.16</span> Key Takeaways</h2>
+<ul>
+<li>Before joining, audit <strong>grain</strong> (<code>COUNT(*) vs COUNT(DISTINCT keys)</code>) and <strong>key format</strong> (<code>SELECT DISTINCT</code>). These two checks prevent most join bugs.</li>
+<li>Aggregate to the target grain <em>inside a CTE</em> before joining. Make the aggregation visible in the query.</li>
+<li>Always produce a <strong>join-quality report</strong>: structure, granularity, cardinality, unmatched records, row counts, totals, NULLs, remaining uncertainty.</li>
+<li>Cross-check complex joins with a pandas replication. If the two disagree, you learn something; if they agree, your confidence is earned.</li>
+<li>Silent join failures are the most dangerous SQL bug class. Treat every multi-table join as a claim that needs evidence.</li>
+</ul>
+</section>
+<section id="further-reading" class="level2" data-number="12.17">
+<h2 data-number="12.17" class="anchored" data-anchor-id="further-reading"><span class="header-section-number">12.17</span> Further Reading</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>📚 Going deeper on SQL joins and audit discipline
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>SQLite: Join operators</strong> — <a href="https://www.sqlite.org/syntax/join-operator.html">sqlite.org/syntax/join-operator.html</a> is the formal grammar.</li>
+<li><strong>SQLite: SELECT with joins</strong> — <a href="https://www.sqlite.org/lang_select.html">sqlite.org/lang_select.html</a> covers join semantics and clause ordering.</li>
+<li><strong>Mode: SQL Joins</strong> — <a href="https://mode.com/sql-tutorial/sql-joins/">mode.com/sql-tutorial/sql-joins/</a> walks through each join type with visual examples.</li>
+<li><strong>SQLZoo: Joins tutorial</strong> — <a href="https://sqlzoo.net/wiki/The_JOIN_operation">sqlzoo.net/wiki/The_JOIN_operation</a> provides interactive practice.</li>
+<li><strong>Data Validation: What It Is and Why It Matters</strong> — a Mode blog post at <a href="https://mode.com/blog/data-validation/">mode.com/blog/data-validation</a> on audit discipline in analytical work.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="exercises" class="level2" data-number="12.18">
+<h2 data-number="12.18" class="anchored" data-anchor-id="exercises"><span class="header-section-number">12.18</span> Exercises</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-11-contents" aria-controls="callout-11" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 1: INNER JOIN vs.&nbsp;LEFT JOIN impact
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-11" class="callout-11-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Write both an INNER JOIN and a LEFT JOIN version of the three-table join. How many rows does each produce? What counties or years are lost in the INNER JOIN?</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Compare <code>SELECT COUNT(*)</code> from each version. The difference represents county-year combinations present in population but absent from deaths or crime. Document which counties are affected and why.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 2: Top 10 counties by death rate
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Using the analysis-ready dataset, find the top 10 counties by death rate per 100,000 in the most recent year available. Only include counties with population greater than 1,000 to avoid extreme rates from tiny counties.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Solution
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div id="5e55e40f" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg AS (</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year, SUM(d.deaths) AS total_deaths, SUM(p.totalpopulation) AS total_pop</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM (SELECT county, year, SUM(totalpopulation) AS totalpopulation FROM population GROUP BY county, year) p</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, SUM(deaths) AS deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY p.county, p.year</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, total_deaths, total_pop,</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="st">           ROUND(1.0 * total_deaths / total_pop * 100000, 1) AS death_rate</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM agg</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE year = (SELECT MAX(year) FROM agg)</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="st">      AND total_pop &gt; 1000</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="st">      AND total_deaths IS NOT NULL</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY death_rate DESC</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 10;</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-14-contents" aria-controls="callout-14" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Exercise 3: Write a join-quality report
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-14" class="callout-14-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Write a complete join-quality report for the three-table join you built in this chapter. Follow the seven-section structure described in Part 7. Be specific about numbers — how many rows, how many NULLs, which counties are affected.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="sql-pandas-equivalents" class="level2" data-number="12.19">
+<h2 data-number="12.19" class="anchored" data-anchor-id="sql-pandas-equivalents"><span class="header-section-number">12.19</span> SQL ↔︎ pandas Equivalents</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>SQL</th>
+<th>pandas</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>LEFT JOIN ... ON</code></td>
+<td><code>pd.merge(how='left', on=...)</code></td>
+</tr>
+<tr class="even">
+<td><code>INNER JOIN ... ON</code></td>
+<td><code>pd.merge(how='inner', on=...)</code></td>
+</tr>
+<tr class="odd">
+<td><code>LEFT JOIN ... WHERE IS NULL</code> (anti-join)</td>
+<td><code>merge(indicator=True)</code> then filter <code>_merge == 'left_only'</code></td>
+</tr>
+<tr class="even">
+<td><code>COALESCE(a, b)</code></td>
+<td><code>a.fillna(b)</code></td>
+</tr>
+<tr class="odd">
+<td><code>UNION ALL</code></td>
+<td><code>pd.concat([df1, df2])</code></td>
+</tr>
+<tr class="even">
+<td>CTE → aggregate → join</td>
+<td>Assign intermediate DataFrames → merge</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./11-sql-extending.html" class="pagination-link" aria-label="Extending Data with SQL">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Extending Data with SQL</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./13-spatial.html" class="pagination-link" aria-label="Spatial Data">
+        <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Spatial Data</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reshaping Data with SQL {#sec-sql-reshaping}</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## Learning Objectives</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>By the end of this chapter, you will be able to:</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Choose the appropriate join type (<span class="co">[</span><span class="ot">`INNER`, `LEFT`, `RIGHT`, `FULL OUTER`</span><span class="co">](https://www.sqlite.org/syntax/join-operator.html)</span>) for a given analytical question.</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Audit **cardinality** (grain) in each source table before joining, to prevent row inflation.</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use anti-join patterns (<span class="in">`LEFT JOIN ... WHERE IS NULL`</span>) to find records present in one table but not another.</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Produce a **join-quality report** documenting matched/unmatched records, row counts, totals, and introduced NULLs.</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Replicate a SQL join in pandas as a cross-check on a complex multi-table analysis.</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Why Joining Demands Discipline</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>This chapter completes the SQL module by joining the three cleaned Colorado public health tables into a single analysis-ready result set — one row per (county, year) — that can support rate calculations and cross-domain comparisons. The chapter is not only about the <span class="in">`JOIN`</span> syntax. It is about the audit discipline that distinguishes a reliable join from a dangerous one: checking cardinality, identifying unmatched records, verifying row counts, and documenting every decision.</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>Joining tables is where the most consequential mistakes in data analysis happen — silently. A join that inflates row counts because of unexpected duplicates. A join that drops records because key formats do not match. A left join that introduces hundreds of NULL values you did not anticipate. The only defense is a systematic audit performed at every stage.</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>This chapter is the culmination of Part III: if you can run a clean, audited, documented three-table join by the end of it, you have the SQL core you need for most analytical work.</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="fu">## Setup</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>This chapter uses Python's built-in <span class="co">[</span><span class="ot">`sqlite3`</span><span class="co">](https://docs.python.org/3/library/sqlite3.html)</span>, <span class="co">[</span><span class="ot">pandas</span><span class="co">](https://pandas.pydata.org/docs/)</span>, and <span class="co">[</span><span class="ot">numpy</span><span class="co">](https://numpy.org/doc/stable/)</span>.</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sqlite3</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="dv">20</span>)</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_colwidth'</span>, <span class="dv">55</span>)</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.float_format'</span>, <span class="st">'</span><span class="sc">{:.2f}</span><span class="st">'</span>.<span class="bu">format</span>)</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> sqlite3.<span class="ex">connect</span>(<span class="st">'colorado_public_health.db'</span>)</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>cursor <span class="op">=</span> conn.cursor()</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning collapse="true"}</span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## If you get an `ImportError`</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a><span class="in">`sqlite3`</span> is part of the Python standard library. For <span class="in">`pandas`</span> or <span class="in">`numpy`</span>: <span class="in">`conda install pandas numpy`</span> or <span class="in">`pip install pandas numpy`</span>, then restart the Jupyter kernel. See @sec-setup.</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a><span class="fu">## Before you join: verify grain and key formats</span></span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>Two quick checks will save you hours. **Grain**: run `SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM &lt;table&gt;`. If the two numbers differ, the table is at a finer grain than the key; aggregate first. **Key formats**: run <span class="in">`SELECT DISTINCT &lt;key&gt; FROM &lt;table&gt;`</span> on every source and eyeball the values. <span class="in">`"Adams"`</span>, <span class="in">`"Adams County"`</span>, and <span class="in">`"Adams County, CO"`</span> will not match each other.</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>We are working with the three tables loaded and cleaned in @sec-sql-cleaning: <span class="in">`deaths`</span> (CDC mortality), <span class="in">`crime`</span> (CBI offenses), and <span class="in">`population`</span> (State Demography Office estimates). The county names have been standardized to a common format.</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 1: Join Type Review</span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>SQL supports four join types. Each determines what happens to rows that exist in one table but not the other.</span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Join type <span class="pp">|</span> Keeps <span class="pp">|</span> Use when <span class="pp">|</span></span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-------|----------|</span></span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`INNER JOIN`</span> <span class="pp">|</span> Only rows that match in both tables <span class="pp">|</span> You want complete cases only <span class="pp">|</span></span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`LEFT JOIN`</span> <span class="pp">|</span> All rows from the left table; NULLs where the right has no match <span class="pp">|</span> You want to preserve the left table and add information where available <span class="pp">|</span></span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`RIGHT JOIN`</span> <span class="pp">|</span> All rows from the right table; NULLs where the left has no match <span class="pp">|</span> Less common; same as LEFT JOIN with tables swapped <span class="pp">|</span></span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`FULL OUTER JOIN`</span> <span class="pp">|</span> All rows from both tables; NULLs on both sides where no match <span class="pp">|</span> You want to see everything, including mismatches (not supported in SQLite) <span class="pp">|</span></span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>For most analytical work, you will use <span class="in">`LEFT JOIN`</span> (to preserve a base table and enrich it) or <span class="in">`INNER JOIN`</span> (when you only want records present in all sources). The choice between them is a decision you must document — it determines which records appear in your analysis.</span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a><span class="fu">### Toy example</span></span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>To build intuition, consider two tiny tables:</span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH left_t AS (</span></span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Adams' AS county, 100 AS deaths UNION ALL</span></span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Boulder', 200 UNION ALL</span></span>
+<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Denver', 300</span></span>
+<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a><span class="st">    right_t AS (</span></span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Adams' AS county, 5000 AS pop UNION ALL</span></span>
+<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Boulder', 3000 UNION ALL</span></span>
+<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT 'Costilla', 400</span></span>
+<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT l.county AS l_county, l.deaths, r.county AS r_county, r.pop</span></span>
+<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM left_t l</span></span>
+<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN right_t r ON l.county = r.county;</span></span>
+<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>Denver appears with NULL population (no match in the right table). Costilla does not appear at all (it is only in the right table, and this is a LEFT JOIN). An INNER JOIN would drop Denver entirely.</span>
+<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 2: Cardinality Auditing</span></span>
+<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a>Before joining, you must understand the **grain** of each table — what combination of columns uniquely identifies a row — and verify that each table has exactly one row per key value. Joining tables with unexpected duplicates causes **fan-out**: row counts explode silently.</span>
+<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Grain of each table</span></span>
+<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a><span class="co"># What combination of columns is the key for each table?</span></span>
+<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT 'deaths' AS tbl,</span></span>
+<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*) AS total_rows,</span></span>
+<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year) AS distinct_keys</span></span>
+<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths</span></span>
+<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a><span class="st">    UNION ALL</span></span>
+<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT 'crime',</span></span>
+<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*),</span></span>
+<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year)</span></span>
+<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM crime</span></span>
+<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a><span class="st">    UNION ALL</span></span>
+<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT 'population',</span></span>
+<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(*),</span></span>
+<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year)</span></span>
+<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM population;</span></span>
+<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a>If <span class="in">`total_rows`</span> exceeds <span class="in">`distinct_keys`</span>, the table has multiple rows per (county, year) — which means it is at a finer grain than county-year. You must aggregate it down to county-year before joining, or the join will create duplicates.</span>
+<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### Demonstrating fan-out</span></span>
+<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a><span class="co"># If deaths has multiple rows per county-year (e.g., one per age group),</span></span>
+<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a><span class="co"># joining directly to population creates duplicates</span></span>
+<span id="cb18-128"><a href="#cb18-128" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-129"><a href="#cb18-129" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT d.county, d.year, COUNT(*) AS n_rows</span></span>
+<span id="cb18-130"><a href="#cb18-130" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths d</span></span>
+<span id="cb18-131"><a href="#cb18-131" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN population p ON d.county = p.county AND d.year = p.year</span></span>
+<span id="cb18-132"><a href="#cb18-132" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY d.county, d.year</span></span>
+<span id="cb18-133"><a href="#cb18-133" aria-hidden="true" tabindex="-1"></a><span class="st">    HAVING n_rows &gt; 1</span></span>
+<span id="cb18-134"><a href="#cb18-134" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb18-135"><a href="#cb18-135" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-136"><a href="#cb18-136" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-137"><a href="#cb18-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-138"><a href="#cb18-138" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 3: Unmatched Record Audit</span></span>
+<span id="cb18-139"><a href="#cb18-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-140"><a href="#cb18-140" aria-hidden="true" tabindex="-1"></a>Before joining, check which key values exist in one table but not the other. This tells you how many rows will get NULL values (in a LEFT JOIN) or be dropped entirely (in an INNER JOIN).</span>
+<span id="cb18-141"><a href="#cb18-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-142"><a href="#cb18-142" aria-hidden="true" tabindex="-1"></a><span class="fu">### Anti-join: counties in one table but not another</span></span>
+<span id="cb18-143"><a href="#cb18-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-144"><a href="#cb18-144" aria-hidden="true" tabindex="-1"></a>An anti-join finds records in one table that have no match in the other. SQL does not have a dedicated anti-join keyword, but you can achieve it with <span class="in">`LEFT JOIN ... WHERE right.key IS NULL`</span> or with <span class="in">`NOT IN`</span>:</span>
+<span id="cb18-145"><a href="#cb18-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-148"><a href="#cb18-148" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-149"><a href="#cb18-149" aria-hidden="true" tabindex="-1"></a><span class="co"># Counties in deaths that are NOT in population</span></span>
+<span id="cb18-150"><a href="#cb18-150" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-151"><a href="#cb18-151" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT DISTINCT d.county</span></span>
+<span id="cb18-152"><a href="#cb18-152" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths d</span></span>
+<span id="cb18-153"><a href="#cb18-153" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN (SELECT DISTINCT county FROM population) p</span></span>
+<span id="cb18-154"><a href="#cb18-154" aria-hidden="true" tabindex="-1"></a><span class="st">        ON d.county = p.county</span></span>
+<span id="cb18-155"><a href="#cb18-155" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE p.county IS NULL</span></span>
+<span id="cb18-156"><a href="#cb18-156" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY d.county;</span></span>
+<span id="cb18-157"><a href="#cb18-157" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-158"><a href="#cb18-158" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-159"><a href="#cb18-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-160"><a href="#cb18-160" aria-hidden="true" tabindex="-1"></a>If this returns rows, those counties will have NULL population values after joining — which means you cannot compute rates for them. This is essential information to document.</span>
+<span id="cb18-161"><a href="#cb18-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-162"><a href="#cb18-162" aria-hidden="true" tabindex="-1"></a><span class="fu">### Full cross-table mismatch audit</span></span>
+<span id="cb18-163"><a href="#cb18-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-166"><a href="#cb18-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-167"><a href="#cb18-167" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-168"><a href="#cb18-168" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH death_counties AS (SELECT DISTINCT county FROM deaths),</span></span>
+<span id="cb18-169"><a href="#cb18-169" aria-hidden="true" tabindex="-1"></a><span class="st">         crime_counties AS (SELECT DISTINCT county FROM crime),</span></span>
+<span id="cb18-170"><a href="#cb18-170" aria-hidden="true" tabindex="-1"></a><span class="st">         pop_counties AS (SELECT DISTINCT county FROM population)</span></span>
+<span id="cb18-171"><a href="#cb18-171" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb18-172"><a href="#cb18-172" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(d.county, c.county, p.county) AS county,</span></span>
+<span id="cb18-173"><a href="#cb18-173" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE WHEN d.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_deaths,</span></span>
+<span id="cb18-174"><a href="#cb18-174" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE WHEN c.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_crime,</span></span>
+<span id="cb18-175"><a href="#cb18-175" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE WHEN p.county IS NOT NULL THEN 'Y' ELSE 'N' END AS in_pop</span></span>
+<span id="cb18-176"><a href="#cb18-176" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM death_counties d</span></span>
+<span id="cb18-177"><a href="#cb18-177" aria-hidden="true" tabindex="-1"></a><span class="st">    FULL OUTER JOIN crime_counties c ON d.county = c.county</span></span>
+<span id="cb18-178"><a href="#cb18-178" aria-hidden="true" tabindex="-1"></a><span class="st">    FULL OUTER JOIN pop_counties p ON COALESCE(d.county, c.county) = p.county</span></span>
+<span id="cb18-179"><a href="#cb18-179" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY county;</span></span>
+<span id="cb18-180"><a href="#cb18-180" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-183"><a href="#cb18-183" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb18-184"><a href="#cb18-184" aria-hidden="true" tabindex="-1"></a>SQLite does not support <span class="in">`FULL OUTER JOIN`</span>. To achieve this in SQLite, use a <span class="in">`UNION`</span> of left joins or create a reference table of all distinct counties and left-join each source table to it.</span>
+<span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 4: Granularity Alignment</span></span>
+<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a>Each table may have a finer grain than county-year. Before joining, aggregate each table to the target grain — one row per (county, year).</span>
+<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a><span class="fu">### Aggregate deaths to county-year</span></span>
+<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, SUM(deaths) AS total_deaths, COUNT(*) AS n_detail_rows</span></span>
+<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM deaths</span></span>
+<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY county, year</span></span>
+<span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-202"><a href="#cb18-202" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-203"><a href="#cb18-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-204"><a href="#cb18-204" aria-hidden="true" tabindex="-1"></a><span class="fu">### Aggregate crime to county-year</span></span>
+<span id="cb18-205"><a href="#cb18-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-208"><a href="#cb18-208" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-209"><a href="#cb18-209" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-210"><a href="#cb18-210" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, COUNT(*) AS total_offenses</span></span>
+<span id="cb18-211"><a href="#cb18-211" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM crime</span></span>
+<span id="cb18-212"><a href="#cb18-212" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY county, year</span></span>
+<span id="cb18-213"><a href="#cb18-213" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb18-214"><a href="#cb18-214" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-215"><a href="#cb18-215" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-216"><a href="#cb18-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-217"><a href="#cb18-217" aria-hidden="true" tabindex="-1"></a><span class="fu">### Aggregate population to county-year</span></span>
+<span id="cb18-218"><a href="#cb18-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-221"><a href="#cb18-221" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-222"><a href="#cb18-222" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-223"><a href="#cb18-223" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
+<span id="cb18-224"><a href="#cb18-224" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM population</span></span>
+<span id="cb18-225"><a href="#cb18-225" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY county, year</span></span>
+<span id="cb18-226"><a href="#cb18-226" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb18-227"><a href="#cb18-227" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-228"><a href="#cb18-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-229"><a href="#cb18-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-230"><a href="#cb18-230" aria-hidden="true" tabindex="-1"></a><span class="fu">### Verify uniqueness after aggregation</span></span>
+<span id="cb18-231"><a href="#cb18-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-234"><a href="#cb18-234" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-235"><a href="#cb18-235" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-236"><a href="#cb18-236" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_deaths AS (</span></span>
+<span id="cb18-237"><a href="#cb18-237" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
+<span id="cb18-238"><a href="#cb18-238" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM deaths GROUP BY county, year</span></span>
+<span id="cb18-239"><a href="#cb18-239" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb18-240"><a href="#cb18-240" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT COUNT(*) AS total_rows,</span></span>
+<span id="cb18-241"><a href="#cb18-241" aria-hidden="true" tabindex="-1"></a><span class="st">           COUNT(DISTINCT county || '-' || year) AS distinct_keys</span></span>
+<span id="cb18-242"><a href="#cb18-242" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM agg_deaths;</span></span>
+<span id="cb18-243"><a href="#cb18-243" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-244"><a href="#cb18-244" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-245"><a href="#cb18-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-246"><a href="#cb18-246" aria-hidden="true" tabindex="-1"></a>Total rows and distinct keys should be equal. If they are not, the aggregation did not produce a unique key and the join will still fan out.</span>
+<span id="cb18-247"><a href="#cb18-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-248"><a href="#cb18-248" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 5: Building the Analysis-Ready Dataset</span></span>
+<span id="cb18-249"><a href="#cb18-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-250"><a href="#cb18-250" aria-hidden="true" tabindex="-1"></a>With each table aggregated to county-year and cardinality verified, we can now join them.</span>
+<span id="cb18-251"><a href="#cb18-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-254"><a href="#cb18-254" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-255"><a href="#cb18-255" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-256"><a href="#cb18-256" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_deaths AS (</span></span>
+<span id="cb18-257"><a href="#cb18-257" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
+<span id="cb18-258"><a href="#cb18-258" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM deaths</span></span>
+<span id="cb18-259"><a href="#cb18-259" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY county, year</span></span>
+<span id="cb18-260"><a href="#cb18-260" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb18-261"><a href="#cb18-261" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_crime AS (</span></span>
+<span id="cb18-262"><a href="#cb18-262" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, COUNT(*) AS total_offenses</span></span>
+<span id="cb18-263"><a href="#cb18-263" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM crime</span></span>
+<span id="cb18-264"><a href="#cb18-264" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY county, year</span></span>
+<span id="cb18-265"><a href="#cb18-265" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb18-266"><a href="#cb18-266" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_pop AS (</span></span>
+<span id="cb18-267"><a href="#cb18-267" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
+<span id="cb18-268"><a href="#cb18-268" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM population</span></span>
+<span id="cb18-269"><a href="#cb18-269" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY county, year</span></span>
+<span id="cb18-270"><a href="#cb18-270" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb18-271"><a href="#cb18-271" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb18-272"><a href="#cb18-272" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(d.county, c.county, p.county) AS county,</span></span>
+<span id="cb18-273"><a href="#cb18-273" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(d.year, c.year, p.year) AS year,</span></span>
+<span id="cb18-274"><a href="#cb18-274" aria-hidden="true" tabindex="-1"></a><span class="st">        d.total_deaths,</span></span>
+<span id="cb18-275"><a href="#cb18-275" aria-hidden="true" tabindex="-1"></a><span class="st">        c.total_offenses,</span></span>
+<span id="cb18-276"><a href="#cb18-276" aria-hidden="true" tabindex="-1"></a><span class="st">        p.total_pop,</span></span>
+<span id="cb18-277"><a href="#cb18-277" aria-hidden="true" tabindex="-1"></a><span class="st">        ROUND(1.0 * d.total_deaths / p.total_pop * 100000, 1) AS death_rate_per_100k,</span></span>
+<span id="cb18-278"><a href="#cb18-278" aria-hidden="true" tabindex="-1"></a><span class="st">        ROUND(1.0 * c.total_offenses / p.total_pop * 100000, 1) AS crime_rate_per_100k</span></span>
+<span id="cb18-279"><a href="#cb18-279" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM agg_pop p</span></span>
+<span id="cb18-280"><a href="#cb18-280" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN agg_deaths d ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb18-281"><a href="#cb18-281" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN agg_crime c ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb18-282"><a href="#cb18-282" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY county, year</span></span>
+<span id="cb18-283"><a href="#cb18-283" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 20;</span></span>
+<span id="cb18-284"><a href="#cb18-284" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-285"><a href="#cb18-285" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-286"><a href="#cb18-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-287"><a href="#cb18-287" aria-hidden="true" tabindex="-1"></a>The population table serves as the base (left) table because it has the most complete county-year coverage. Deaths and crime data are joined onto it. Counties or years with no death or crime records will show NULL in those columns — a known and documented gap, not an error.</span>
+<span id="cb18-288"><a href="#cb18-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-289"><a href="#cb18-289" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 6: Post-Join Audit</span></span>
+<span id="cb18-290"><a href="#cb18-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-291"><a href="#cb18-291" aria-hidden="true" tabindex="-1"></a>After building the joined dataset, run a systematic audit.</span>
+<span id="cb18-292"><a href="#cb18-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-293"><a href="#cb18-293" aria-hidden="true" tabindex="-1"></a><span class="fu">### Row count audit</span></span>
+<span id="cb18-294"><a href="#cb18-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-297"><a href="#cb18-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-298"><a href="#cb18-298" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-299"><a href="#cb18-299" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg_pop AS (</span></span>
+<span id="cb18-300"><a href="#cb18-300" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(totalpopulation) AS total_pop</span></span>
+<span id="cb18-301"><a href="#cb18-301" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM population GROUP BY county, year</span></span>
+<span id="cb18-302"><a href="#cb18-302" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb18-303"><a href="#cb18-303" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_deaths AS (</span></span>
+<span id="cb18-304"><a href="#cb18-304" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, SUM(deaths) AS total_deaths</span></span>
+<span id="cb18-305"><a href="#cb18-305" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM deaths GROUP BY county, year</span></span>
+<span id="cb18-306"><a href="#cb18-306" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb18-307"><a href="#cb18-307" aria-hidden="true" tabindex="-1"></a><span class="st">    agg_crime AS (</span></span>
+<span id="cb18-308"><a href="#cb18-308" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT county, year, COUNT(*) AS total_offenses</span></span>
+<span id="cb18-309"><a href="#cb18-309" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM crime GROUP BY county, year</span></span>
+<span id="cb18-310"><a href="#cb18-310" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb18-311"><a href="#cb18-311" aria-hidden="true" tabindex="-1"></a><span class="st">    joined AS (</span></span>
+<span id="cb18-312"><a href="#cb18-312" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year, d.total_deaths, c.total_offenses, p.total_pop</span></span>
+<span id="cb18-313"><a href="#cb18-313" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM agg_pop p</span></span>
+<span id="cb18-314"><a href="#cb18-314" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN agg_deaths d ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb18-315"><a href="#cb18-315" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN agg_crime c ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb18-316"><a href="#cb18-316" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb18-317"><a href="#cb18-317" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb18-318"><a href="#cb18-318" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM agg_pop) AS pop_rows,</span></span>
+<span id="cb18-319"><a href="#cb18-319" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM agg_deaths) AS death_rows,</span></span>
+<span id="cb18-320"><a href="#cb18-320" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM agg_crime) AS crime_rows,</span></span>
+<span id="cb18-321"><a href="#cb18-321" aria-hidden="true" tabindex="-1"></a><span class="st">        (SELECT COUNT(*) FROM joined) AS joined_rows;</span></span>
+<span id="cb18-322"><a href="#cb18-322" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-323"><a href="#cb18-323" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-324"><a href="#cb18-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-325"><a href="#cb18-325" aria-hidden="true" tabindex="-1"></a>The joined row count should equal the population row count (the base table in a LEFT JOIN). If it is larger, you have a fan-out problem. If it is smaller, something went wrong with the join.</span>
+<span id="cb18-326"><a href="#cb18-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-327"><a href="#cb18-327" aria-hidden="true" tabindex="-1"></a><span class="fu">### Totals audit</span></span>
+<span id="cb18-328"><a href="#cb18-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-331"><a href="#cb18-331" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-332"><a href="#cb18-332" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify that aggregated totals in the joined result match the source tables</span></span>
+<span id="cb18-333"><a href="#cb18-333" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-334"><a href="#cb18-334" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH joined AS (</span></span>
+<span id="cb18-335"><a href="#cb18-335" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year,</span></span>
+<span id="cb18-336"><a href="#cb18-336" aria-hidden="true" tabindex="-1"></a><span class="st">               d.total_deaths, c.total_offenses, p.total_pop</span></span>
+<span id="cb18-337"><a href="#cb18-337" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p</span></span>
+<span id="cb18-338"><a href="#cb18-338" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb18-339"><a href="#cb18-339" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb18-340"><a href="#cb18-340" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, COUNT(*) AS total_offenses FROM crime GROUP BY county, year) c</span></span>
+<span id="cb18-341"><a href="#cb18-341" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb18-342"><a href="#cb18-342" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb18-343"><a href="#cb18-343" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb18-344"><a href="#cb18-344" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(total_pop) AS joined_pop_total,</span></span>
+<span id="cb18-345"><a href="#cb18-345" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(total_deaths) AS joined_death_total,</span></span>
+<span id="cb18-346"><a href="#cb18-346" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(total_offenses) AS joined_crime_total;</span></span>
+<span id="cb18-347"><a href="#cb18-347" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-348"><a href="#cb18-348" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-349"><a href="#cb18-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-350"><a href="#cb18-350" aria-hidden="true" tabindex="-1"></a>Compare these totals to <span class="in">`SELECT SUM(...) FROM`</span> each source table individually. Any discrepancy indicates a join problem.</span>
+<span id="cb18-351"><a href="#cb18-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-352"><a href="#cb18-352" aria-hidden="true" tabindex="-1"></a><span class="fu">### NULL audit</span></span>
+<span id="cb18-353"><a href="#cb18-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-356"><a href="#cb18-356" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-357"><a href="#cb18-357" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-358"><a href="#cb18-358" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH joined AS (</span></span>
+<span id="cb18-359"><a href="#cb18-359" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year,</span></span>
+<span id="cb18-360"><a href="#cb18-360" aria-hidden="true" tabindex="-1"></a><span class="st">               d.total_deaths, c.total_offenses, p.total_pop</span></span>
+<span id="cb18-361"><a href="#cb18-361" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p</span></span>
+<span id="cb18-362"><a href="#cb18-362" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb18-363"><a href="#cb18-363" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb18-364"><a href="#cb18-364" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, COUNT(*) AS total_offenses FROM crime GROUP BY county, year) c</span></span>
+<span id="cb18-365"><a href="#cb18-365" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = c.county AND p.year = c.year</span></span>
+<span id="cb18-366"><a href="#cb18-366" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb18-367"><a href="#cb18-367" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb18-368"><a href="#cb18-368" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS total_rows,</span></span>
+<span id="cb18-369"><a href="#cb18-369" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE WHEN total_deaths IS NULL THEN 1 ELSE 0 END) AS null_deaths,</span></span>
+<span id="cb18-370"><a href="#cb18-370" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE WHEN total_offenses IS NULL THEN 1 ELSE 0 END) AS null_crime,</span></span>
+<span id="cb18-371"><a href="#cb18-371" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE WHEN total_pop IS NULL THEN 1 ELSE 0 END) AS null_pop</span></span>
+<span id="cb18-372"><a href="#cb18-372" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM joined;</span></span>
+<span id="cb18-373"><a href="#cb18-373" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-374"><a href="#cb18-374" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-375"><a href="#cb18-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-376"><a href="#cb18-376" aria-hidden="true" tabindex="-1"></a><span class="fu">## Part 7: The Join-Quality Report</span></span>
+<span id="cb18-377"><a href="#cb18-377" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-378"><a href="#cb18-378" aria-hidden="true" tabindex="-1"></a><span class="fu">## Public Interest Context: Ownership</span></span>
+<span id="cb18-379"><a href="#cb18-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-380"><a href="#cb18-380" aria-hidden="true" tabindex="-1"></a>A SQL query that produces a summary is a reproducible analytical artifact. Given the same database, anyone can re-run your query and get the same result. The CTEs, joins, and aggregations you wrote above are not a one-time piece of code — they are a specification of *how* the summary was built, which means the next analyst can audit your method as easily as they can audit your numbers. That is what **ownership** means in practice: the provenance of the result is legible in the query itself.</span>
+<span id="cb18-381"><a href="#cb18-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-382"><a href="#cb18-382" aria-hidden="true" tabindex="-1"></a>This matters in a public interest context because "the numbers say X" is often a contested claim. A journalist, a policy analyst, and a partisan think tank can all run similar-sounding queries against the same public database and reach different conclusions — because the joins, filters, and denominators they chose were different. The join-quality report from earlier in this chapter, plus the query itself, is how you make your choices auditable rather than asserted. Could you hand the query you just wrote to a skeptical reviewer and expect them to reproduce your result?</span>
+<span id="cb18-383"><a href="#cb18-383" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-384"><a href="#cb18-384" aria-hidden="true" tabindex="-1"></a>::: {.callout-note}</span>
+<span id="cb18-385"><a href="#cb18-385" aria-hidden="true" tabindex="-1"></a><span class="fu">## Connection to @sec-public-interest</span></span>
+<span id="cb18-386"><a href="#cb18-386" aria-hidden="true" tabindex="-1"></a>This section connects to the concept of **ownership** introduced in <span class="co">[</span><span class="ot">Chapter 4</span><span class="co">](04-public-interest.qmd)</span>. A SQL query records the exact analytical procedure that produced a summary — a form of ownership that makes public-interest claims reproducible and auditable.</span>
+<span id="cb18-387"><a href="#cb18-387" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-388"><a href="#cb18-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-389"><a href="#cb18-389" aria-hidden="true" tabindex="-1"></a>Every multi-table analysis should produce a brief report documenting the join. This is the SQL equivalent of the Known Issues Log from @sec-documentation. At minimum, it should cover:</span>
+<span id="cb18-390"><a href="#cb18-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-391"><a href="#cb18-391" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>**Join structure**: which tables, which keys, which join type, and why</span>
+<span id="cb18-392"><a href="#cb18-392" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>**Granularity alignment**: how each table was aggregated to the target grain</span>
+<span id="cb18-393"><a href="#cb18-393" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>**Cardinality checks**: confirmation that each table has one row per key after aggregation</span>
+<span id="cb18-394"><a href="#cb18-394" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>**Unmatched record audit**: which counties/years are missing from each source</span>
+<span id="cb18-395"><a href="#cb18-395" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>**Row count audit**: joined rows vs. base table rows</span>
+<span id="cb18-396"><a href="#cb18-396" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>**Totals audit**: aggregated values in joined result vs. source tables</span>
+<span id="cb18-397"><a href="#cb18-397" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>**NULL summary**: how many NULLs were introduced by the join</span>
+<span id="cb18-398"><a href="#cb18-398" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>**Remaining uncertainties**: what you could not verify or what might affect interpretation</span>
+<span id="cb18-399"><a href="#cb18-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-400"><a href="#cb18-400" aria-hidden="true" tabindex="-1"></a><span class="fu">## Pandas Cross-Check</span></span>
+<span id="cb18-401"><a href="#cb18-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-402"><a href="#cb18-402" aria-hidden="true" tabindex="-1"></a>A valuable validation practice is to replicate the SQL join in pandas and compare results:</span>
+<span id="cb18-403"><a href="#cb18-403" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-406"><a href="#cb18-406" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-407"><a href="#cb18-407" aria-hidden="true" tabindex="-1"></a><span class="co"># Read the joined result from SQL</span></span>
+<span id="cb18-408"><a href="#cb18-408" aria-hidden="true" tabindex="-1"></a>sql_result <span class="op">=</span> pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-409"><a href="#cb18-409" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT p.county, p.year,</span></span>
+<span id="cb18-410"><a href="#cb18-410" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(d.total_deaths) AS total_deaths,</span></span>
+<span id="cb18-411"><a href="#cb18-411" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(p.total_pop) AS total_pop</span></span>
+<span id="cb18-412"><a href="#cb18-412" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM (SELECT county, year, SUM(totalpopulation) AS total_pop FROM population GROUP BY county, year) p</span></span>
+<span id="cb18-413"><a href="#cb18-413" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN (SELECT county, year, SUM(deaths) AS total_deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb18-414"><a href="#cb18-414" aria-hidden="true" tabindex="-1"></a><span class="st">        ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb18-415"><a href="#cb18-415" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY p.county, p.year</span></span>
+<span id="cb18-416"><a href="#cb18-416" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 5;</span></span>
+<span id="cb18-417"><a href="#cb18-417" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-418"><a href="#cb18-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-419"><a href="#cb18-419" aria-hidden="true" tabindex="-1"></a>sql_result</span>
+<span id="cb18-420"><a href="#cb18-420" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-421"><a href="#cb18-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-424"><a href="#cb18-424" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-425"><a href="#cb18-425" aria-hidden="true" tabindex="-1"></a><span class="co"># Replicate in pandas</span></span>
+<span id="cb18-426"><a href="#cb18-426" aria-hidden="true" tabindex="-1"></a><span class="co"># deaths_df = pd.read_sql_query("SELECT * FROM deaths", conn)</span></span>
+<span id="cb18-427"><a href="#cb18-427" aria-hidden="true" tabindex="-1"></a><span class="co"># pop_df = pd.read_sql_query("SELECT * FROM population", conn)</span></span>
+<span id="cb18-428"><a href="#cb18-428" aria-hidden="true" tabindex="-1"></a><span class="co"># ... aggregate and merge in pandas, then compare</span></span>
+<span id="cb18-429"><a href="#cb18-429" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-430"><a href="#cb18-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-431"><a href="#cb18-431" aria-hidden="true" tabindex="-1"></a><span class="fu">## Post-Join Audit Checklist</span></span>
+<span id="cb18-432"><a href="#cb18-432" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-433"><a href="#cb18-433" aria-hidden="true" tabindex="-1"></a>Use this checklist after every multi-table join:</span>
+<span id="cb18-434"><a href="#cb18-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-435"><a href="#cb18-435" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Row count: joined rows == base table rows (for LEFT JOIN)</span>
+<span id="cb18-436"><a href="#cb18-436" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> No fan-out: no (county, year) appears more than once</span>
+<span id="cb18-437"><a href="#cb18-437" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Totals match: <span class="in">`SUM(col)`</span> in joined result matches source tables</span>
+<span id="cb18-438"><a href="#cb18-438" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> NULLs explained: every NULL column has a documented reason</span>
+<span id="cb18-439"><a href="#cb18-439" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Cross-check: pandas merge produces the same result</span>
+<span id="cb18-440"><a href="#cb18-440" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Report written: join-quality report documents decisions and uncertainties</span>
+<span id="cb18-441"><a href="#cb18-441" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-442"><a href="#cb18-442" aria-hidden="true" tabindex="-1"></a><span class="fu">## Join Type Decision Guide</span></span>
+<span id="cb18-443"><a href="#cb18-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-444"><a href="#cb18-444" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Situation <span class="pp">|</span> Join type <span class="pp">|</span> Rationale <span class="pp">|</span></span>
+<span id="cb18-445"><a href="#cb18-445" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----------|-----------|-----------|</span></span>
+<span id="cb18-446"><a href="#cb18-446" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> You need all records from your base table <span class="pp">|</span> LEFT JOIN <span class="pp">|</span> Preserves base; adds NULLs where no match <span class="pp">|</span></span>
+<span id="cb18-447"><a href="#cb18-447" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> You need only complete cases <span class="pp">|</span> INNER JOIN <span class="pp">|</span> Drops any row missing from either table <span class="pp">|</span></span>
+<span id="cb18-448"><a href="#cb18-448" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> You want to see what is missing from each side <span class="pp">|</span> Anti-join pattern <span class="pp">|</span> LEFT JOIN + WHERE IS NULL <span class="pp">|</span></span>
+<span id="cb18-449"><a href="#cb18-449" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> You need all records from both sides <span class="pp">|</span> FULL OUTER JOIN <span class="pp">|</span> Not available in SQLite; simulate with UNION <span class="pp">|</span></span>
+<span id="cb18-450"><a href="#cb18-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-451"><a href="#cb18-451" aria-hidden="true" tabindex="-1"></a><span class="fu">## Common Issues in This Chapter</span></span>
+<span id="cb18-452"><a href="#cb18-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-453"><a href="#cb18-453" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb18-454"><a href="#cb18-454" aria-hidden="true" tabindex="-1"></a><span class="fu">## Join fan-out (too many rows in the result)</span></span>
+<span id="cb18-455"><a href="#cb18-455" aria-hidden="true" tabindex="-1"></a>**What it means:** One or both tables have multiple rows per join key. A many-to-many join explodes: 5 rows × 3 rows for the same county-year = 15 output rows.</span>
+<span id="cb18-456"><a href="#cb18-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-457"><a href="#cb18-457" aria-hidden="true" tabindex="-1"></a>**How to fix it:** Run <span class="in">`SELECT COUNT(*), COUNT(DISTINCT key_cols) FROM &lt;table&gt;`</span> on each side. If they differ, aggregate to one-row-per-key before joining. Add the aggregation as a CTE so the fan-out fix is visible in the query.</span>
+<span id="cb18-458"><a href="#cb18-458" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-459"><a href="#cb18-459" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-460"><a href="#cb18-460" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb18-461"><a href="#cb18-461" aria-hidden="true" tabindex="-1"></a><span class="fu">## Join returns zero rows despite matching keys</span></span>
+<span id="cb18-462"><a href="#cb18-462" aria-hidden="true" tabindex="-1"></a>**What it means:** Silent mismatch — key formats, whitespace, or dtypes differ between the two tables. See @sec-sql-cleaning for the full diagnosis.</span>
+<span id="cb18-463"><a href="#cb18-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-464"><a href="#cb18-464" aria-hidden="true" tabindex="-1"></a>**How to fix it:** <span class="in">`SELECT DISTINCT &lt;key&gt; FROM &lt;table&gt;`</span> on each side. Compare the values literally. Use <span class="in">`TRIM`</span>, <span class="in">`UPPER`</span>, or pandas pre-normalization to bring the formats into alignment before the join.</span>
+<span id="cb18-465"><a href="#cb18-465" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-466"><a href="#cb18-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-467"><a href="#cb18-467" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb18-468"><a href="#cb18-468" aria-hidden="true" tabindex="-1"></a><span class="fu">## `FULL OUTER JOIN` raises `Error: RIGHT and FULL OUTER JOINs are not currently supported`</span></span>
+<span id="cb18-469"><a href="#cb18-469" aria-hidden="true" tabindex="-1"></a>**What it means:** Older versions of SQLite (&lt; 3.39, released 2022) do not support <span class="in">`FULL OUTER JOIN`</span>.</span>
+<span id="cb18-470"><a href="#cb18-470" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-471"><a href="#cb18-471" aria-hidden="true" tabindex="-1"></a>**How to fix it:** Upgrade SQLite (<span class="in">`conda install sqlite`</span>), or simulate a <span class="in">`FULL OUTER`</span> with <span class="in">`LEFT JOIN`</span> + <span class="in">`UNION ALL`</span> + the mirror <span class="in">`RIGHT-as-LEFT`</span> join. The pattern is in @sec-sql-reshaping Part 3.</span>
+<span id="cb18-472"><a href="#cb18-472" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-473"><a href="#cb18-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-474"><a href="#cb18-474" aria-hidden="true" tabindex="-1"></a>::: {.callout-warning}</span>
+<span id="cb18-475"><a href="#cb18-475" aria-hidden="true" tabindex="-1"></a><span class="fu">## All your per-capita rates are NaN for some counties</span></span>
+<span id="cb18-476"><a href="#cb18-476" aria-hidden="true" tabindex="-1"></a>**What it means:** Those counties are missing from the population table, so <span class="in">`deaths / NULL`</span> returns <span class="in">`NULL`</span>. The rate is literally undefined, not zero.</span>
+<span id="cb18-477"><a href="#cb18-477" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-478"><a href="#cb18-478" aria-hidden="true" tabindex="-1"></a>**How to fix it:** List the unmatched counties explicitly (anti-join), document the gap in your Known Issues Log, and decide whether to drop those counties from the rate analysis or hand-source the population data.</span>
+<span id="cb18-479"><a href="#cb18-479" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-480"><a href="#cb18-480" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-481"><a href="#cb18-481" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key Takeaways</span></span>
+<span id="cb18-482"><a href="#cb18-482" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-483"><a href="#cb18-483" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Before joining, audit **grain** (`COUNT(*) vs COUNT(DISTINCT keys)`) and **key format** (<span class="in">`SELECT DISTINCT`</span>). These two checks prevent most join bugs.</span>
+<span id="cb18-484"><a href="#cb18-484" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Aggregate to the target grain *inside a CTE* before joining. Make the aggregation visible in the query.</span>
+<span id="cb18-485"><a href="#cb18-485" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Always produce a **join-quality report**: structure, granularity, cardinality, unmatched records, row counts, totals, NULLs, remaining uncertainty.</span>
+<span id="cb18-486"><a href="#cb18-486" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Cross-check complex joins with a pandas replication. If the two disagree, you learn something; if they agree, your confidence is earned.</span>
+<span id="cb18-487"><a href="#cb18-487" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Silent join failures are the most dangerous SQL bug class. Treat every multi-table join as a claim that needs evidence.</span>
+<span id="cb18-488"><a href="#cb18-488" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-489"><a href="#cb18-489" aria-hidden="true" tabindex="-1"></a><span class="fu">## Further Reading</span></span>
+<span id="cb18-490"><a href="#cb18-490" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-491"><a href="#cb18-491" aria-hidden="true" tabindex="-1"></a>::: {.callout-tip collapse="true"}</span>
+<span id="cb18-492"><a href="#cb18-492" aria-hidden="true" tabindex="-1"></a><span class="fu">## 📚 Going deeper on SQL joins and audit discipline</span></span>
+<span id="cb18-493"><a href="#cb18-493" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-494"><a href="#cb18-494" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**SQLite: Join operators** — <span class="co">[</span><span class="ot">sqlite.org/syntax/join-operator.html</span><span class="co">](https://www.sqlite.org/syntax/join-operator.html)</span> is the formal grammar.</span>
+<span id="cb18-495"><a href="#cb18-495" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**SQLite: SELECT with joins** — <span class="co">[</span><span class="ot">sqlite.org/lang_select.html</span><span class="co">](https://www.sqlite.org/lang_select.html)</span> covers join semantics and clause ordering.</span>
+<span id="cb18-496"><a href="#cb18-496" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Mode: SQL Joins** — <span class="co">[</span><span class="ot">mode.com/sql-tutorial/sql-joins/</span><span class="co">](https://mode.com/sql-tutorial/sql-joins/)</span> walks through each join type with visual examples.</span>
+<span id="cb18-497"><a href="#cb18-497" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**SQLZoo: Joins tutorial** — <span class="co">[</span><span class="ot">sqlzoo.net/wiki/The_JOIN_operation</span><span class="co">](https://sqlzoo.net/wiki/The_JOIN_operation)</span> provides interactive practice.</span>
+<span id="cb18-498"><a href="#cb18-498" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Data Validation: What It Is and Why It Matters** — a Mode blog post at <span class="co">[</span><span class="ot">mode.com/blog/data-validation</span><span class="co">](https://mode.com/blog/data-validation/)</span> on audit discipline in analytical work.</span>
+<span id="cb18-499"><a href="#cb18-499" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-500"><a href="#cb18-500" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-501"><a href="#cb18-501" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercises</span></span>
+<span id="cb18-502"><a href="#cb18-502" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-503"><a href="#cb18-503" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb18-504"><a href="#cb18-504" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 1: INNER JOIN vs. LEFT JOIN impact</span></span>
+<span id="cb18-505"><a href="#cb18-505" aria-hidden="true" tabindex="-1"></a>Write both an INNER JOIN and a LEFT JOIN version of the three-table join. How many rows does each produce? What counties or years are lost in the INNER JOIN?</span>
+<span id="cb18-506"><a href="#cb18-506" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-507"><a href="#cb18-507" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb18-508"><a href="#cb18-508" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
+<span id="cb18-509"><a href="#cb18-509" aria-hidden="true" tabindex="-1"></a>Compare <span class="in">`SELECT COUNT(*)`</span> from each version. The difference represents county-year combinations present in population but absent from deaths or crime. Document which counties are affected and why.</span>
+<span id="cb18-510"><a href="#cb18-510" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-511"><a href="#cb18-511" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-512"><a href="#cb18-512" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-513"><a href="#cb18-513" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb18-514"><a href="#cb18-514" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 2: Top 10 counties by death rate</span></span>
+<span id="cb18-515"><a href="#cb18-515" aria-hidden="true" tabindex="-1"></a>Using the analysis-ready dataset, find the top 10 counties by death rate per 100,000 in the most recent year available. Only include counties with population greater than 1,000 to avoid extreme rates from tiny counties.</span>
+<span id="cb18-516"><a href="#cb18-516" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-517"><a href="#cb18-517" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb18-518"><a href="#cb18-518" aria-hidden="true" tabindex="-1"></a><span class="fu">## Solution</span></span>
+<span id="cb18-521"><a href="#cb18-521" aria-hidden="true" tabindex="-1"></a><span class="in">```{python}</span></span>
+<span id="cb18-522"><a href="#cb18-522" aria-hidden="true" tabindex="-1"></a>pd.read_sql_query(<span class="st">"""</span></span>
+<span id="cb18-523"><a href="#cb18-523" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH agg AS (</span></span>
+<span id="cb18-524"><a href="#cb18-524" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT p.county, p.year, SUM(d.deaths) AS total_deaths, SUM(p.totalpopulation) AS total_pop</span></span>
+<span id="cb18-525"><a href="#cb18-525" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM (SELECT county, year, SUM(totalpopulation) AS totalpopulation FROM population GROUP BY county, year) p</span></span>
+<span id="cb18-526"><a href="#cb18-526" aria-hidden="true" tabindex="-1"></a><span class="st">        LEFT JOIN (SELECT county, year, SUM(deaths) AS deaths FROM deaths GROUP BY county, year) d</span></span>
+<span id="cb18-527"><a href="#cb18-527" aria-hidden="true" tabindex="-1"></a><span class="st">            ON p.county = d.county AND p.year = d.year</span></span>
+<span id="cb18-528"><a href="#cb18-528" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY p.county, p.year</span></span>
+<span id="cb18-529"><a href="#cb18-529" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb18-530"><a href="#cb18-530" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT county, year, total_deaths, total_pop,</span></span>
+<span id="cb18-531"><a href="#cb18-531" aria-hidden="true" tabindex="-1"></a><span class="st">           ROUND(1.0 * total_deaths / total_pop * 100000, 1) AS death_rate</span></span>
+<span id="cb18-532"><a href="#cb18-532" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM agg</span></span>
+<span id="cb18-533"><a href="#cb18-533" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE year = (SELECT MAX(year) FROM agg)</span></span>
+<span id="cb18-534"><a href="#cb18-534" aria-hidden="true" tabindex="-1"></a><span class="st">      AND total_pop &gt; 1000</span></span>
+<span id="cb18-535"><a href="#cb18-535" aria-hidden="true" tabindex="-1"></a><span class="st">      AND total_deaths IS NOT NULL</span></span>
+<span id="cb18-536"><a href="#cb18-536" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY death_rate DESC</span></span>
+<span id="cb18-537"><a href="#cb18-537" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 10;</span></span>
+<span id="cb18-538"><a href="#cb18-538" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>, conn)</span>
+<span id="cb18-539"><a href="#cb18-539" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb18-540"><a href="#cb18-540" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-541"><a href="#cb18-541" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-542"><a href="#cb18-542" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-543"><a href="#cb18-543" aria-hidden="true" tabindex="-1"></a>::: {.callout-note collapse="true"}</span>
+<span id="cb18-544"><a href="#cb18-544" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exercise 3: Write a join-quality report</span></span>
+<span id="cb18-545"><a href="#cb18-545" aria-hidden="true" tabindex="-1"></a>Write a complete join-quality report for the three-table join you built in this chapter. Follow the seven-section structure described in Part 7. Be specific about numbers — how many rows, how many NULLs, which counties are affected.</span>
+<span id="cb18-546"><a href="#cb18-546" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb18-547"><a href="#cb18-547" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-548"><a href="#cb18-548" aria-hidden="true" tabindex="-1"></a><span class="fu">## SQL ↔ pandas Equivalents</span></span>
+<span id="cb18-549"><a href="#cb18-549" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-550"><a href="#cb18-550" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> SQL <span class="pp">|</span> pandas <span class="pp">|</span></span>
+<span id="cb18-551"><a href="#cb18-551" aria-hidden="true" tabindex="-1"></a><span class="pp">|-----|--------|</span></span>
+<span id="cb18-552"><a href="#cb18-552" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`LEFT JOIN ... ON`</span> <span class="pp">|</span> <span class="in">`pd.merge(how='left', on=...)`</span> <span class="pp">|</span></span>
+<span id="cb18-553"><a href="#cb18-553" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`INNER JOIN ... ON`</span> <span class="pp">|</span> <span class="in">`pd.merge(how='inner', on=...)`</span> <span class="pp">|</span></span>
+<span id="cb18-554"><a href="#cb18-554" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`LEFT JOIN ... WHERE IS NULL`</span> (anti-join) <span class="pp">|</span> <span class="in">`merge(indicator=True)`</span> then filter <span class="in">`_merge == 'left_only'`</span> <span class="pp">|</span></span>
+<span id="cb18-555"><a href="#cb18-555" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`COALESCE(a, b)`</span> <span class="pp">|</span> <span class="in">`a.fillna(b)`</span> <span class="pp">|</span></span>
+<span id="cb18-556"><a href="#cb18-556" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="in">`UNION ALL`</span> <span class="pp">|</span> <span class="in">`pd.concat([df1, df2])`</span> <span class="pp">|</span></span>
+<span id="cb18-557"><a href="#cb18-557" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> CTE → aggregate → join <span class="pp">|</span> Assign intermediate DataFrames → merge <span class="pp">|</span></span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cuinfoscience/Information-Exploration-Book/edit/main/12-sql-reshaping.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li></ul></div></div></div></footer></body></html>

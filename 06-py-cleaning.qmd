@@ -1,0 +1,537 @@
+# Cleaning Data with pandas {#sec-py-cleaning}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Convert string columns to numeric values using [`pd.to_numeric`](https://pandas.pydata.org/docs/reference/api/pandas.to_numeric.html) and interpret the `errors` parameter (`coerce`, `ignore`, `raise`).
+- Normalize text columns using the [pandas `.str` accessor](https://pandas.pydata.org/docs/user_guide/text.html) (`.str.strip()`, `.str.upper()`, `.str.replace()`).
+- Standardize categorical columns using `.replace()` and `.map()`, recognizing when each is appropriate.
+- Detect and handle duplicate rows with [`df.duplicated()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.duplicated.html) and [`df.drop_duplicates()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.drop_duplicates.html).
+- Validate every transformation with before/after `value_counts()` and null-count comparisons.
+- Write reusable cleaning functions that return both the transformed data and a summary of what changed.
+
+## Why Cleaning Is the Work
+
+Loading data gets it into your environment. Cleaning data makes it usable. This chapter covers the systematic process of identifying and fixing data quality problems — type mismatches, inconsistent categories, duplicate records, hidden sentinel values, and the ever-present challenge of missing data. The techniques here map directly to operations you may have performed in spreadsheets, but [pandas](https://pandas.pydata.org/docs/) gives you the ability to apply them reproducibly, document them precisely, and scale them to datasets too large for any spreadsheet.
+
+The central discipline of this chapter is *validation*: after every transformation, you check that the data changed in the way you intended and that nothing was silently lost or corrupted.
+
+If this chapter starts to feel like a lot of moving parts, that is a fair reaction. Data cleaning is not one technique — it is a collection of small patterns that you apply as needed. Expect to reread sections; expect to copy snippets; expect your first attempt at any new dataset to take longer than you thought. This is a normal part of becoming fluent.
+
+## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), and [matplotlib](https://matplotlib.org/stable/).
+
+```{python}
+import numpy as np
+import pandas as pd
+
+pd.options.display.max_columns = 100
+import matplotlib.pyplot as plt
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError` on any of these
+If any of `numpy`, `pandas`, or `matplotlib` is missing, install it with:
+
+```bash
+conda install numpy pandas matplotlib
+```
+
+Or with pip: `pip install numpy pandas matplotlib`. After installing, restart the kernel before re-running the import cell. See @sec-setup for how to check which Python environment your notebook is using.
+:::
+
+## Completing the Cannabis Load
+
+Before introducing the voter registration data, we complete the cannabis dataset cleaning started in @sec-py-loading. That chapter used `read_csv` parameters to fix the header, skip footers, and mark `NR` as missing. Four post-load operations remain: fixing column names, stripping whitespace, converting currency strings to numbers, and removing aggregate rows. This dataset is a simple cleaning scenario — each fix can be applied in a single line.
+
+### Fixing column names
+
+The `read_csv` call in @sec-py-loading produced auto-generated integer column names. Replace them with descriptive names:
+
+```{python}
+import pandas as pd
+
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+df.tail()
+```
+
+### Stripping whitespace
+
+County names contain leading or trailing whitespace that would cause join failures later:
+
+```{python}
+df['County'] = df['County'].str.strip()
+```
+
+### Converting currency strings to numbers
+
+The sales columns contain values like `$1,234,567` — dollar signs and commas that prevent numeric operations. The `.str.replace()` method removes them, and `pd.to_numeric()` converts the result:
+
+```{python}
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+df.tail()
+```
+
+::: {.callout-note}
+## The leading-dot style
+Notice the chain of `.str.replace()` calls written on separate lines. This "leading dot" style makes method chains easier to read and debug — you can comment out individual steps to isolate problems.
+:::
+
+### Removing aggregate rows
+
+The dataset includes rows where `County == 'Total'` — monthly statewide totals that would corrupt any county-level analysis:
+
+```{python}
+df = df[df['County'] != 'Total']
+```
+
+### The complete load cell
+
+In a finished notebook, all of these steps belong in a single reproducible cell:
+
+```{python}
+df = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+
+df.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+df['County'] = df['County'].str.strip()
+
+for col in ['Medical', 'Retail']:
+    df[col] = pd.to_numeric(
+        df[col]
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+    )
+
+df = df[df['County'] != 'Total']
+df.tail()
+```
+
+---
+
+## Loading the Voter Registration Data
+
+We now turn to a more complex example. Boulder County voter registration data arrives as a pipe-delimited text file with a mix of data types, inconsistent categories, and the kinds of quality issues that appear in virtually every real-world dataset.
+
+```{python}
+df = pd.read_csv('boco_voter_data.txt', sep='|')
+df.head()
+```
+
+## Numbers Stored as Text
+
+One of the most common data quality problems is numeric values that pandas loaded as strings. This happens when a column contains any non-numeric values — even one — or when leading zeros need to be preserved (zip codes, ID numbers).
+
+In a spreadsheet, you might notice this when numbers sort alphabetically (`1, 10, 100, 2, 20`) instead of numerically, or when formulas like `SUM()` return zero. In pandas, the symptom is a column with `dtype: object` that you expected to be numeric.
+
+### Forcing types at load time
+
+The safest approach is to declare column types when you load the file, before pandas has a chance to guess:
+
+```{python}
+dtype_d = {
+    'RES_ZIP_CODE': str,
+    'BALLOT_ZIP': str,
+    'VOTER_ID': str,
+    'PRECINCT': str,
+}
+
+df = pd.read_csv('boco_voter_data.txt', sep='|', dtype=dtype_d)
+```
+
+### Converting after loading
+
+If you need to convert a column from string to numeric after loading, use `pd.to_numeric()` with the `errors` parameter to control how conversion failures are handled:
+
+```{python}
+df['YOB'] = pd.to_numeric(df['YOB'], errors='coerce')
+```
+
+The three options for `errors` each serve a different purpose. Using `'coerce'` converts unparseable values to `NaN`, which is safe but loses information about what the original values were. Using `'ignore'` leaves the column unchanged if any conversion fails, preserving data but keeping the column as strings. Using `'raise'` throws an error on the first bad value, which is useful for debugging because it tells you exactly which value caused the problem.
+
+**Always check what you lost** after coercing:
+
+```{python}
+nulls_before = df['VOTER_ID'].isna().sum()
+df['VOTER_ID_CLEAN'] = pd.to_numeric(df['VOTER_ID'], errors='coerce')
+nulls_after = df['VOTER_ID_CLEAN'].isna().sum()
+print(f"Conversion introduced {nulls_after - nulls_before} new nulls")
+```
+
+## String Normalization
+
+Text fields in real data are messy in predictable ways: inconsistent capitalization, extra whitespace, non-printing characters, and encoding artifacts. Pandas provides the `.str` accessor for vectorized string operations — the same operations you would apply with `TRIM()`, `UPPER()`, and `CLEAN()` in a spreadsheet, but applied to an entire column at once.
+
+### Trimming and case standardization
+
+```{python}
+# Chain operations for readability
+df['STREET_NAME'] = (
+    df['STREET_NAME']
+    .str.strip()                              # remove leading/trailing whitespace
+    .str.upper()                              # standardize casing
+    .str.replace(r'\s+', ' ', regex=True)     # collapse internal whitespace
+)
+```
+
+### The validation pattern
+
+Always compare `value_counts()` before and after cleaning to verify the transformation did what you intended:
+
+```{python}
+# Before cleaning
+print(df['RES_CITY'].value_counts())
+
+# After cleaning
+df['RES_CITY'] = df['RES_CITY'].str.strip().str.upper()
+print(df['RES_CITY'].value_counts())
+
+# Check for unintended consequences
+print('New nulls:', df['RES_CITY'].isna().sum())
+```
+
+### Common string artifacts
+
+Real-world data contains predictable string problems that survive import and need active cleaning. Extra whitespace includes more than leading and trailing spaces: it also includes non-breaking spaces (Unicode U+00A0), which are common in web-scraped data, and tabs or newlines embedded in fields. Inconsistent punctuation appears as variations like `"Boulder, CO"` vs. `"Boulder CO"` vs. `"Boulder,CO"`, or `"St. Louis"` vs. `"St Louis"` vs. `"Saint Louis"`. Encoding artifacts show up as garbled characters like `"resumÃ©"` (UTF-8 decoded as Latin-1) or `"caf\xc3\xa9"`.
+
+```{python}
+# Remove specific characters
+df['VOTER_NAME'] = df['VOTER_NAME'].str.replace(',', '', regex=False)
+
+# Replace non-breaking spaces with regular spaces
+df['VOTER_NAME'] = df['VOTER_NAME'].str.replace('\xa0', ' ', regex=False)
+```
+
+## Categorical Standardization
+
+When a field has a controlled set of valid values — party affiliations, state abbreviations, product categories — the values in your data rarely match that set exactly. You will find abbreviations, misspellings, inconsistent capitalization, and historical codes that need to be mapped to a standard vocabulary.
+
+### Dictionary-based recoding with `.replace()`
+
+The `.replace()` method takes a dictionary that maps old values to new values. Unmapped values are left unchanged:
+
+```{python}
+df['PARTY'].value_counts()
+```
+
+```{python}
+party_map = {
+    'DEM': 'DEM',
+    'REP': 'REP',
+    'UAF': 'UNA',
+    'LBR': 'LBR',
+    'GRN': 'GRN',
+}
+
+df['PARTY'] = df['PARTY'].str.strip().str.upper()
+df['PARTY'] = df['PARTY'].replace(party_map)
+
+# Check for unmapped values
+print(df['PARTY'].value_counts())
+```
+
+Build the mapping dictionary by examining `.value_counts()` output, not by guessing. The data tells you which variants exist; your job is to decide which standard value each variant maps to.
+
+### `.map()` vs. `.replace()`
+
+The `.map()` method is stricter: it replaces *everything*, and unmapped values become `NaN`. Use `.map()` when you have a controlled vocabulary and anything outside it is an error:
+
+```{python}
+valid_parties = {
+    'DEM': 'Democrat',
+    'REP': 'Republican',
+    'UNA': 'Unaffiliated',
+    'LBR': 'Libertarian',
+    'GRN': 'Green'
+}
+
+df['PARTY_LABEL'] = df['PARTY'].map(valid_parties)
+
+# Find codes with no mapping
+missing_labels = df[df['PARTY_LABEL'].isna() & df['PARTY'].notna()]
+print(missing_labels['PARTY'].value_counts())
+```
+
+## Sentinel Values
+
+Sentinel values are fake entries that masquerade as real data. They are placeholders inserted to represent missing information without leaving a cell blank. Common examples include `-999`, `9999`, or `-1` in numeric fields, and `"N/A"`, `"."`, `"-"`, or `"unknown"` in text fields. Dates like `01/01/1900` or `12/31/9999` are date sentinels.
+
+You can declare sentinel values at load time:
+
+```{python}
+# df = pd.read_csv('data.csv', na_values=['-999', '9999', '-1', 'N/A', '.', '-', 'unknown'])
+```
+
+Or replace them after loading:
+
+```{python}
+sentinel_to_null = {-999: np.nan, 9999: np.nan, -1: np.nan}
+# df = df.replace(sentinel_to_null)
+```
+
+## Handling Duplicates
+
+Duplicate records are rows that share the same values on one or more key columns. They arise from data entry errors, overlapping date ranges in source files, or deliberate denormalization. The critical question is always: *are these duplicates errors, or do they represent legitimately repeated observations?*
+
+### Identifying duplicates
+
+```{python}
+# Fully identical rows
+full_dupes = df.duplicated()
+print(f"Fully identical rows: {full_dupes.sum()}")
+
+# Duplicates on key columns
+key_dupes = df.duplicated(subset=['VOTER_ID'], keep=False)
+print(f"Rows with duplicate VOTER_ID: {key_dupes.sum()}")
+```
+
+### Understanding the pattern
+
+Before removing duplicates, examine what varies across the repeated rows:
+
+```{python}
+key_counts = df['VOTER_ID'].value_counts()
+example_id = key_counts[key_counts > 1].index[0]
+example_rows = df[df['VOTER_ID'] == example_id]
+
+for col in df.columns:
+    if example_rows[col].nunique() > 1:
+        print(f"{col} varies: {example_rows[col].unique()}")
+```
+
+### Three strategies for deduplication
+
+**Keep first or last** when a more recent record supersedes an earlier one:
+
+```{python}
+# df_deduped = df.sort_values('SALE_DATE').drop_duplicates(subset=['ACCOUNTNO'], keep='last')
+```
+
+**Aggregate** when duplicates represent multiple measurements:
+
+```{python}
+# df_agg = df.groupby('ACCOUNTNO', as_index=False).agg({'SALE_PRICE': 'last', 'SALE_DATE': 'max'})
+```
+
+**Flag for review** when you are not sure what is right:
+
+```{python}
+df['is_duplicate'] = df.duplicated(subset=['VOTER_ID'], keep=False)
+df_clean = df[~df['is_duplicate']]
+df_review = df[df['is_duplicate']].sort_values('VOTER_ID')
+print(f"Clean: {len(df_clean)}, Needs review: {len(df_review)}")
+```
+
+Always audit totals before and after deduplication to understand the impact.
+
+## Extracting Structured Data from Text
+
+A common problem is multiple pieces of information crammed into one field — an address field containing street, city, state, and zip code, or a name field containing first and last names.
+
+### Splitting on a delimiter
+
+```{python}
+# Split a name column into parts
+df['VOTER_NAME'].str.split(' ', expand=True).head()
+```
+
+The `expand=True` parameter returns a DataFrame instead of a Series of lists, which makes it easy to assign the parts to new columns.
+
+### Regular expression extraction
+
+For more complex patterns, use `.str.extract()` with a named capture group regex:
+
+```{python}
+# Example: extract components from a structured address
+# pattern = r'^(?P<street>.*?),?\s*(?P<city>[A-Za-z\s]+),?\s*(?P<state>[A-Z]{2})\s*(?P<zip>\d{5})$'
+# extracted = df['full_address'].str.extract(pattern)
+```
+
+Always check the extraction success rate — how many rows matched the pattern? — and investigate the failures.
+
+## Building Reusable Cleaning Functions
+
+When you find yourself repeating the same cleaning logic across multiple columns or datasets, wrap it in a function. Functions reduce copy-paste errors, make the cleaning logic self-documenting, and enable systematic testing.
+
+```{python}
+def clean_currency_column(df, col_name, new_col_name=None):
+    """
+    Remove currency symbols and commas, convert to numeric.
+
+    Parameters:
+        df: DataFrame
+        col_name: name of column to clean
+        new_col_name: name for cleaned column (default: col_name + '_clean')
+
+    Returns:
+        DataFrame with new cleaned column added.
+        Prints summary of changes.
+    """
+    if new_col_name is None:
+        new_col_name = col_name + '_clean'
+
+    nulls_before = df[col_name].isna().sum()
+
+    cleaned = (
+        df[col_name]
+        .astype(str)
+        .str.replace('$', '', regex=False)
+        .str.replace(',', '', regex=False)
+        .str.strip()
+    )
+
+    df[new_col_name] = pd.to_numeric(cleaned, errors='coerce')
+
+    nulls_after = df[new_col_name].isna().sum()
+    nulls_introduced = nulls_after - nulls_before
+
+    print(f"Cleaned {col_name} → {new_col_name}")
+    print(f"  Nulls before: {nulls_before}")
+    print(f"  Nulls after: {nulls_after}")
+    print(f"  Conversion failures: {nulls_introduced} ({nulls_introduced/len(df):.2%})")
+
+    return df
+```
+
+## Documentation: Known Issues Log and Data Dictionary
+
+Every cleaning session should produce two documentation artifacts. The **Known Issues Log** records each problem you found, how you fixed it, and what impact the fix had — see @sec-documentation for the full format. The **Data Dictionary** describes every column in the cleaned dataset, including its type, valid values, and any cleaning that was applied.
+
+These are not bureaucratic exercises. They are the only reliable way to remember your decisions when you return to the analysis later or when someone else needs to reproduce your work.
+
+## Public Interest Context: Openness
+
+Every cleaning decision is an analytical choice. Stripping `$` and `,` from a sales column is mechanical; deciding that `"OTH"` rows should be dropped, or that `NR` should map to `NaN`, or that two rows with the same `VOTER_ID` should be treated as duplicates, are not. They are judgments that shape the conclusions downstream — and they are invisible to anyone who only sees your final DataFrame.
+
+The Known Issues Log from @sec-documentation is the practice that makes these judgments visible. A cleaning run that leaves no record is a black box: later readers cannot evaluate whether the drops, recodings, and deduplications were reasonable. Treat your cleaning cells as if an auditor will review them tomorrow, and write down each decision as you make it. Which of the cleaning moves you performed above would you defend in writing, and which are you relying on being unnoticed?
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **openness** introduced in [Chapter 4](04-public-interest.qmd). Openness in public interest data work means making your cleaning decisions visible so that readers can evaluate them — the Known Issues Log is that practice in code.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `AttributeError: Can only use .str accessor with string values`
+**What it means:** You called `.str.strip()` (or similar) on a column whose dtype is not `object`. The column was probably loaded as numeric or mixed.
+
+**How to fix it:** Check `df['col'].dtype`. If the column really is strings with one stray number, cast with `.astype(str)` first. If the column is genuinely numeric, you do not need the `.str` accessor at all.
+:::
+
+::: {.callout-warning}
+## `pd.to_numeric` returns all NaN
+**What it means:** Every value in the column failed to parse as a number — usually because a currency symbol or comma is still present.
+
+**How to fix it:** Strip the currency characters first: `df['col'].str.replace(r'[$,]', '', regex=True)`, then call `pd.to_numeric(..., errors='coerce')`. Inspect `df['col'].unique()[:20]` to confirm what values remain.
+:::
+
+::: {.callout-warning}
+## `.map()` turned some values into `NaN`
+**What it means:** `.map()` replaces *every* value using the dictionary — anything not in the dictionary becomes `NaN`. You almost certainly wanted `.replace()`, which only changes the mapped values and leaves the rest alone.
+
+**How to fix it:** If you want to leave unmapped values untouched, switch to `.replace()`. If you want `NaN` as a way to detect unexpected values (a data-quality check), `.map()` is the right tool — document the unmapped values in your Known Issues Log.
+:::
+
+::: {.callout-warning}
+## `drop_duplicates` dropped more (or fewer) rows than expected
+**What it means:** The default compares *all* columns. If you only care about a subset of identifying columns, you need to pass them explicitly.
+
+**How to fix it:** Use `df.drop_duplicates(subset=['VOTER_ID'])`. Always print `df.shape` before and after and inspect the diff. If the drop count surprises you, investigate a few of the dropped rows with `df[df.duplicated(subset=['VOTER_ID'], keep=False)]`.
+:::
+
+## Key Takeaways
+
+- Every real dataset needs cleaning. The problems are predictable: mixed types, sentinel values, whitespace, inconsistent categories, duplicates.
+- **Validate every transformation.** Compare `value_counts()` and null counts before and after. A transformation that silently changes your row count is a bug waiting to surface downstream.
+- Use `.replace()` when you want to leave unmapped values alone; use `.map()` when anything outside your controlled vocabulary should become `NaN`.
+- Write reusable cleaning functions. If you are repeating the same five lines on three columns, that is a signal to abstract.
+- Your Known Issues Log and Data Dictionary are as important as the code itself — they record your analytical judgment so it can be reviewed later.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on data cleaning with pandas
+
+- **pandas: Working with text data** — [pandas.pydata.org/docs/user_guide/text.html](https://pandas.pydata.org/docs/user_guide/text.html) is the canonical reference on the `.str` accessor.
+- **pandas: Working with missing data** — [pandas.pydata.org/docs/user_guide/missing_data.html](https://pandas.pydata.org/docs/user_guide/missing_data.html) covers `NaN`, `NA`, and the nullable integer/boolean types.
+- **pandas: Duplicate labels and duplicated rows** — [pandas.pydata.org/docs/user_guide/duplicates.html](https://pandas.pydata.org/docs/user_guide/duplicates.html) is the reference on dedup APIs.
+- **Real Python: The pandas DataFrame** — [realpython.com/pandas-dataframe/](https://realpython.com/pandas-dataframe/) walks through selection, filtering, and assignment patterns used throughout this chapter.
+- **regex101** — [regex101.com](https://regex101.com/) is an interactive regex tester that explains what each part of a pattern does. Essential when you use `.str.extract()` or `.str.replace()` with regex.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Clean the property data
+Load the Boulder County residential assessment data (`ar-rec-2025-residential.xlsx`). Identify at least three data quality issues using the post-load checklist. Clean them, validating each transformation by comparing `value_counts()` or null counts before and after.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+arc_df = pd.read_excel('ar-rec-2025-residential.xlsx')
+print('Shape:', arc_df.shape)
+print('\nDtypes:')
+print(arc_df.dtypes)
+
+# Issue 1: ACCOUNTNO has trailing whitespace
+arc_df['ACCOUNTNO'] = arc_df['ACCOUNTNO'].str.strip()
+
+# Issue 2: Duplicates on ACCOUNTNO
+print(f"\nDuplicate ACCOUNTNO values: {arc_df.duplicated(subset=['ACCOUNTNO']).sum()}")
+
+# Issue 3: Check for mixed-type or sentinel values in numeric columns
+print('\nSALE_PRICE sample:')
+print(arc_df['SALE_PRICE'].describe())
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Write a categorical standardization function
+Write a function called `standardize_categorical()` that takes a DataFrame, a column name, and a mapping dictionary, and returns the DataFrame with a new standardized column. The function should print a before-and-after comparison of `value_counts()` and report how many values were not covered by the mapping.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+def standardize_categorical(df, col_name, mapping_dict, new_col_name=None):
+    if new_col_name is None:
+        new_col_name = col_name + '_std'
+
+    print(f"Before ({col_name}):")
+    print(df[col_name].value_counts())
+
+    df[new_col_name] = df[col_name].replace(mapping_dict)
+
+    valid_values = set(mapping_dict.values())
+    unmapped = df[~df[new_col_name].isin(valid_values)]
+
+    print(f"\nAfter ({new_col_name}):")
+    print(df[new_col_name].value_counts())
+    print(f"\nUnmapped rows: {len(unmapped)} ({len(unmapped)/len(df):.1%})")
+
+    return df
+```
+:::
+:::

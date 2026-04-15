@@ -1,0 +1,239 @@
+# Spatial Data {#sec-spatial}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Load and inspect spatial data files (shapefiles and GeoJSON) using [GeoPandas](https://geopandas.org/en/stable/docs.html).
+- Explain what a **coordinate reference system (CRS)** is and use [`to_crs()`](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_crs.html) to reproject geometries.
+- Produce a **choropleth map** using [`GeoDataFrame.plot()`](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.plot.html) with an appropriate color map and classification scheme.
+- Perform **spatial joins** and point-in-polygon lookups with [`gpd.sjoin()`](https://geopandas.org/en/stable/docs/reference/api/geopandas.sjoin.html).
+- Recognize how spatial data work connects to questions of public accountability and equity.
+
+## Why Spatial Data Matters
+
+Maps are arguments, not illustrations. When you place data on a map, you make patterns visible that no table of numbers can reveal: redlining boundaries that still predict health outcomes a century later, the cluster of environmental hazards near certain neighborhoods, the odd shapes of gerrymandered districts. Spatial data is how analysts, journalists, and advocates make spatial inequality legible.
+
+You've already seen how pandas handles tabular data — rows and columns of numbers and strings. Spatial data adds one more column: a **geometry**. Each row still represents an entity (a county, a census tract, a parcel), but now that entity carries a shape with it.
+
+This chapter introduces [GeoPandas](https://geopandas.org/en/stable/docs.html), the Python library that extends pandas with spatial capabilities. GeoPandas is the go-to tool for spatial data analysis in Python — researchers, journalists, and data scientists use it daily to produce the maps you see in news articles and policy reports.
+
+If spatial analysis feels unfamiliar, that's expected. The concepts click once you start clicking through a few real datasets in the next few sections.
+
+## Setup
+
+You'll use [GeoPandas](https://geopandas.org/en/stable/docs.html) for spatial DataFrames, [Shapely](https://shapely.readthedocs.io/) for the geometry objects it contains, [pyproj](https://pyproj4.github.io/pyproj/) for coordinate transformations, and [matplotlib](https://matplotlib.org/stable/) for plotting.
+
+```{python}
+#| eval: false
+import geopandas as gpd
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+::: {.callout-tip collapse="true"}
+## If you get an `ImportError` or `ModuleNotFoundError`
+
+This means the library isn't installed in your current Python environment. Run this in a new cell:
+
+`!pip install geopandas`
+
+Then restart your kernel (Kernel → Restart) and run the import cell again. If you're using Anaconda, try `conda install -c conda-forge geopandas` instead — GeoPandas has several C-library dependencies that conda handles more reliably than pip. See @sec-setup if the install still fails.
+:::
+
+## Loading Spatial Data
+
+Spatial data arrives in a few common formats. **Shapefiles** (`.shp`) are an older but ubiquitous format maintained by the US Census Bureau for boundary data; they actually consist of several files (`.shp`, `.shx`, `.dbf`, `.prj`) that must stay together in the same folder. **GeoJSON** (`.geojson`) is a newer, web-friendly format that packs everything into a single readable JSON file.
+
+Load a shapefile or GeoJSON with `gpd.read_file()`. Here you load the Census TIGER/Line shapefile for Colorado counties.
+
+```{python}
+#| eval: false
+counties = gpd.read_file('data/tl_2023_08_county.shp')
+
+print('Shape:', counties.shape)
+print('Columns:', counties.columns.tolist())
+counties.head()
+```
+
+The result is a **GeoDataFrame** — a pandas DataFrame with one extra column named `geometry` that holds a Shapely polygon for each row. Everything you know about pandas still applies: `.shape`, `.head()`, `.columns`, `.isna().sum()`. The geometry column just adds spatial superpowers on top.
+
+## Coordinate Reference Systems
+
+Here's a concept that trips up everyone at first. The Earth is roughly spherical, but your map is flat. A **projection** (or **coordinate reference system**, CRS) is the mathematical rule that translates points on the globe to points on your flat map. There are thousands of projections in use, and which one you pick matters.
+
+The CRS is identified by an **EPSG code** — a numeric identifier that refers to a specific well-known projection. Two codes you'll see constantly:
+
+- **EPSG:4326** — latitude/longitude in degrees on the WGS84 globe. This is what GPS uses, and what most raw spatial data files ship with.
+- **EPSG:3857** — the "Web Mercator" projection used by Google Maps, OpenStreetMap, and most web mapping tiles. Useful for overlaying your data on a web basemap.
+
+Check the CRS of any GeoDataFrame like this:
+
+```{python}
+#| eval: false
+print(counties.crs)
+```
+
+If this prints `EPSG:4326` or similar, the geometries are in latitude/longitude. To reproject — change the CRS while preserving the underlying locations — use [`to_crs()`](https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.to_crs.html):
+
+```{python}
+#| eval: false
+counties_web = counties.to_crs('EPSG:3857')
+print(counties_web.crs)
+```
+
+::: {.callout-warning}
+## The silent CRS bug
+
+When you join or plot two GeoDataFrames together, they **must be in the same CRS**. If they are not, the geometries do not line up — points will appear hundreds of miles from where they should, or spatial joins will silently find zero matches. Always print `.crs` on both GeoDataFrames and call `.to_crs()` before combining them.
+:::
+
+## Choropleths
+
+A **choropleth** is a map where each region is shaded according to the value of a variable — for example, each Colorado county shaded by its poverty rate. It's the single most common map type in data journalism.
+
+Suppose you have a pandas DataFrame `poverty_df` with columns `countyfips` and `poverty_rate`. You merge it onto the county geometries using the same `.merge()` you learned in @sec-py-extending, then call `.plot()` on the resulting GeoDataFrame.
+
+```{python}
+#| eval: false
+counties_poverty = counties.merge(poverty_df, on='countyfips', how='left')
+
+fig, ax = plt.subplots(figsize=(10, 8))
+counties_poverty.plot(
+    column='poverty_rate',
+    cmap='YlOrRd',
+    legend=True,
+    edgecolor='white',
+    linewidth=0.5,
+    ax=ax
+)
+ax.set_title('Poverty Rate by Colorado County')
+ax.set_axis_off()
+plt.tight_layout()
+plt.show()
+```
+
+The `column` argument names the variable to shade by. The `cmap` argument picks the color scheme — `'YlOrRd'` (yellow → orange → red) is a conventional **sequential** palette for values that increase in one direction. Use `'RdBu'` or `'coolwarm'` for **diverging** palettes when values have a meaningful middle (above/below zero, above/below a reference rate).
+
+The default classification is a linear scale across the data range. For skewed data — most socioeconomic variables are skewed — add `scheme='Quantiles'` or `scheme='NaturalBreaks'` to bin counties into equal-count or clustered groups. This requires the [mapclassify](https://pysal.org/mapclassify/) package (`pip install mapclassify`).
+
+Take a moment to appreciate what you just did: you loaded a shapefile, joined it to tabular data, and produced a publication-ready map in under ten lines of code.
+
+## Spatial Joins
+
+You've already seen how `.merge()` in @sec-py-extending combines DataFrames on a shared key column. A **spatial join** is the same operation, but the "key" is geometric containment or proximity rather than a matching value. The function is [`gpd.sjoin()`](https://geopandas.org/en/stable/docs/reference/api/geopandas.sjoin.html).
+
+The classic use case is **point-in-polygon**: given a set of points (e.g., business locations) and a set of polygons (e.g., counties), tag each point with the county it falls inside.
+
+```{python}
+#| eval: false
+# Points: one row per dispensary with lat/lon columns
+dispensaries = pd.read_csv('data/dispensaries.csv')
+dispensaries_gdf = gpd.GeoDataFrame(
+    dispensaries,
+    geometry=gpd.points_from_xy(dispensaries['lon'], dispensaries['lat']),
+    crs='EPSG:4326'
+)
+
+# Make sure both GeoDataFrames share a CRS
+dispensaries_gdf = dispensaries_gdf.to_crs(counties.crs)
+
+# Spatial join: for each point, attach the county it falls inside
+tagged = gpd.sjoin(
+    dispensaries_gdf,
+    counties[['countyfips', 'NAME', 'geometry']],
+    how='left',
+    predicate='within'
+)
+
+print(tagged.head())
+```
+
+The `predicate` argument controls the spatial relationship. Common values:
+
+- `'within'` — each left-hand point must fall inside a right-hand polygon.
+- `'intersects'` — any overlap counts.
+- `'contains'` — reverse of `within`.
+
+After the join, `tagged` has every original dispensary column plus the matched county's `countyfips` and `NAME`. You can now count dispensaries per county with a regular pandas `groupby`:
+
+```{python}
+#| eval: false
+per_county = tagged.groupby('NAME').size().sort_values(ascending=False)
+print(per_county.head())
+```
+
+If this feels abstract right now, that's expected — it clicks once you have a real shapefile and a real point dataset in front of you.
+
+## Public Interest Context: Mapping Power
+
+Maps have always been tools of power. Nineteenth-century **redlining** maps drew color-coded boundaries that denied mortgages to Black and immigrant neighborhoods, and those same boundaries still predict air quality, tree cover, and life expectancy today. **Gerrymandered** legislative districts use geometry to dilute the votes of entire communities. **Environmental justice** analyses rely on spatial joins between industrial facility locations, pollution plumes, and demographic data to show who lives closest to the harm.
+
+Spatial data is, in this sense, a public interest superpower: it makes visible what tabular data conceals. But access to that power is unevenly distributed. High-quality parcel-level shapefiles are often behind county GIS paywalls. Geocoding APIs — the services that turn an address into a latitude/longitude — enforce rate limits and terms of service that effectively exclude small-newsroom and student analyses. The infrastructure of spatial analysis is itself a site of enclosure. When you can produce a map, you can make an argument that spreadsheet data cannot.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concepts of **enclosure** and **openness** introduced in [Chapter 4](04-public-interest.qmd). Spatial analysis reveals inequalities that tabular data hides, but the shapefiles, basemaps, and geocoding services needed to produce that analysis are themselves unevenly accessible.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `CRSError: Invalid projection` or coordinates look wildly wrong
+**What it means:** You tried to plot or join two GeoDataFrames with different CRSs, or a shapefile loaded without a `.prj` file so GeoPandas doesn't know the projection.
+
+**How to fix it:** Run `print(gdf.crs)` on each GeoDataFrame. Use `.to_crs('EPSG:4326')` to bring them into alignment before any spatial operation. If `.crs` is `None`, you can assign one with `gdf.set_crs('EPSG:4326', inplace=True)` — but only if you know for certain that is the correct projection.
+:::
+
+::: {.callout-warning}
+## `fiona.errors.DriverError: unable to open file`
+**What it means:** A shapefile was moved or unzipped incompletely. A shapefile is really several files (`.shp`, `.shx`, `.dbf`, `.prj`) that must sit in the same folder.
+
+**How to fix it:** Confirm all four files are present. If you downloaded a zip, re-extract it into a folder and point `gpd.read_file()` at the `.shp` file inside.
+:::
+
+::: {.callout-warning}
+## Your spatial join returns zero rows
+**What it means:** Either (1) the two GeoDataFrames have mismatched CRSs (see above), or (2) your `predicate` argument is wrong — for example, you used `'within'` when you meant `'intersects'`.
+
+**How to fix it:** Print the `.crs` of both frames. Try `predicate='intersects'` as a diagnostic. Plot both layers on the same figure to confirm they actually overlap geographically.
+:::
+
+::: {.callout-warning}
+## The choropleth legend has too many decimal places
+**What it means:** GeoPandas' default legend formatting is not friendly for percentages, currencies, or large counts.
+
+**How to fix it:** Pass `legend_kwds={'fmt': '{:.1%}'}` or `legend_kwds={'fmt': '${:,.0f}'}` to `.plot()` to control formatting. For categorical maps, pass `categorical=True` and a `legend_kwds={'title': '...'}`.
+:::
+
+## Key Takeaways
+
+- A GeoDataFrame is a pandas DataFrame with a `geometry` column. Every pandas skill you have still applies.
+- **Always check the CRS** before plotting or joining. Mismatched CRSs are the single most common spatial bug.
+- Choropleths communicate quickly but can mislead — pick a palette and classification scheme that matches the distribution of your data.
+- `gpd.sjoin()` is the spatial cousin of `pd.merge()`. The `predicate` argument controls the geometric relationship.
+- Spatial work turns invisible inequality into visible argument. The technical skills in this chapter are also civic skills.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on spatial analysis with GeoPandas
+
+- **GeoPandas documentation** — [geopandas.org/en/stable/docs.html](https://geopandas.org/en/stable/docs.html) is the canonical reference.
+- **GeoPandas: Getting Started** — [geopandas.org/en/stable/getting_started/introduction.html](https://geopandas.org/en/stable/getting_started/introduction.html) produces a map from a shapefile in about an hour.
+- **Folium** — [python-visualization.github.io/folium/](https://python-visualization.github.io/folium/) makes interactive web maps from GeoDataFrames.
+- **contextily** — [contextily.readthedocs.io/](https://contextily.readthedocs.io/) adds basemap tiles (streets, terrain) beneath your data.
+- **Geographic Data Science with Python** — [geographicdata.science/book/](https://geographicdata.science/book/) is a free open textbook with worked examples from housing, mobility, and environmental justice.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Map a variable of your choice
+Download the Colorado county TIGER/Line shapefile and the county-year dataset you built in @sec-sql-reshaping. Merge them on `countyfips`, then produce a choropleth of the death rate per 100,000 for 2020. Use a sequential colormap (`'YlOrRd'` or `'viridis'`) and include a title, legend, and formatted numeric labels. What counties stand out? Are there any geographic clusters?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Point-in-polygon audit
+Take a CSV with address-level or lat/lon-level records (e.g., cannabis dispensaries or crime incidents). Convert it to a GeoDataFrame using `gpd.points_from_xy()`. Perform a spatial join against the county shapefile. How many records fall outside any Colorado county boundary? What might explain the misses — bad addresses, records from neighboring states, or geocoding errors? Document your findings in a short Known Issues Log entry.
+:::

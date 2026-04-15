@@ -1,0 +1,373 @@
+# Descriptive and Qualitative Exploration {#sec-descriptive}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Move beyond [`df.describe()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.describe.html) to characterize the shape, skewness, and spread of a distribution using quantiles and the coefficient of variation.
+- Identify outliers with the **IQR method** and the **z-score method**, and decide whether each outlier reflects an error or a legitimate extreme observation.
+- Produce frequency tables with [`.value_counts()`](https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html) and cross-tabulations with [`pd.crosstab()`](https://pandas.pydata.org/docs/reference/api/pandas.crosstab.html).
+- Build a correlation matrix with [`df.corr()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.corr.html) and interpret its structure.
+- Write a short **descriptive summary** that documents N, shape, outliers, and missingness for any new dataset.
+
+## Why Descriptive Exploration Comes First
+
+Before you compare groups or test hypotheses, you need to understand what your data looks like. Descriptive exploration is the process of characterizing a dataset's central tendencies, variability, shape, and outliers — building an informed mental model of the data that guides every subsequent analytical decision. This chapter goes beyond the `.describe()` method you have already used and introduces systematic techniques for understanding distributions, identifying unusual observations, examining categorical patterns, and constructing frequency tables and cross-tabulations.
+
+The philosophy here is qualitative in the broadest sense: you are looking for patterns, surprises, and anomalies rather than computing formal test statistics. The goal is to know your data well enough that nothing in the later chapters catches you off guard.
+
+## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), [matplotlib](https://matplotlib.org/stable/), and [seaborn](https://seaborn.pydata.org/).
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.float_format', '{:.3f}'.format)
+
+sns.set_style('whitegrid')
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy matplotlib seaborn` (or `pip install pandas numpy matplotlib seaborn`) and restart the Jupyter kernel. `seaborn` is sometimes missing from minimal environments; that is a common first-time cause. See @sec-setup.
+:::
+
+## Datasets
+
+We continue with the datasets from earlier chapters, loading and preparing them with the derived columns already established.
+
+```{python}
+# Lahman batting with derived metrics
+batting = pd.read_csv('Batting.csv')
+batting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))
+batting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']
+batting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))
+batting['HBP'] = batting['HBP'].fillna(0)
+batting['SF'] = batting['SF'].fillna(0)
+batting['OBP'] = (
+    (batting['H'] + batting['BB'] + batting['HBP'])
+    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))
+)
+batting['OPS'] = batting['OBP'] + batting['SLG']
+batting['decade'] = (batting['yearID'] // 10) * 10
+
+# Filter to qualified player-seasons for meaningful rate statistics
+qualified = batting[batting['AB'] >= 100].copy()
+
+print('Qualified player-seasons:', qualified.shape[0])
+```
+
+```{python}
+# Colorado population estimates
+url = 'https://storage.googleapis.com/co-publicdata/sya-county.csv'
+pop = pd.read_csv(url, skiprows=1, dtype={'countyfips': str})
+estimates = pop[pop['datatype'] == 'Estimate'].copy()
+```
+
+```{python}
+# Cannabis sales (cleaned)
+cannabis = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2, skipfooter=8, engine='python', na_values=['NR']
+)
+cannabis.columns = ['month', 'year', 'county', 'medical', 'retail']
+cannabis['county'] = cannabis['county'].str.strip()
+for col in ['medical', 'retail']:
+    cannabis[col] = pd.to_numeric(
+        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False),
+        errors='coerce'
+    )
+cannabis = cannabis[cannabis['county'] != 'Total']
+```
+
+## Beyond `.describe()`: Understanding Distributions
+
+The `.describe()` method gives you the five-number summary (min, 25th percentile, median, 75th percentile, max) plus the mean and count. This is a useful starting point, but it hides important features of a distribution: its shape, its skewness, and whether it has multiple modes.
+
+### Skewness
+
+Many real-world variables are **right-skewed** — a long tail extends toward high values while most observations cluster near the low end. Income, city populations, and home prices all follow this pattern. Cannabis sales across Colorado counties are a clear example:
+
+```{python}
+annual_sales = (
+    cannabis[cannabis['year'] == 2023]
+    .groupby('county')['retail']
+    .sum()
+    .dropna()
+)
+
+print(annual_sales.describe())
+print(f'\nSkewness: {annual_sales.skew():.2f}')
+print(f'Mean:     ${annual_sales.mean():,.0f}')
+print(f'Median:   ${annual_sales.median():,.0f}')
+```
+
+When the mean is substantially larger than the median, the distribution is right-skewed, and the mean is being pulled upward by a few very large values. In this case, the median is a better measure of the "typical" county than the mean.
+
+### Quantiles and percentiles
+
+Quantiles divide your data into equal-sized groups. The `.quantile()` method lets you compute arbitrary percentiles:
+
+```{python}
+# Decile boundaries for batting average
+percentiles = qualified['BA'].quantile(np.arange(0, 1.1, 0.1))
+print('Batting average deciles:')
+print(percentiles.round(3))
+```
+
+Quantiles are useful for creating bins (as with `pd.qcut()` in @sec-py-reshaping), for identifying where a specific value falls in the distribution, and for detecting whether the distribution has unusual gaps or concentrations.
+
+### The coefficient of variation
+
+Standard deviation tells you how spread out values are, but its meaning depends on the scale of the variable. A standard deviation of 1,000 is enormous for a variable with a mean of 500 but negligible for a variable with a mean of 10,000,000. The **coefficient of variation** (CV) — the ratio of the standard deviation to the mean — provides a scale-free measure of relative variability:
+
+```{python}
+for col in ['medical', 'retail']:
+    mean_val = cannabis[col].mean()
+    std_val = cannabis[col].std()
+    cv = std_val / mean_val
+    print(f'{col}: mean={mean_val:,.0f}, std={std_val:,.0f}, CV={cv:.2f}')
+```
+
+A CV above 1.0 indicates very high variability relative to the mean — typical of skewed distributions.
+
+## Identifying Outliers
+
+An **outlier** is an observation that is unusually far from the rest of the data. Outliers are not automatically errors — they may be legitimate extreme values that are analytically important. The goal is to identify them, investigate them, and make a documented decision about whether to include them in your analysis.
+
+### The IQR method
+
+The interquartile range (IQR) is the distance between the 25th and 75th percentiles. The standard convention defines outliers as values below Q1 − 1.5 × IQR or above Q3 + 1.5 × IQR:
+
+```{python}
+def find_outliers_iqr(series, multiplier=1.5):
+    """Identify outliers using the IQR method."""
+    Q1 = series.quantile(0.25)
+    Q3 = series.quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - multiplier * IQR
+    upper = Q3 + multiplier * IQR
+
+    outliers = series[(series < lower) | (series > upper)]
+
+    print(f'Q1={Q1:.3f}, Q3={Q3:.3f}, IQR={IQR:.3f}')
+    print(f'Lower fence: {lower:.3f}, Upper fence: {upper:.3f}')
+    print(f'Outliers: {len(outliers)} of {len(series)} ({len(outliers)/len(series):.1%})')
+
+    return outliers
+
+hr_outliers = find_outliers_iqr(qualified['HR'])
+```
+
+### The z-score method
+
+A z-score measures how many standard deviations a value is from the mean. Values with |z| > 3 are conventionally considered outliers:
+
+```{python}
+qualified['hr_zscore'] = (
+    (qualified['HR'] - qualified['HR'].mean()) / qualified['HR'].std()
+)
+
+extreme = qualified[qualified['hr_zscore'].abs() > 3]
+print(f'Observations with |z| > 3: {len(extreme)}')
+print(extreme[['playerID', 'yearID', 'HR', 'hr_zscore']].sort_values('hr_zscore', ascending=False).head(10))
+```
+
+### Investigating outliers
+
+Once you identify outliers, investigate them before deciding what to do. Are they data entry errors, measurement artifacts, or genuinely extreme observations?
+
+```{python}
+# Are the extreme HR seasons real or errors?
+# Check: do the player names and years match known record holders?
+print(extreme[['playerID', 'yearID', 'teamID', 'HR']].sort_values('HR', ascending=False).head(5))
+```
+
+If these are legitimate records (Barry Bonds' 73 HR in 2001, for instance), removing them would be analytically dishonest. If they are data entry errors (a player with 999 HR), removing them is necessary. Document the decision either way.
+
+## Categorical Patterns
+
+For non-numeric columns, the primary descriptive tools are frequency tables and cross-tabulations.
+
+### Frequency tables
+
+The `.value_counts()` method is your workhorse for categorical exploration. Use it with `normalize=True` to get proportions instead of counts:
+
+```{python}
+# County distribution of cannabis sales records
+county_counts = cannabis['county'].value_counts()
+print(f'Counties with data: {len(county_counts)}')
+print(f'\nTop 10:')
+print(county_counts.head(10))
+print(f'\nBottom 5:')
+print(county_counts.tail(5))
+```
+
+```{python}
+# Age band distribution in Colorado (2020)
+bins = [0, 18, 65, 101]
+labels = ['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)']
+est_2020 = estimates[estimates['year'] == 2020].copy()
+est_2020['age_band'] = pd.cut(est_2020['age'], bins=bins, labels=labels, right=False)
+
+band_totals = est_2020.groupby('age_band', observed=True)['totalpopulation'].sum()
+print('Statewide population by age band (2020):')
+print(band_totals)
+print(f'\nProportions:')
+print((band_totals / band_totals.sum()).round(3))
+```
+
+### Cross-tabulations
+
+A cross-tabulation (crosstab) shows the joint distribution of two categorical variables. Use `pd.crosstab()` to build one:
+
+```{python}
+# Decades × league for batting data
+batting_with_league = batting.copy()
+
+decade_counts = pd.crosstab(
+    qualified['decade'],
+    qualified['teamID'].str[:2],  # rough proxy
+    margins=True
+)
+print('Player-seasons by decade (first 5 decades):')
+print(decade_counts.head())
+```
+
+Cross-tabulations become more informative with `normalize` to show proportions and with `margins=True` to include row and column totals.
+
+## Summarizing Multiple Variables Together
+
+When you have several numeric columns, examining them individually is tedious. A **correlation matrix** provides a compact summary of pairwise relationships:
+
+```{python}
+batting_metrics = qualified[['AB', 'H', 'HR', 'BB', 'BA', 'SLG', 'OBP', 'OPS']].copy()
+
+corr_matrix = batting_metrics.corr().round(2)
+print(corr_matrix)
+```
+
+We will visualize this matrix as a heatmap in @sec-visualization and test individual correlations formally in @sec-hypothesis-testing.
+
+## The Descriptive Summary Template
+
+For any new dataset or analytical question, produce a descriptive summary that covers these elements. You can structure this as a Markdown cell in your notebook:
+
+```markdown
+## Descriptive Summary: [Dataset / Variable]
+
+**Unit of analysis:** [what each row represents]
+**N:** [number of observations after filtering]
+**Key statistics:** mean, median, std, min, max
+**Shape:** [symmetric, right-skewed, bimodal, etc.]
+**Outliers:** [count, method used, decision made]
+**Missing data:** [count, pattern, impact on analysis]
+**Notable patterns:** [any surprises, clusters, or anomalies]
+```
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## The mean looks "off" but the data is fine
+**What it means:** The distribution is heavily skewed. A few extreme values pull the mean in one direction, even though the rest of the data sits in a narrow range.
+
+**How to fix it:** Report the median alongside the mean, and name the shape explicitly ("right-skewed"). The median is the better "typical" measure for skewed variables like income or sales.
+:::
+
+::: {.callout-warning}
+## Your outlier detector flagged half the data
+**What it means:** The 1.5 × IQR or |z| > 3 rule assumes a roughly symmetric distribution. On highly skewed data, both methods produce far too many "outliers."
+
+**How to fix it:** Log-transform the variable (`np.log1p`) before applying outlier rules, or use a more robust method like median absolute deviation (MAD). Investigate what "unusual" means in the domain before applying a mechanical rule.
+:::
+
+::: {.callout-warning}
+## `crosstab` margins look wrong
+**What it means:** Missing values are excluded from `crosstab` by default, so the marginal totals may not match `len(df)`.
+
+**How to fix it:** Pass `dropna=False` to include `NaN` as its own category, or pre-fill missing values with a sentinel like `'Unknown'` before crosstabbing. Document the choice.
+:::
+
+::: {.callout-warning}
+## A correlation is high but the relationship is noise
+**What it means:** Correlation summarizes a monotonic trend. A strong correlation can hide outliers, nonlinearity, or a relationship driven by a handful of points.
+
+**How to fix it:** Always visualize before concluding. A scatter plot or pairplot will show what the correlation coefficient cannot. See @sec-visualization.
+:::
+
+## Key Takeaways
+
+- Descriptive exploration is about building intuition — shape, skew, outliers, missingness — before any formal comparison.
+- The mean lies when the distribution is skewed. Always check the median, and name the shape out loud.
+- Outlier detection is a starting point, not an answer. Every outlier deserves an investigation and a documented decision.
+- `.value_counts()`, `pd.crosstab()`, and `.corr()` are three tools that cover most categorical-and-multivariate exploration.
+- Summarize every new dataset with the **descriptive summary template** before moving on. It forces you to answer the "what is this data?" question explicitly.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on descriptive statistics
+
+- **pandas: Descriptive statistics** — [pandas.pydata.org/docs/user_guide/basics.html#descriptive-statistics](https://pandas.pydata.org/docs/user_guide/basics.html#descriptive-statistics) documents the full catalog of methods.
+- **pandas: `pd.crosstab`** — [pandas.pydata.org/docs/reference/api/pandas.crosstab.html](https://pandas.pydata.org/docs/reference/api/pandas.crosstab.html) is the API reference for cross-tabs.
+- **scipy.stats: Summary statistics** — [docs.scipy.org/doc/scipy/reference/stats.html#summary-statistics](https://docs.scipy.org/doc/scipy/reference/stats.html#summary-statistics) covers skewness, kurtosis, and robust estimators.
+- **Real Python: Python Statistics Fundamentals** — [realpython.com/python-statistics/](https://realpython.com/python-statistics/) is an accessible walkthrough with examples.
+- **"Exploratory Data Analysis" by John Tukey** — the founding text on descriptive exploration. Dated but worth skimming for its unchanged wisdom about looking at data before testing it.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Distribution profile
+Compute the mean, median, standard deviation, skewness, and coefficient of variation for retail cannabis sales in 2023 across all counties. Based on these statistics, describe the shape of the distribution in one or two sentences. Which measure of central tendency (mean or median) better represents the "typical" county?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+annual = cannabis[cannabis['year'] == 2023].groupby('county')['retail'].sum().dropna()
+print(f'Mean:     ${annual.mean():,.0f}')
+print(f'Median:   ${annual.median():,.0f}')
+print(f'Std:      ${annual.std():,.0f}')
+print(f'Skewness: {annual.skew():.2f}')
+print(f'CV:       {annual.std() / annual.mean():.2f}')
+```
+
+The distribution is strongly right-skewed (skewness >> 1), with a few large urban counties pulling the mean well above the median. The median better represents the typical county.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Outlier investigation
+Using the IQR method, identify outlier counties in 2023 retail cannabis sales. For each outlier, look up the county's population. Are these outliers because they are genuinely unusual, or because they are large counties?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+outliers = find_outliers_iqr(annual)
+print('Outlier counties:')
+print(outliers.sort_values(ascending=False))
+```
+
+These are almost certainly large urban counties (Denver, El Paso, Arapahoe, etc.). They are outliers in sales volume because they have more people, not because their per-capita sales are unusual. Computing per-capita sales (by dividing by population) would likely eliminate most of these as outliers.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Cross-tabulation
+Create a cross-tabulation of cannabis counties by year and whether they have any medical sales (yes/no). Has the number of counties reporting medical sales changed over time?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+cannabis['has_medical'] = cannabis['medical'].notna() & (cannabis['medical'] > 0)
+crosstab = pd.crosstab(cannabis['year'], cannabis['has_medical'], margins=True)
+crosstab.columns = ['No Medical', 'Has Medical', 'Total']
+print(crosstab)
+```
+:::
+:::

@@ -1,0 +1,568 @@
+# Extending Data with SQL {#sec-sql-extending}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Write `GROUP BY` queries using SQLite's [aggregate functions](https://www.sqlite.org/lang_aggfunc.html) (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP_CONCAT`).
+- Distinguish `WHERE` (filters rows before grouping) from `HAVING` (filters groups after aggregation).
+- Use `CASE WHEN` expressions inside aggregates for conditional counting and cross-tabulation.
+- Build [subqueries](https://www.sqlite.org/lang_select.html#subqueries) in `SELECT`, `WHERE`, and `FROM` clauses.
+- Write multi-step analytical pipelines using [Common Table Expressions (CTEs)](https://www.sqlite.org/lang_with.html) with the `WITH ... AS` syntax.
+
+## Why SQL for Extending
+
+Loading and cleaning produce reliable tables. Extending transforms those tables into answers. This chapter introduces the SQL tools for computing metrics and testing analytical claims: `GROUP BY` with [aggregate functions](https://www.sqlite.org/lang_aggfunc.html), [subqueries](https://www.sqlite.org/lang_select.html#subqueries) that embed one query inside another, and [Common Table Expressions (CTEs)](https://www.sqlite.org/lang_with.html) that name intermediate results for clarity and reuse. Together, these tools let you write complex analytical pipelines entirely in SQL — pipelines that are readable, auditable, and reproducible.
+
+The dataset for this chapter is the Boulder County Assessor's buildings file, which contains one row per improvement section recorded for each parcel. It is a rich, messy, real-world dataset with dozens of columns describing building characteristics — year built, square footage, quality grade, heating system, roof type, and more.
+
+CTEs are the single biggest readability upgrade you can make to your SQL. If a query is turning into a wall of nested parentheses, that is a signal to break it apart with `WITH`. Your reviewer — even your future self — will thank you.
+
+## Setup
+
+This chapter uses Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html), [pandas](https://pandas.pydata.org/docs/), and [numpy](https://numpy.org/doc/stable/).
+
+```{python}
+import sqlite3
+import pandas as pd
+import numpy as np
+
+pd.set_option('display.max_columns', 20)
+pd.set_option('display.max_colwidth', 55)
+pd.set_option('display.float_format', '{:.2f}'.format)
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+`sqlite3` is part of Python's standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-setup.
+:::
+
+```{python}
+# Load the CSV, clean, and write to a local SQLite database
+buildings_raw = pd.read_csv('buildings.csv')
+
+# Strip trailing whitespace from text columns
+for col in buildings_raw.select_dtypes(include='object').columns:
+    buildings_raw[col] = buildings_raw[col].str.strip()
+
+# Write to database
+conn = sqlite3.connect('boulder_buildings.db')
+buildings_raw.to_sql('buildings', conn, if_exists='replace', index=False)
+
+print(f"Loaded {len(buildings_raw):,} rows into buildings table")
+```
+
+## Part 1: GROUP BY and Aggregate Functions
+
+### What GROUP BY does
+
+`GROUP BY` collapses rows that share the same value(s) in one or more columns into a single summary row. It is the SQL equivalent of pandas' `groupby().agg()` and the conceptual equivalent of a spreadsheet pivot table.
+
+The key rule: every column in your `SELECT` must be either listed in `GROUP BY` or wrapped in an aggregate function. You cannot select a raw column alongside grouped aggregates — SQL would not know which row's value to display.
+
+```{python}
+pd.read_sql_query("""
+    SELECT
+        quality_grade,
+        COUNT(*) AS n_buildings,
+        AVG(above_ground_sqft) AS avg_sqft,
+        MIN(year_built) AS oldest,
+        MAX(year_built) AS newest
+    FROM buildings
+    WHERE quality_grade IS NOT NULL
+    GROUP BY quality_grade
+    ORDER BY n_buildings DESC;
+""", conn)
+```
+
+### SQLite aggregate functions
+
+| Function | Purpose | Notes |
+|----------|---------|-------|
+| `COUNT(*)` | Number of rows in group | Counts all rows, including NULLs |
+| `COUNT(col)` | Number of non-NULL values | Skips NULLs — use to measure completeness |
+| `SUM(col)` | Sum of values | Returns NULL if all values are NULL |
+| `TOTAL(col)` | Sum of values | Returns 0.0 if all values are NULL (safer) |
+| `AVG(col)` | Mean of non-NULL values | Ignores NULLs — denominator is count of non-NULL |
+| `MIN(col)` / `MAX(col)` | Extremes | Works on text (alphabetical) and numbers |
+| `GROUP_CONCAT(col)` | Concatenate values into a string | Useful for inventory lists |
+
+The distinction between `COUNT(*)` and `COUNT(col)` is critical. `COUNT(*)` counts all rows regardless of NULL values. `COUNT(col)` counts only rows where `col` is not NULL. Comparing the two tells you the completeness rate of a column.
+
+```{python}
+pd.read_sql_query("""
+    SELECT
+        COUNT(*) AS total_rows,
+        COUNT(year_built) AS non_null_year,
+        COUNT(*) - COUNT(year_built) AS null_year,
+        ROUND(100.0 * COUNT(year_built) / COUNT(*), 1) AS pct_complete
+    FROM buildings;
+""", conn)
+```
+
+### HAVING vs. WHERE
+
+Both filter rows, but they operate at different stages of query execution. `WHERE` filters individual rows *before* grouping. `HAVING` filters groups *after* aggregation.
+
+```{python}
+# WHERE: filter rows before grouping
+pd.read_sql_query("""
+    SELECT quality_grade, COUNT(*) AS n
+    FROM buildings
+    WHERE year_built >= 2000
+    GROUP BY quality_grade
+    ORDER BY n DESC;
+""", conn)
+```
+
+```{python}
+# HAVING: filter groups after aggregation
+pd.read_sql_query("""
+    SELECT quality_grade, COUNT(*) AS n
+    FROM buildings
+    GROUP BY quality_grade
+    HAVING n >= 100
+    ORDER BY n DESC;
+""", conn)
+```
+
+A useful mnemonic: `WHERE` answers "which rows go into the groups?" while `HAVING` answers "which groups appear in the output?"
+
+### CASE WHEN inside aggregation
+
+`CASE WHEN` expressions inside aggregate functions enable conditional counting — the SQL equivalent of `COUNTIF` in a spreadsheet. This is one of the most powerful patterns in SQL.
+
+```{python}
+# Cross-tab: count buildings by decade and class
+pd.read_sql_query("""
+    SELECT
+        (year_built / 10) * 10 AS decade,
+        SUM(CASE WHEN bldg_class = 'R' THEN 1 ELSE 0 END) AS residential,
+        SUM(CASE WHEN bldg_class = 'C' THEN 1 ELSE 0 END) AS commercial,
+        SUM(CASE WHEN bldg_class NOT IN ('R', 'C') THEN 1 ELSE 0 END) AS other,
+        COUNT(*) AS total
+    FROM buildings
+    WHERE year_built IS NOT NULL
+    GROUP BY decade
+    ORDER BY decade;
+""", conn)
+```
+
+### Working with Dates in SQL: `strftime()`
+
+Government datasets often store dates as separate integer columns rather than a single date column. The cannabis sales data stores `month` and `year` as separate integers. SQL can reconstruct a date string from these using `strftime()` and string concatenation.
+
+```{python}
+# First, load the cleaned cannabis data if you have it
+cannabis_conn = sqlite3.connect('boulder_buildings.db')  # reuse same connection
+
+pd.read_sql_query("""
+    SELECT
+        strftime('%Y-Q', year || '-' || printf('%02d', month) || '-01') AS quarter,
+        SUM(retail_sales) AS total_retail,
+        COUNT(DISTINCT county) AS n_counties
+    FROM cannabis_sales
+    WHERE county != 'Total'
+    GROUP BY quarter
+    ORDER BY quarter
+    LIMIT 12;
+""", conn)
+```
+
+`printf('%02d', month)` left-pads the month integer with a zero so that `3` becomes `03`. SQLite's `strftime()` then accepts the reconstructed date string `'YYYY-MM-DD'` and formats it however you need.
+
+::: {.callout-tip}
+## SQLite date functions are string-based
+Unlike PostgreSQL or MySQL, SQLite has no native `DATE` type. Dates are stored as text, integer, or real values, and `strftime()` operates on text in ISO format (`YYYY-MM-DD`). As long as your date strings are in that format, `strftime()` gives you full access to year, month, quarter, day-of-week, and Julian day calculations.
+:::
+
+## Part 1 Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Construction era distribution
+Write a query that groups buildings into construction eras — pre-1950, 1950–1979, 1980–1999, 2000–present — and counts the number of buildings in each era. Use `CASE WHEN` to create the era labels.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT
+        CASE
+            WHEN year_built < 1950 THEN 'Pre-1950'
+            WHEN year_built < 1980 THEN '1950-1979'
+            WHEN year_built < 2000 THEN '1980-1999'
+            ELSE '2000-present'
+        END AS era,
+        COUNT(*) AS n_buildings,
+        ROUND(AVG(above_ground_sqft), 0) AS avg_sqft
+    FROM buildings
+    WHERE year_built IS NOT NULL
+    GROUP BY era
+    ORDER BY MIN(year_built);
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Heating system prevalence
+Write a query that shows the top 10 heating system types by count, along with the average square footage and average year built for buildings with each heating type. Exclude rows where the heating system is NULL.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT
+        heating_type,
+        COUNT(*) AS n,
+        ROUND(AVG(above_ground_sqft), 0) AS avg_sqft,
+        ROUND(AVG(year_built), 0) AS avg_year
+    FROM buildings
+    WHERE heating_type IS NOT NULL
+    GROUP BY heating_type
+    ORDER BY n DESC
+    LIMIT 10;
+""", conn)
+```
+:::
+:::
+
+## Part 2: Subqueries
+
+A subquery is a `SELECT` statement nested inside another query. It lets you compute a value or a set of values dynamically and use the result in a filter, comparison, or derived table — without hardcoding anything.
+
+### Scalar subquery: comparing each row to a reference value
+
+A scalar subquery returns a single value. You can use it anywhere a literal value would go:
+
+```{python}
+# Find buildings larger than the overall average
+pd.read_sql_query("""
+    SELECT strap, year_built, above_ground_sqft
+    FROM buildings
+    WHERE above_ground_sqft > (SELECT AVG(above_ground_sqft) FROM buildings)
+    ORDER BY above_ground_sqft DESC
+    LIMIT 10;
+""", conn)
+```
+
+The subquery `(SELECT AVG(above_ground_sqft) FROM buildings)` computes the mean once, and the outer query uses it to filter rows. This is more robust than hardcoding the average — if the data changes, the query automatically adapts.
+
+### WHERE IN: filtering against a dynamically computed set
+
+```{python}
+# Find buildings in quality grades that have above-average mean square footage
+pd.read_sql_query("""
+    SELECT strap, quality_grade, above_ground_sqft
+    FROM buildings
+    WHERE quality_grade IN (
+        SELECT quality_grade
+        FROM buildings
+        WHERE quality_grade IS NOT NULL
+        GROUP BY quality_grade
+        HAVING AVG(above_ground_sqft) > (SELECT AVG(above_ground_sqft) FROM buildings)
+    )
+    ORDER BY above_ground_sqft DESC
+    LIMIT 10;
+""", conn)
+```
+
+### Derived table: wrapping aggregate results
+
+A subquery in the `FROM` clause creates a temporary table (called a derived table) that the outer query can filter, join, or aggregate further:
+
+```{python}
+# Rank quality grades by their median-like percentile
+pd.read_sql_query("""
+    SELECT *
+    FROM (
+        SELECT
+            quality_grade,
+            COUNT(*) AS n,
+            ROUND(AVG(above_ground_sqft), 0) AS avg_sqft
+        FROM buildings
+        WHERE quality_grade IS NOT NULL
+        GROUP BY quality_grade
+    ) AS grade_stats
+    WHERE n >= 50
+    ORDER BY avg_sqft DESC;
+""", conn)
+```
+
+## Part 2 Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Scalar subquery — newest buildings
+Write a query that finds all buildings built in the most recent year in the database (without hardcoding the year). How many are there?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT COUNT(*) AS n_newest,
+           MAX(year_built) AS year
+    FROM buildings
+    WHERE year_built = (SELECT MAX(year_built) FROM buildings);
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 4: WHERE NOT IN
+Write a query that finds parcels (`strap` values) that have only non-residential building sections. Hint: find all parcels that appear in residential rows, then select parcels NOT IN that set.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT DISTINCT strap
+    FROM buildings
+    WHERE strap NOT IN (
+        SELECT DISTINCT strap
+        FROM buildings
+        WHERE bldg_class = 'R'
+    )
+    LIMIT 10;
+""", conn)
+```
+:::
+:::
+
+## Part 3: Common Table Expressions (CTEs)
+
+A CTE is a named temporary result set defined at the top of a query with `WITH ... AS`. It makes complex queries readable by breaking them into named, sequential steps — the SQL equivalent of assigning intermediate DataFrames to variables in pandas.
+
+### The WITH ... AS pattern
+
+Compare these two approaches to the same question — "which quality grades have above-average square footage?":
+
+```sql
+-- Subquery style (hard to read at depth)
+SELECT * FROM (
+    SELECT quality_grade, AVG(above_ground_sqft) AS avg_sqft
+    FROM buildings GROUP BY quality_grade
+) WHERE avg_sqft > (SELECT AVG(above_ground_sqft) FROM buildings);
+
+-- CTE style (name the intermediate result)
+WITH grade_stats AS (
+    SELECT quality_grade, AVG(above_ground_sqft) AS avg_sqft
+    FROM buildings
+    GROUP BY quality_grade
+)
+SELECT *
+FROM grade_stats
+WHERE avg_sqft > (SELECT AVG(above_ground_sqft) FROM buildings);
+```
+
+Both produce the same result. The CTE version is easier to read, debug, and extend.
+
+### Single CTE
+
+```{python}
+pd.read_sql_query("""
+    WITH grade_stats AS (
+        SELECT
+            quality_grade,
+            COUNT(*) AS n,
+            ROUND(AVG(above_ground_sqft), 0) AS avg_sqft,
+            ROUND(AVG(year_built), 0) AS avg_year
+        FROM buildings
+        WHERE quality_grade IS NOT NULL
+        GROUP BY quality_grade
+    )
+    SELECT *
+    FROM grade_stats
+    WHERE n >= 50
+    ORDER BY avg_sqft DESC;
+""", conn)
+```
+
+### Chained CTEs: multi-step analytical pipeline
+
+You can define multiple CTEs separated by commas, each referencing the ones defined before it:
+
+```{python}
+pd.read_sql_query("""
+    WITH era_stats AS (
+        SELECT
+            (year_built / 10) * 10 AS decade,
+            COUNT(*) AS n,
+            ROUND(AVG(above_ground_sqft), 0) AS avg_sqft
+        FROM buildings
+        WHERE year_built IS NOT NULL
+        GROUP BY decade
+    ),
+    overall AS (
+        SELECT ROUND(AVG(above_ground_sqft), 0) AS grand_avg
+        FROM buildings
+        WHERE year_built IS NOT NULL
+    )
+    SELECT
+        e.decade,
+        e.n,
+        e.avg_sqft,
+        o.grand_avg,
+        ROUND(e.avg_sqft - o.grand_avg, 0) AS diff_from_avg
+    FROM era_stats e, overall o
+    ORDER BY e.decade;
+""", conn)
+```
+
+This pattern — define intermediate results as named CTEs, then combine them in a final `SELECT` — is the standard way to build complex SQL analyses. It makes every step visible and auditable.
+
+## Part 3 Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 5: CTE — quality grade leaderboard
+Write a CTE-based query that ranks quality grades by total square footage. Include the count of buildings, total square footage, and average square footage per building.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    WITH grade_totals AS (
+        SELECT
+            quality_grade,
+            COUNT(*) AS n_buildings,
+            SUM(above_ground_sqft) AS total_sqft,
+            ROUND(AVG(above_ground_sqft), 0) AS avg_sqft
+        FROM buildings
+        WHERE quality_grade IS NOT NULL AND above_ground_sqft IS NOT NULL
+        GROUP BY quality_grade
+    )
+    SELECT *
+    FROM grade_totals
+    ORDER BY total_sqft DESC;
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 6: Chained CTEs — era comparison
+Write a query with two CTEs: one for pre-2000 buildings and one for 2000-and-later buildings. Compare the average square footage, count, and most common quality grade between the two eras.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    WITH pre_2000 AS (
+        SELECT
+            'Pre-2000' AS era,
+            COUNT(*) AS n,
+            ROUND(AVG(above_ground_sqft), 0) AS avg_sqft
+        FROM buildings
+        WHERE year_built < 2000 AND year_built IS NOT NULL
+    ),
+    post_2000 AS (
+        SELECT
+            '2000+' AS era,
+            COUNT(*) AS n,
+            ROUND(AVG(above_ground_sqft), 0) AS avg_sqft
+        FROM buildings
+        WHERE year_built >= 2000 AND year_built IS NOT NULL
+    )
+    SELECT * FROM pre_2000
+    UNION ALL
+    SELECT * FROM post_2000;
+""", conn)
+```
+:::
+:::
+
+## SQL ↔ pandas Equivalents
+
+| SQL | pandas |
+|-----|--------|
+| `GROUP BY col` | `df.groupby('col')` |
+| `COUNT(*)` | `.size()` or `.count()` |
+| `SUM(col)`, `AVG(col)` | `.agg({'col': 'sum'})`, `.agg({'col': 'mean'})` |
+| `HAVING COUNT(*) > 10` | Filter after `.groupby().agg()` |
+| `CASE WHEN ... END` | `np.where()` or `pd.cut()` |
+| Scalar subquery | Compute value, then use in filter |
+| CTE (`WITH ... AS`) | Assign intermediate DataFrame to a variable |
+| `WHERE col IN (subquery)` | `df[df['col'].isin(other_df['col'])]` |
+
+## Quick Reference
+
+### Subquery patterns
+
+- **Scalar**: returns one value → use in `WHERE`, `SELECT`, or `HAVING`
+- **Column**: returns one column → use with `IN` or `NOT IN`
+- **Derived table**: returns a table → use in `FROM` clause
+
+### CTE pattern
+
+```sql
+WITH step1 AS (
+    SELECT ... FROM ... GROUP BY ...
+),
+step2 AS (
+    SELECT ... FROM step1 WHERE ...
+)
+SELECT ... FROM step2;
+```
+
+CTEs are evaluated once, named for clarity, and discarded after the query completes. Use them whenever a query needs more than one level of aggregation or filtering.
+
+## Public Interest Context: Oversight
+
+The pattern you just learned — write a diagnostic query, aggregate by a meaningful grouping, inspect the result, follow up with a CTE that combines several intermediate queries — is the fundamental move of investigative journalism and algorithmic auditing. When a reporter at [The Marshall Project](https://www.themarshallproject.org/) quantifies death-in-custody patterns across jurisdictions, or a civic technologist at [Muckrock](https://www.muckrock.com/) analyzes FOIA response times across agencies, or an academic audit team quantifies disparate outcomes across institutions, the underlying query looks a lot like the ones in this chapter: group by some institutional unit, aggregate a quality measure, filter with `HAVING` to surface the outliers, and write it up.
+
+SQL's value here is oversight in the literal sense: declarative queries leave a trail that someone else can re-run. The CTE you wrote to compute era statistics is, for a later auditor, a reproducible claim. The same cannot be said of a spreadsheet formula that was overwritten or a custom Python loop that depends on a bespoke environment. When you write a SQL query that answers an accountability question, you are also writing infrastructure that others can reuse to ask it again next year.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **oversight** introduced in [Chapter 4](04-public-interest.qmd). SQL aggregation and CTEs are the grammar of reproducible audit questions — the queries that journalists and researchers use to hold institutions accountable.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `Error: misuse of aggregate` or non-aggregated columns in SELECT
+**What it means:** Every column in a `SELECT` with `GROUP BY` must either appear in `GROUP BY` or be wrapped in an aggregate function. SQLite enforces this loosely but will return unpredictable values for non-aggregated columns.
+
+**How to fix it:** Add the missing column to `GROUP BY`, or wrap it in `MIN()`, `MAX()`, or another aggregate. If you want a per-group value that is not an aggregate (like a representative name), think about whether you actually want `GROUP BY` or whether a window function / CTE is more appropriate.
+:::
+
+::: {.callout-warning}
+## `AVG()` silently excludes NULL rows
+**What it means:** `AVG(col)` returns the mean of non-NULL values. If many rows have NULL in that column, your average is over a smaller group than you expected.
+
+**How to fix it:** Compare `COUNT(*)` with `COUNT(col)` to see the completeness rate. If you want to treat NULL as zero, use `AVG(COALESCE(col, 0))`. Document the choice in your Known Issues Log either way.
+:::
+
+::: {.callout-warning}
+## A subquery returns more than one row where a scalar is expected
+**What it means:** You used a subquery in a position that expects a single value (`WHERE x > (SELECT ...)`), but the subquery returned multiple rows.
+
+**How to fix it:** Add an aggregate (`AVG`, `MAX`, `MIN`) to the inner query. Or switch to `IN (SELECT ...)` if you meant "any of these values."
+:::
+
+::: {.callout-warning}
+## `strftime` returns NULL
+**What it means:** The input string is not in ISO format (`YYYY-MM-DD`), or the month is stored as `3` instead of `03`.
+
+**How to fix it:** Use `printf('%02d', month)` to zero-pad single-digit months. Double-check the reconstructed string with a `SELECT` before applying `strftime`.
+:::
+
+## Key Takeaways
+
+- `GROUP BY` + aggregates is the SQL equivalent of `df.groupby().agg()`. Same idea, different syntax.
+- `WHERE` filters rows *before* grouping; `HAVING` filters groups *after* aggregation. Getting this order right is half of reading a `GROUP BY` query correctly.
+- `CASE WHEN` inside aggregates is the most powerful pattern in this chapter — it unlocks cross-tabulation, conditional counting, and every other "if-then" summary.
+- Prefer **CTEs** over nested subqueries when a query has more than one level of aggregation. They are easier to read, debug, and modify.
+- SQL queries are declarative: you describe the result, not the procedure. The database engine figures out the execution plan.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on SQL aggregation, subqueries, and CTEs
+
+- **SQLite: Aggregate functions** — [sqlite.org/lang_aggfunc.html](https://www.sqlite.org/lang_aggfunc.html).
+- **SQLite: The SELECT statement** — [sqlite.org/lang_select.html](https://www.sqlite.org/lang_select.html) covers subqueries, `HAVING`, and clause ordering.
+- **SQLite: WITH clause (CTEs)** — [sqlite.org/lang_with.html](https://www.sqlite.org/lang_with.html), including recursive CTEs for hierarchical queries.
+- **SQLite: Date and time functions** — [sqlite.org/lang_datefunc.html](https://www.sqlite.org/lang_datefunc.html) documents `strftime`, `julianday`, and date arithmetic.
+- **Mode SQL Tutorial: Advanced SQL** — [mode.com/sql-tutorial](https://mode.com/sql-tutorial/) includes sections on window functions and optimization that build directly on this chapter's material.
+:::

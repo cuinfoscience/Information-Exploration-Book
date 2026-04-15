@@ -265,6 +265,83 @@ Residential property sales records.
 - `SALE_PRICE` contains currency formatting and non-numeric values like `PRIVATE SALE`.
 - Multiple rows per `ACCOUNTNO` (representing different sale transactions over time).
 
+## Non-Tabular Data Sources
+
+The five chapters in Part IV use specialized datasets — shapefiles, edge lists, text corpora, time series, and API responses. Each chapter's examples assume one or more of the sources listed below.
+
+### Census TIGER/Line Shapefiles (Chapter 13)
+
+**Source:** US Census Bureau
+**URL:** <https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html>
+**Files:** `tl_2023_08_county.shp` (Colorado counties) and companion `.shx`, `.dbf`, `.prj` files
+**Used in:** @sec-spatial
+
+County and state boundary polygons for the entire United States, republished annually. The Colorado-specific file (`08` = state FIPS) is a good default for the book's spatial examples.
+
+**Known quirks:**
+
+- A shapefile is actually several files (`.shp`, `.shx`, `.dbf`, `.prj`). Keep them together in the same folder.
+- Default CRS is `EPSG:4269` (NAD83 latitude/longitude). Reproject to `EPSG:3857` for overlays on web basemaps.
+- Each county has a `GEOID` / `COUNTYFP` that matches the `countyfips` column in the State Demography Office data.
+
+### ICON / KONECT / Network Repository Edge Lists (Chapter 14)
+
+**Sources:** [ICON](https://icon.colorado.edu/) (CU Boulder), [KONECT](http://konect.cc/) (Koblenz), [Network Repository](https://networkrepository.com/)
+**Example files:** `soc-karate.edges` (Zachary's karate club), `soc-dolphins.edges` (dolphin social network)
+**Used in:** @sec-dyadic
+
+Small, curated network datasets suitable for teaching. Zachary's karate club (34 nodes, 78 edges) is the single most common beginner example.
+
+**Known quirks:**
+
+- Edge-list files often start with comment lines prefixed by `%` (KONECT) or `#`. Use `comment='%'` in `pd.read_csv` to skip them.
+- Many datasets ship as whitespace-delimited `.edges` files, not `.csv`. Pass `sep=r'\s+'` or `sep=' '` to `pd.read_csv`.
+- Node IDs are typically integers. Cast consistently before building a graph to avoid "node not in graph" errors.
+
+### Project Gutenberg and NLTK Corpora (Chapter 15)
+
+**Sources:** [Project Gutenberg](https://www.gutenberg.org/), [NLTK built-in corpora](https://www.nltk.org/nltk_data/)
+**Example files:** `2021-biden.txt` (Project Gutenberg), `inaugural` corpus (NLTK built-in)
+**Used in:** @sec-textual
+
+The NLTK `inaugural` corpus contains every US presidential inaugural address (1789–present) as plain text, accessible via `nltk.corpus.inaugural`. Project Gutenberg distributes public-domain literature in UTF-8 text.
+
+**Known quirks:**
+
+- Project Gutenberg files include a boilerplate header and footer that must be stripped before analysis.
+- NLTK corpora require a one-time `nltk.download('inaugural')` (and similar for other corpora and resources like `punkt`, `stopwords`, `wordnet`, `vader_lexicon`).
+- Encoding is UTF-8 for recent files; older Gutenberg texts may arrive as Latin-1. Pass `encoding=` explicitly.
+
+### FRED / World Bank / IMF Time Series (Chapter 16)
+
+**Sources:** [FRED](https://fred.stlouisfed.org/), [World Bank Open Data](https://data.worldbank.org/), [IMF Data](https://www.imf.org/en/Data)
+**Example files:** `UNRATE.csv` (US unemployment rate, monthly), `CPIAUCSL.csv` (CPI, monthly), `HOUST.csv` (housing starts, monthly)
+**Used in:** @sec-temporal
+
+FRED publishes thousands of US macroeconomic series as downloadable CSVs with two columns: `DATE` and the series value. World Bank data arrives in wide format (one column per year) and requires `melt` to reshape into long.
+
+**Known quirks:**
+
+- FRED files use `DATE` as an ISO date column. Parse with `pd.to_datetime(df['DATE'])` and set as the index.
+- Some series have "." or blank rows for missing observations (e.g., during data-collection gaps). Treat these as `NaN` via `na_values=['.', '']`.
+- World Bank CSVs include 4 metadata rows at the top. Use `skiprows=4`.
+- IMF files sometimes require joining a separate country-code reference file before they are usable.
+
+### Public APIs for Structured Data (Chapter 17)
+
+**Sources:** [FRED API](https://fred.stlouisfed.org/docs/api/fred/), [Census Bureau API](https://www.census.gov/data/developers/data-sets.html), [OpenAlex API](https://docs.openalex.org/), [Wikipedia/MediaWiki API](https://www.mediawiki.org/wiki/API:Main_page), [Open Library API](https://openlibrary.org/developers/api)
+**Example file:** `example_openalex_response.json` (cached API response), any static Wikipedia page for HTML scraping
+**Used in:** @sec-structured
+
+All five APIs above are free; most require only a `User-Agent` header (or, for the OpenAlex "polite pool," a `mailto` query parameter). The chapter includes worked examples against OpenAlex.
+
+**Known quirks:**
+
+- FRED, Census, and Open Library require registration for an API key. OpenAlex and Wikipedia are unauthenticated.
+- Every API paginates differently — some use `page=N`, some use a cursor token, some use `Link:` headers. Read the docs before looping.
+- Rate limits are real. Respect them with `time.sleep()` between requests, and cache responses to disk during development.
+- API responses are JSON; flatten with `pd.json_normalize()` to get a clean DataFrame.
+
 ---
 
 ::: {.callout-note}

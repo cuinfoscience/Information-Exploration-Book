@@ -1,0 +1,294 @@
+# Network and Graph Data {#sec-dyadic}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Represent a system of relationships as a **graph** of nodes and edges using [NetworkX](https://networkx.org/documentation/stable/).
+- Distinguish **directed**, **undirected**, **weighted**, and **bipartite** graphs and pick the representation that matches your data.
+- Convert between pandas DataFrames and NetworkX graphs using [`nx.from_pandas_edgelist`](https://networkx.org/documentation/stable/reference/generated/networkx.convert_matrix.from_pandas_edgelist.html).
+- Compute and interpret core **network metrics** — degree, centrality, clustering, shortest paths — and community detection.
+- Load and clean real network datasets from [ICON](https://icon.colorado.edu/), [KONECT](http://konect.cc/), and [Network Repository](https://networkrepository.com/).
+
+## Why Network Data Matters
+
+Relationships are data too. When the question you care about is about connections — who talks to whom, which papers cite which papers, which airports feed which flights — a table of rows and columns hides the very structure you want to study. A **network** (or **graph**) representation puts that structure front and center.
+
+Networks describe systems as a set of **nodes** (the things) and **edges** (the relationships between them). Everything from power grids to friendship networks to disease transmission can be modeled this way. The questions you can ask of a network are different from the questions you can ask of a table: *Who is central? What are the tight clusters? How far apart are two nodes?*
+
+This chapter introduces [NetworkX](https://networkx.org/documentation/stable/), the standard Python library for network analysis. You'll build small graphs by hand, compute their basic metrics, and then load real network datasets from public repositories. The mental model is different from pandas — a graph is not a table — but the habits are the same: inspect before acting, validate after every transform, document your decisions.
+
+If this shift from tabular to graph thinking feels disorienting at first, that's expected. It settles in once you have a network in front of you and start asking "who matters here?"
+
+## Setup
+
+You'll use [NetworkX](https://networkx.org/documentation/stable/) for graph objects and algorithms, [pandas](https://pandas.pydata.org/docs/) for conversion to and from DataFrames, and [matplotlib](https://matplotlib.org/stable/) for drawing.
+
+```{python}
+#| eval: false
+import networkx as nx
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+::: {.callout-tip collapse="true"}
+## If you get an `ImportError` or `ModuleNotFoundError`
+
+This means the library isn't installed in your current Python environment. Run this in a new cell:
+
+`!pip install networkx`
+
+Then restart your kernel (Kernel → Restart) and run the import cell again. If you're using Anaconda, try `conda install -c conda-forge networkx` instead.
+:::
+
+## Building a Graph by Hand
+
+The simplest way to understand a graph is to build one. Create an empty undirected graph, then add nodes and edges:
+
+```{python}
+#| eval: false
+G = nx.Graph()
+G.add_edges_from([
+    ('Alice', 'Bob'),
+    ('Bob', 'Carol'),
+    ('Alice', 'Carol'),
+    ('Carol', 'Dave'),
+])
+
+print('Nodes:', list(G.nodes))
+print('Edges:', list(G.edges))
+print('Number of nodes:', G.number_of_nodes())
+print('Number of edges:', G.number_of_edges())
+```
+
+Notice you never had to declare the nodes separately — NetworkX infers them from the edges you add. Four names, four edges, and a small graph takes shape. Draw it with `nx.draw()`:
+
+```{python}
+#| eval: false
+fig, ax = plt.subplots(figsize=(5, 4))
+nx.draw(G, with_labels=True, node_color='lightblue', node_size=1200, ax=ax)
+plt.show()
+```
+
+## Network Types
+
+Four distinctions cover most real-world networks:
+
+**Undirected vs. directed.** In an undirected graph, "Alice knows Bob" is the same edge as "Bob knows Alice." In a directed graph (use `nx.DiGraph`), the two are different — think of Twitter follows, email chains, or citations. The class you choose controls how NetworkX counts edges, computes degree, and runs algorithms.
+
+**Unweighted vs. weighted.** An edge can carry a numeric attribute — a weight — representing how strong or frequent the relationship is. Friendship ties might be weighted by number of messages sent; flight networks by number of seats; citation networks by number of co-citations.
+
+```{python}
+#| eval: false
+DG = nx.DiGraph()
+DG.add_edge('Alice', 'Bob', weight=3.0)
+DG.add_edge('Bob', 'Alice', weight=1.0)   # reverse direction, different weight
+```
+
+**Bipartite.** Some networks naturally have two kinds of nodes — users and songs, authors and papers, companies and board members — with edges only between the two types. A bipartite graph (`nx.Graph` with a `bipartite` attribute on each node) captures that structure. You can later project it onto a single-type graph (e.g., connect authors who share a paper).
+
+Choosing the right type early prevents headaches later. A directed graph analyzed as undirected produces wrong answers; a weighted graph analyzed as unweighted discards the nuance you cared about.
+
+## Data Structure: Nodes, Edges, and Attributes
+
+Every node and edge can carry arbitrary attribute data — like a pandas row, but keyed by the node or edge rather than by an index.
+
+```{python}
+#| eval: false
+G = nx.Graph()
+G.add_node('Alice', age=29, city='Boulder')
+G.add_edge('Alice', 'Bob', weight=4.0, since=2020)
+
+print(G.nodes['Alice'])        # {'age': 29, 'city': 'Boulder'}
+print(G.edges['Alice', 'Bob'])  # {'weight': 4.0, 'since': 2020}
+```
+
+When your data lives in a pandas DataFrame, use [`nx.from_pandas_edgelist`](https://networkx.org/documentation/stable/reference/generated/networkx.convert_matrix.from_pandas_edgelist.html) to convert it to a graph:
+
+```{python}
+#| eval: false
+edges_df = pd.DataFrame({
+    'source': ['A', 'A', 'B', 'C'],
+    'target': ['B', 'C', 'D', 'D'],
+    'weight': [1.0, 2.5, 0.5, 3.0],
+})
+
+G = nx.from_pandas_edgelist(
+    edges_df,
+    source='source',
+    target='target',
+    edge_attr='weight',
+    create_using=nx.DiGraph
+)
+```
+
+Going the other direction is also easy: `nx.to_pandas_edgelist(G)` returns the edge list as a DataFrame. This round-trip between pandas and NetworkX means you can clean, filter, and reshape with familiar tools, then switch to graph algorithms when the question calls for them.
+
+## Network Metrics
+
+Network metrics fall into two categories: metrics *of* nodes (how important is this node?) and metrics *of* the whole graph (how tightly connected is the system?).
+
+### Degree: the simplest centrality
+
+**Degree** is the number of edges a node has. In a directed graph, you distinguish **in-degree** (incoming) and **out-degree** (outgoing).
+
+```{python}
+#| eval: false
+degrees = dict(G.degree())
+print(sorted(degrees.items(), key=lambda x: -x[1])[:5])
+```
+
+The **degree distribution** — the histogram of degrees — often reveals whether a network is "star-shaped" (a few hubs, many leaves) or roughly uniform. Many real networks are heavily skewed, with a long tail of low-degree nodes and a short head of very high-degree hubs.
+
+### Centrality: who is important, and in what sense?
+
+Different notions of "centrality" answer different questions:
+
+- **Degree centrality** — raw degree normalized by the maximum possible. Who has the most direct connections?
+- **Betweenness centrality** — how often a node lies on shortest paths between others. Who are the brokers between clusters?
+- **Closeness centrality** — the inverse of the mean shortest-path distance to every other node. Who can reach everyone quickly?
+- **Eigenvector centrality** (and its variants, PageRank) — a node is important if its neighbors are important. Who is connected to the well-connected?
+
+```{python}
+#| eval: false
+bet = nx.betweenness_centrality(G)
+close = nx.closeness_centrality(G)
+pagerank = nx.pagerank(G)
+
+central_df = pd.DataFrame({
+    'betweenness': bet,
+    'closeness': close,
+    'pagerank': pagerank,
+}).sort_values('betweenness', ascending=False)
+print(central_df.head())
+```
+
+There's no single "right" centrality. Journalists investigating a corruption network might care most about betweenness (brokers between otherwise-disconnected groups). Epidemiologists modeling a disease might care more about eigenvector centrality.
+
+### Clustering and shortest paths
+
+The **clustering coefficient** measures how much a node's neighbors are also connected to each other — how "cliquey" the local neighborhood is. `nx.clustering(G)` returns per-node values; `nx.average_clustering(G)` returns the graph-level average.
+
+**Shortest paths** are the key to thinking about distance in networks. `nx.shortest_path_length(G, source, target)` gives you the hop distance; `nx.average_shortest_path_length(G)` gives the graph-wide average (small-world networks have surprisingly short averages).
+
+## Network Dynamics
+
+Some of the most interesting questions are about how networks change. Who joins the network first? Which communities form?
+
+**Community detection** finds clusters of nodes that are more densely connected to each other than to the rest of the graph. NetworkX includes several algorithms under [`nx.community`](https://networkx.org/documentation/stable/reference/algorithms/community.html):
+
+```{python}
+#| eval: false
+from networkx.algorithms import community
+
+communities = community.greedy_modularity_communities(G)
+for i, comm in enumerate(communities):
+    print(f'Community {i}: {len(comm)} nodes')
+```
+
+Community detection is powerful and easy to misuse. Different algorithms produce different partitions on the same graph, and every partition is a claim that you'd have to defend. Treat community output as a hypothesis to investigate, not an answer.
+
+## Working with Real Network Data
+
+Three repositories publish curated network datasets for research and teaching. Each has thousands of graphs, from social networks and protein interactions to citation graphs and road networks.
+
+- **[ICON](https://icon.colorado.edu/)** — the Colorado Index of Complex Networks, organized by domain with metadata and links.
+- **[KONECT](http://konect.cc/)** — the Koblenz Network Collection, with consistent formatting and precomputed metrics.
+- **[Network Repository](https://networkrepository.com/)** — a large visual index, searchable by graph size and category.
+
+Most datasets from these repositories arrive as an **edge list** — a text file where each line lists a pair of nodes (and optionally a weight or timestamp). Parsing one looks like:
+
+```{python}
+#| eval: false
+edges_df = pd.read_csv(
+    'data/soc-karate.edges',
+    sep=' ',
+    names=['source', 'target'],
+    comment='%'     # many KONECT files use '%' as a comment line marker
+)
+
+G = nx.from_pandas_edgelist(edges_df, 'source', 'target')
+print('Nodes:', G.number_of_nodes(), 'Edges:', G.number_of_edges())
+```
+
+::: {.callout-warning}
+## The header-row gotcha
+Edge list files often start with a comment line (beginning with `%` or `#`) that describes the data. Pass `comment='%'` or `comment='#'` to `pd.read_csv` so those lines are skipped rather than imported as data. Always check the first few rows of the file with a text editor before loading.
+:::
+
+Take a moment to appreciate what you just did: you turned a bare text file of numbers into a graph object that supports hundreds of built-in algorithms.
+
+## Public Interest Context: Invisible Structures
+
+Networks are the paradigm case of **exemption** — data that is known to exist but withheld from public view. Every major platform (Meta, X, TikTok, Amazon, LinkedIn) runs on network data: who follows whom, who buys what, who sees which ads. Those companies know the structure intimately. Researchers, journalists, and regulators almost never do.
+
+What's visible to the public is usually a partial trace — a sample, a snapshot, a thin proxy. **Worker observatories** (like Gig Worker's Rising) reconstruct platform networks from app screenshots and leaked data. **Algorithmic audits** (like ProPublica's Machine Bias series) infer network structure from the outputs of recommendation systems. **Academic collaborations** like Indiana's Observatory on Social Media (OSoMe) stitch together public API traces before those APIs vanish.
+
+When you analyze a network, it's worth asking: whose network is this, and who could see the full picture? The gap between your sample and the complete structure is itself a data story.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concepts of **exemption** and **oversight** introduced in [Chapter 4](04-public-interest.qmd). Platform networks are known to their operators but invisible to the public; reconstructing them from partial traces is how accountability journalism and algorithmic auditing happen.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `NetworkXError: Node not in the graph`
+**What it means:** You tried to compute a path or neighbor of a node that doesn't exist in the graph — often because of a typo or because the node name changed type (e.g., `'5'` vs `5`).
+
+**How to fix it:** Print `list(G.nodes)[:5]` to confirm the actual node type. Cast consistently: `edges_df['source'] = edges_df['source'].astype(str)` before building the graph.
+:::
+
+::: {.callout-warning}
+## Your centrality values all come back as 0 or NaN
+**What it means:** The graph is disconnected, or you passed the wrong graph type. Eigenvector centrality, in particular, requires a connected graph.
+
+**How to fix it:** Check connectivity with `nx.is_connected(G)` (for undirected) or `nx.is_strongly_connected(G)` (for directed). Take the largest connected component with `G_lcc = G.subgraph(max(nx.connected_components(G), key=len)).copy()` and run the metric on that.
+:::
+
+::: {.callout-warning}
+## `nx.draw()` produces a tangled blob
+**What it means:** The default layout algorithm does not scale well beyond ~50 nodes. You're seeing a "hairball."
+
+**How to fix it:** For larger graphs, either sample a subgraph or use a specialized layout: `pos = nx.spring_layout(G, k=0.5, iterations=50)`. Better yet, export to an interactive tool like [pyvis](https://pyvis.readthedocs.io/) or [Gephi](https://gephi.org/).
+:::
+
+::: {.callout-warning}
+## Building the graph takes forever on a large edge list
+**What it means:** `add_edges_from` on a Python loop is slow for millions of edges. `nx.from_pandas_edgelist` is much faster, and [graph-tool](https://graph-tool.skewed.de/) is faster still.
+
+**How to fix it:** Always prefer `nx.from_pandas_edgelist` over manual loops. For very large graphs, switch to graph-tool or use a sampled subgraph for exploration.
+:::
+
+## Key Takeaways
+
+- A graph represents **relationships** — nodes for entities, edges for connections. The questions you can ask differ from tabular questions.
+- Pick the right type (directed, weighted, bipartite) early. The wrong type gives wrong answers.
+- `nx.from_pandas_edgelist` is the bridge between pandas and NetworkX. Clean and filter in pandas, analyze in NetworkX.
+- Centrality has multiple definitions. Pick the one that matches your question, and report it alongside the graph you computed it on.
+- Public interest network analysis almost always works from partial traces. Document the gap between your sample and the full structure.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on network analysis
+
+- **NetworkX documentation** — [networkx.org/documentation/stable/](https://networkx.org/documentation/stable/) is the canonical reference.
+- **NetworkX Tutorial** — [networkx.org/documentation/stable/tutorial.html](https://networkx.org/documentation/stable/tutorial.html) walks through graph creation, attributes, and basic algorithms.
+- **pyvis** — [pyvis.readthedocs.io/](https://pyvis.readthedocs.io/) turns NetworkX graphs into interactive HTML visualizations.
+- **graph-tool** — [graph-tool.skewed.de/](https://graph-tool.skewed.de/) is a faster alternative for large graphs and performance-critical work.
+- **"Networks, Crowds, and Markets" by Easley & Kleinberg** — a free textbook at [cs.cornell.edu/home/kleinber/networks-book/](https://www.cs.cornell.edu/home/kleinber/networks-book/) that develops the conceptual vocabulary behind graph algorithms.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Build and describe a small network
+Download Zachary's karate club dataset from KONECT or NetworkX's built-in `nx.karate_club_graph()`. Load it, print the number of nodes and edges, compute the degree distribution, and identify the top 5 nodes by betweenness centrality. Who are the brokers, and what does Zachary's original paper say about them?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Pandas → NetworkX round-trip
+Take any edge-list CSV from [Network Repository](https://networkrepository.com/) with fewer than 5,000 nodes. Load it into pandas, filter to edges with weight above the median, convert to a NetworkX graph, compute PageRank, and convert the PageRank values back into a pandas DataFrame sorted descending. Which nodes rise and fall when the weight threshold changes? Document your cleaning decisions in a short Known Issues Log entry.
+:::

@@ -1,0 +1,486 @@
+# Extending Data with pandas {#sec-py-extending}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Create derived columns using arithmetic, conditional logic, and [`pd.cut`](https://pandas.pydata.org/docs/reference/api/pandas.cut.html) binning.
+- Parse dates from integer columns using [`pd.to_datetime`](https://pandas.pydata.org/docs/reference/api/pandas.to_datetime.html) and apply time-series operations like resampling.
+- Compute grouped summaries using [`df.groupby()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html) with [`.agg()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.agg.html).
+- Choose between `groupby().agg()`, [`pivot_table`](https://pandas.pydata.org/docs/reference/api/pandas.pivot_table.html), and [`pivot`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pivot.html) based on whether aggregation and reshaping are needed.
+- Distinguish `.agg()` (one row per group) from [`.transform()`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.transform.html) (same shape as input) and pick the right tool for a given question.
+
+## Why Extending Matters
+
+Loading and cleaning produce a reliable dataset. Extending transforms that dataset into something that can answer questions. This chapter covers two core operations: creating derived columns from existing data, and computing grouped summaries that collapse many rows into meaningful aggregates. These are the programmatic equivalents of writing formulas and building pivot tables in a spreadsheet — but with the power to handle millions of rows, chain operations together, and reproduce every step exactly.
+
+This chapter assumes you have completed @sec-py-cleaning. The batting and population data used here must be loaded and cleaned before extending.
+
+## Setup
+
+This chapter uses [pandas](https://pandas.pydata.org/docs/) and [numpy](https://numpy.org/doc/stable/).
+
+```{python}
+import pandas as pd
+import numpy as np
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.float_format', '{:.3f}'.format)
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy` (or `pip install pandas numpy`) and restart the Jupyter kernel. See @sec-setup for how to verify your notebook's kernel matches the environment where you installed.
+:::
+
+## Datasets
+
+This chapter uses two datasets that illustrate different aspects of extending data.
+
+The **Lahman Baseball Database** contains historical statistics for every Major League Baseball player and team. Each row in the Batting table represents one player's performance for one team in one season. We will compute derived metrics like batting average and slugging percentage, then aggregate them across teams and decades.
+
+The **Colorado State Demography Office** publishes single-year-of-age population estimates by county. Each row represents one county, one year, and one single-year age group. We will bin ages into demographic bands and compute the dependency ratio — a standard population metric.
+
+```{python}
+batting = pd.read_csv('Batting.csv')
+
+print('Shape:', batting.shape)
+print('Year range:', batting['yearID'].min(), '–', batting['yearID'].max())
+batting.head()
+```
+
+```{python}
+url = 'https://storage.googleapis.com/co-publicdata/sya-county.csv'
+pop = pd.read_csv(url, skiprows=1, dtype={'countyfips': str})
+
+print('Shape:', pop.shape)
+print('Year range:', pop['year'].min(), '–', pop['year'].max())
+print('Datatype values:')
+print(pop['datatype'].value_counts())
+```
+
+## Derived Columns
+
+A derived column is a new column computed from existing columns using arithmetic, conditional logic, or binning. The key principle is that derived columns should be *transparent* — anyone reading your code should be able to see exactly how the new value was computed from the originals.
+
+### Arithmetic: Batting Average
+
+Batting average is hits divided by at-bats. The formula is simple, but the implementation requires a decision about what to do when at-bats is zero:
+
+```{python}
+batting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))
+
+print('BA stats:')
+print(batting['BA'].describe())
+print('Rows with NaN BA:', batting['BA'].isna().sum())
+```
+
+Replacing zero with `NaN` before dividing avoids a `ZeroDivisionError` and produces `NaN` for players with no at-bats — which is the correct semantic meaning: their batting average is undefined, not zero.
+
+### Multi-step formulas: Slugging Percentage and OBP
+
+More complex metrics require computing intermediate values. Slugging percentage measures batting productivity by weighting different types of hits:
+
+```{python}
+batting['TB'] = (
+    batting['H']
+    + 2 * batting['2B']
+    + 3 * batting['3B']
+    + 4 * batting['HR']
+)
+
+batting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))
+```
+
+On-base percentage measures how frequently a batter reaches base. It uses a formula with four variables in the numerator and denominator:
+
+$$OBP = \frac{H + BB + HBP}{AB + BB + HBP + SF}$$
+
+```{python}
+batting['HBP'] = batting['HBP'].fillna(0)
+batting['SF'] = batting['SF'].fillna(0)
+
+numerator = batting['H'] + batting['BB'] + batting['HBP']
+denominator = batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']
+batting['OBP'] = numerator / denominator
+
+print(batting['OBP'].min(), batting['OBP'].max())
+```
+
+Notice the `.fillna(0)` calls. The HBP (hit by pitch) and SF (sacrifice fly) columns have missing values for early seasons when those statistics were not tracked. Filling with zero is a documented decision: we are treating "not tracked" as "did not happen." This is debatable, and the Known Issues Log is where you would note this assumption.
+
+### Binning with `pd.cut()`
+
+Binning transforms a continuous variable into categories. The Colorado population data has single-year ages (0 through 100); we want three demographic bands:
+
+```{python}
+bins = [0, 18, 65, 101]
+labels = ['Children (0-17)', 'Working Age (18-64)', 'Seniors (65+)']
+
+pop['age_band'] = pd.cut(pop['age'], bins=bins, labels=labels, right=False)
+
+print('Age band counts:')
+print(pop['age_band'].value_counts())
+```
+
+The `right=False` parameter makes bins left-inclusive: `[0, 18)` means ages 0 through 17. This puts 18-year-olds in the Working Age band, which is the standard demographic convention.
+
+Always verify that no values fell outside the bins:
+
+```{python}
+print('NaN age bands:', pop['age_band'].isna().sum())
+```
+
+### Integer division for decades
+
+A quick way to create decade bins from year values:
+
+```{python}
+batting['decade'] = (batting['yearID'] // 10) * 10
+
+print('Decades:')
+print(batting['decade'].value_counts().sort_index())
+```
+
+### Parsing Dates: Cannabis Sales
+
+Government datasets frequently store dates as separate integer columns — `Month` and `Year` rather than a single date column. The cannabis sales data is a typical example. `pd.to_datetime()` can reconstruct a proper datetime from integer month and year values:
+
+```{python}
+cannabis = pd.read_csv(
+    'colorado_cannabis_sales_by_county.csv',
+    header=2,
+    skipfooter=8,
+    engine='python',
+    na_values=['NR']
+)
+cannabis.columns = ['Month', 'Year', 'County', 'Medical', 'Retail']
+cannabis['County'] = cannabis['County'].str.strip()
+for col in ['Medical', 'Retail']:
+    cannabis[col] = pd.to_numeric(
+        cannabis[col].str.replace('$', '', regex=False).str.replace(',', '', regex=False)
+    )
+cannabis = cannabis[cannabis['County'] != 'Total']
+
+# Construct a date column from integer Month and Year
+cannabis['date'] = pd.to_datetime(
+    cannabis[['Year', 'Month']].assign(Day=1).rename(
+        columns={'Year': 'year', 'Month': 'month'}
+    )
+)
+
+print(cannabis[['Month', 'Year', 'date']].head())
+```
+
+`pd.to_datetime()` accepts a DataFrame with `year`, `month`, and `day` columns. The `.assign(Day=1)` adds a constant day-of-month, and `.rename()` converts the column names to lowercase as required.
+
+Once parsed as a proper datetime, the column unlocks time-series operations — sorting chronologically, computing time differences, and resampling by period:
+
+```{python}
+# Quarterly retail sales, statewide
+quarterly = (
+    cannabis
+    .set_index('date')
+    ['Retail']
+    .resample('QE')
+    .sum()
+)
+
+print(quarterly.tail(8))
+```
+
+::: {.callout-tip}
+## Storing dates as integers is not a mistake
+
+Storing month and year as separate integer columns is a deliberate design in many government systems — it makes SQL filtering simple (`WHERE year = 2022`) without requiring date functions. When you encounter this pattern, `pd.to_datetime()` with `assign(Day=1)` is the standard reconstruction approach.
+:::
+
+## Grouped Summaries
+
+The `groupby()` → `agg()` pattern is the programmatic equivalent of a spreadsheet pivot table. It splits the data into groups, applies an aggregation function to each group, and combines the results.
+
+### Basic groupby: Total HR per Team
+
+```{python}
+latest_year = batting['yearID'].max()
+yr_df = batting[batting['yearID'] == latest_year]
+
+team_hr = (
+    yr_df
+    .groupby('teamID')
+    .agg({'HR': 'sum'})
+    .reset_index()
+    .sort_values('HR', ascending=False)
+)
+
+team_hr.head()
+```
+
+### Filtering before aggregating
+
+When computing averages, filter to meaningful subsets first. A player with 2 at-bats and 1 hit has a .500 batting average, but that tells you nothing useful:
+
+```{python}
+qualified = batting[batting['AB'] >= 100]
+
+decade_ba = (
+    qualified
+    .groupby('decade')['BA']
+    .agg('mean')
+)
+
+decade_ba.plot(title='Mean BA by Decade (players with ≥ 100 AB)')
+```
+
+### The dependency ratio: a real-world grouped summary
+
+The dependency ratio — the number of children and seniors per working-age adult — is a standard demographic metric that requires grouped aggregation to compute:
+
+```{python}
+estimates = pop[pop['datatype'] == 'Estimate'].copy()
+co_2020 = estimates[estimates['year'] == 2020]
+
+band_summary = co_2020.groupby(['county', 'age_band']).agg(
+    pop=('totalpopulation', 'sum')
+).reset_index()
+
+# Validate: grouped total should match original
+print(f'Grouped total:  {band_summary["pop"].sum():,.0f}')
+print(f'Original total: {co_2020["totalpopulation"].sum():,.0f}')
+```
+
+## Three Tools, One Job
+
+Pandas offers three tools for creating cross-tabular summaries, and understanding when to use each saves time and prevents errors.
+
+| Tool | Aggregates? | Use when |
+|------|------------|----------|
+| `groupby().agg()` | Yes | You need flexibility, named aggregations, or long format for further computation |
+| `pivot_table()` | Yes | You want aggregation and reshaping in one step (closest to an Excel pivot) |
+| `pivot()` | **No** | Data is already one-row-per-key; you only need to reshape |
+
+### `groupby().agg()` — long format output
+
+```{python}
+modern = batting[(batting['yearID'] >= 1990) & (batting['yearID'] <= 2022)].copy()
+
+hr_long = (
+    modern
+    .groupby(['teamID', 'decade'])['HR']
+    .agg('sum')
+    .reset_index()
+    .rename(columns={'HR': 'total_HR'})
+)
+
+print('Shape:', hr_long.shape, '← one row per (team, decade)')
+hr_long.head()
+```
+
+### `pivot_table()` — wide format in one step
+
+```{python}
+hr_wide_pt = modern.pivot_table(
+    index='teamID',
+    columns='decade',
+    values='HR',
+    aggfunc='sum',
+    fill_value=0
+)
+
+print('Shape:', hr_wide_pt.shape, '← one row per team, one column per decade')
+hr_wide_pt.head()
+```
+
+### `pivot()` — reshape only, no aggregation
+
+`pivot()` requires every `(index, columns)` combination to appear exactly once in the data. It will raise a `ValueError` if there are duplicates, because it cannot aggregate:
+
+```{python}
+# This WORKS because hr_long has one row per (team, decade)
+hr_wide_pv = hr_long.pivot(
+    index='teamID',
+    columns='decade',
+    values='total_HR'
+)
+
+print('Shape:', hr_wide_pv.shape)
+```
+
+### Verifying all three agree
+
+```{python}
+total_long = hr_long['total_HR'].sum()
+total_pt = hr_wide_pt.values.sum()
+total_pv = hr_wide_pv.fillna(0).values.sum()
+
+print(f'groupby().agg() total HR: {total_long:,}')
+print(f'pivot_table()   total HR: {total_pt:,}')
+print(f'pivot()         total HR: {total_pv:,}')
+print(f'All match: {total_long == total_pt == total_pv}')
+```
+
+## `agg()` vs. `transform()`
+
+Both operate on groups, but they produce fundamentally different outputs. The `agg()` method produces one row per group — the output is smaller than the input. The `transform()` method broadcasts the group-level result back to every row in the original DataFrame — the output has the same number of rows as the input.
+
+```{python}
+# agg() — summary table
+team_totals = (
+    batting[batting['yearID'] == 2022]
+    .groupby('teamID')['HR']
+    .agg('sum')
+    .reset_index()
+)
+print('agg() shape:', team_totals.shape, '(one row per team)')
+```
+
+```{python}
+# transform() — adds group stat to every row
+batting['team_total_HR'] = (
+    batting
+    .groupby(['yearID', 'teamID'])['HR']
+    .transform('sum')
+)
+
+batting['hr_share'] = batting['HR'] / batting['team_total_HR'].replace(0, float('nan'))
+```
+
+Use `transform()` when you want to compute something like "what percentage of team home runs did each player contribute?" — a question that requires both the individual value and the group total on the same row.
+
+## Public Interest Context: Oversight
+
+Derived metrics are interpretive choices dressed up as arithmetic. A rate is a ratio — and the denominator you pick determines the story. "Deaths per 100,000 residents" and "deaths per 100,000 adults" and "deaths per 100,000 people with health insurance" can all point the same way or the opposite way on the same underlying data. A dependency ratio that excludes seniors under 65 who are still working looks different from one that doesn't. When you create a derived column, you are quietly asserting that this is the right way to compare groups, and your assertion travels downstream into every chart and conclusion.
+
+Grouped summaries have the same property. A `groupby` that silently drops rows with NaN in the group column, or a bin that accidentally truncates values outside its edges, is hidden data loss that still produces a confident-looking table. Oversight in extending data means auditing the arithmetic: re-deriving totals, comparing group sums to source sums, and explicitly naming the denominator you chose and why. When you hand someone a rate table, can they reconstruct the formula you used to build it?
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **oversight** introduced in [Chapter 4](04-public-interest.qmd). Every derived metric is an analytical decision; oversight requires that those decisions be explicit and auditable rather than buried in a one-line arithmetic expression.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `ZeroDivisionError` when computing a rate
+**What it means:** You divided by a column that contains zero. Batting average = hits / at-bats fails when at-bats is 0.
+
+**How to fix it:** Replace the divisor's zeros with `NaN` before dividing: `df['H'] / df['AB'].replace(0, float('nan'))`. This produces `NaN` for undefined cases, which is the correct semantic.
+:::
+
+::: {.callout-warning}
+## `pivot()` raises `ValueError: Index contains duplicate entries`
+**What it means:** `pivot()` does not aggregate — it requires each `(index, columns)` combination to appear exactly once. If your source has multiple rows per combination, `pivot()` cannot decide which value to use.
+
+**How to fix it:** Use `pivot_table()` instead, which takes an `aggfunc` parameter. Or aggregate first with `groupby().agg()` so each combination is unique, then call `pivot()`.
+:::
+
+::: {.callout-warning}
+## `groupby` aggregation produces unexpected NaN
+**What it means:** Groups with all-missing input produce `NaN` in the output, which is easy to misread as a zero.
+
+**How to fix it:** Decide what missing should mean for your question. For counts, `fill_value=0` in `pivot_table` or `.fillna(0)` after aggregation is usually appropriate. For means, leaving `NaN` is often correct — averaging nothing is not zero.
+:::
+
+::: {.callout-warning}
+## Grouped totals do not match the original total
+**What it means:** Either rows were filtered before grouping, or a `groupby` column has `NaN` values (which are excluded by default).
+
+**How to fix it:** Compare `df['col'].sum()` before grouping and `grouped['col'].sum()` after. If they differ, inspect `df['group_col'].isna().sum()`. Use `dropna=False` in `groupby` if you want to keep missing-group rows in the output.
+:::
+
+## Key Takeaways
+
+- Derived columns should be **transparent**: reading the code should tell you exactly how a new value was computed. Avoid magic numbers and undocumented assumptions.
+- `groupby().agg()` → long format; `pivot_table()` → wide format in one step; `pivot()` → reshape only (no aggregation). Pick the tool that matches the question.
+- `.agg()` collapses a group to one row. `.transform()` broadcasts the group result back to every row. Use `.transform()` when the individual value and the group stat need to coexist.
+- Validate every aggregation by comparing totals before and after. Silent row drops — from `NaN` in a groupby key, or from missing data — are the most common source of wrong answers.
+- Binning continuous variables with `pd.cut` is a standard way to turn ages, incomes, or scores into analytically meaningful categories.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on derived columns and grouped summaries
+
+- **pandas: Group by: split-apply-combine** — [pandas.pydata.org/docs/user_guide/groupby.html](https://pandas.pydata.org/docs/user_guide/groupby.html) is the canonical reference on grouped operations.
+- **pandas: Reshaping and pivot tables** — [pandas.pydata.org/docs/user_guide/reshaping.html](https://pandas.pydata.org/docs/user_guide/reshaping.html) compares `pivot`, `pivot_table`, `melt`, and `stack`/`unstack`.
+- **pandas: Time series / date functionality** — [pandas.pydata.org/docs/user_guide/timeseries.html](https://pandas.pydata.org/docs/user_guide/timeseries.html) covers `to_datetime`, resampling, and offsets.
+- **Real Python: pandas GroupBy: Your Guide to Grouping Data** — [realpython.com/pandas-groupby/](https://realpython.com/pandas-groupby/) is an accessible tutorial with real datasets.
+- **Lahman Baseball Database documentation** — [seanlahman.com/baseball-archive/statistics/](https://sabr.org/lahman-database/) explains each statistic used in this chapter.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Compute OPS and identify top performers
+OPS is On-base Plus Slugging: `OPS = OBP + SLG`. Add an OPS column to the batting DataFrame. Filter to players with at least 400 at-bats in a single season, and find the top 10 OPS seasons of all time.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+batting['OPS'] = batting['OBP'] + batting['SLG']
+
+top_ops = (
+    batting[batting['AB'] >= 400]
+    .sort_values('OPS', ascending=False)
+    [['playerID', 'yearID', 'teamID', 'AB', 'BA', 'SLG', 'OBP', 'OPS']]
+    .head(10)
+)
+top_ops
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Compute the dependency ratio for all counties in 2020
+Using the Colorado population data, filter to Estimate rows for 2020, bin ages into the three standard bands, and compute the dependency ratio for each county. Which county has the highest dependency ratio? The lowest?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+co_2020 = estimates[estimates['year'] == 2020].copy()
+
+wide = co_2020.groupby(['county', 'age_band'], observed=True).agg(
+    pop=('totalpopulation', 'sum')
+).reset_index().pivot_table(
+    index='county', columns='age_band', values='pop', aggfunc='sum'
+).reset_index()
+wide.columns.name = None
+
+wide['dep_ratio'] = (
+    (wide['Children (0-17)'] + wide['Seniors (65+)'])
+    / wide['Working Age (18-64)']
+)
+
+print('Highest:', wide.sort_values('dep_ratio', ascending=False).head(3)[['county', 'dep_ratio']].to_string())
+print('\nLowest:', wide.sort_values('dep_ratio').head(3)[['county', 'dep_ratio']].to_string())
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Compare `pivot_table()` and `groupby()` → `pivot()` paths
+Using the dependency ratio data from Exercise 2, implement the same result using the two-step `groupby().agg()` → `pivot()` path. Verify that both approaches produce identical results using `pd.testing.assert_frame_equal()`.
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+# Path A: pivot_table (one step)
+wide_pt = co_2020.pivot_table(
+    index='county', columns='age_band', values='totalpopulation', aggfunc='sum'
+)
+
+# Path B: groupby → pivot (two steps)
+long_agg = co_2020.groupby(['county', 'age_band'], observed=True).agg(
+    pop=('totalpopulation', 'sum')
+).reset_index()
+
+wide_pv = long_agg.pivot(index='county', columns='age_band', values='pop')
+
+# Verify
+pd.testing.assert_frame_equal(
+    wide_pt.sort_index(), wide_pv.sort_index(), check_names=False
+)
+print('Both paths produce identical DataFrames.')
+```
+:::
+:::

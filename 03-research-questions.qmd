@@ -1,0 +1,191 @@
+# Research Questions and Study Designs {#sec-research-questions}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Translate a vague curiosity into a specific, measurable research question using the "outcome across groups / time / conditions" template.
+- Identify the **unit of analysis** for a dataset and recognize common mistakes that flow from misunderstanding it.
+- Distinguish between-subjects from within-subjects comparisons and cross-sectional from longitudinal analyses.
+- Explain why observational data supports associations but not causal claims, and name common confounds in public datasets.
+
+## Why This Chapter Comes Before the Code
+
+The technical chapters ahead teach you to load, clean, extend, and reshape data. Those are essential mechanical skills. But mechanics alone do not produce insight — you also need to ask the right questions and understand what your data can and cannot tell you. This chapter introduces the conceptual vocabulary for formulating research questions with tabular data, recognizing the structure of the comparisons your data supports, and identifying the limitations that prevent you from drawing conclusions the data does not warrant.
+
+Reading this chapter first — before writing a line of pandas or SQL — gives you a frame for the technical work ahead. The datasets you will use, and the analyses you will eventually run, are shaped by the questions you are trying to answer.
+
+None of this requires new code. It requires new thinking.
+
+## What Makes a Good Research Question?
+
+A good research question is specific enough to be answered with data and interesting enough to be worth answering. Compare these two questions:
+
+- *"Is baseball different now?"* — too vague to answer. Different how? Compared to when?
+- *"Has the league-wide home run rate per at-bat changed between the 1990s and the 2010s?"* — specific, measurable, and answerable with historical batting data.
+
+A useful template is: **"Is there a difference in [outcome] between [groups] / over [time] / across [conditions]?"** The components of this template — outcome, groups, time, conditions — map directly to columns in your data. If you cannot point to specific columns that represent each component, the question is not yet answerable with the data you have.
+
+## The Unit of Analysis
+
+Before you can answer any question, you need to know what a single row in your dataset represents. This is the **unit of analysis**, and getting it wrong is one of the most common sources of error in data work.
+
+Consider a baseball-statistics dataset where each row is a player-season-stint: one player's statistics for one team in one season. If you compute the average batting average across all rows, you are computing the average across player-seasons — which weights a player with 10 at-bats the same as a player with 600. That is almost certainly not what you intend.
+
+Consider a county-population dataset where each row is a county-year-age: one county's population for one single year of age in one year. If you sum `totalpopulation` without grouping by county and year first, you will add up every age group and get a number far larger than any county's actual population.
+
+The discipline you'll build in later chapters — always checking `.shape`, always understanding what a row represents — is more than a cleaning habit. It is the foundation of valid analysis.
+
+| Example dataset shape | Unit of analysis | Common mistake |
+|---------|-----------------|----------------|
+| Player-level batting stats | Player-team-season | Averaging rates without weighting by at-bats |
+| County population estimates | County-year-age | Summing population without grouping by county-year |
+| Monthly sales by jurisdiction | County-month-year | Treating monthly data as annual without aggregation |
+| Mortality counts by cause | County-year-age group-cause | Double-counting deaths across cause categories |
+
+## Between-Subjects vs. Within-Subjects Comparisons
+
+Most analytical questions involve comparisons, and the structure of the comparison determines which methods are appropriate.
+
+**Between-subjects** (or between-groups) comparisons look at different entities measured under different conditions. "Do urban counties have higher crime rates than rural counties?" compares different counties — each county is measured once, and the comparison is across groups. In tabular data, this means filtering to different subsets of rows and comparing an outcome column.
+
+**Within-subjects** (or repeated-measures) comparisons look at the same entity measured at multiple time points or under multiple conditions. "Has Boulder County's dependency ratio changed from 2000 to 2020?" tracks a single county across time. In tabular data, this means filtering to one entity and examining how an outcome column changes across another column (usually time).
+
+The distinction matters because between-subjects comparisons are confounded by all the ways the groups differ beyond the variable of interest. Urban and rural counties differ in population density, but they also differ in demographics, economic base, healthcare access, and dozens of other factors. A within-subjects comparison controls for many of these differences (Boulder County's geography does not change between 2000 and 2020), but introduces the possibility that other things changed simultaneously (state policy, national trends).
+
+### Recognizing the structure in your data
+
+Ask yourself: *"Am I comparing different entities, or the same entity at different times?"*
+
+```{python}
+import pandas as pd
+
+# Between-subjects: compare counties in a single year
+# Each county appears once → between-subjects
+# pop_2020 = pop[pop['year'] == 2020].groupby('county')['totalpopulation'].sum()
+
+# Within-subjects: track one county across years
+# Same county appears multiple times → within-subjects
+# boulder_trend = pop[pop['county'] == 'Boulder'].groupby('year')['totalpopulation'].sum()
+```
+
+## Cross-Sectional vs. Longitudinal Analysis
+
+A closely related distinction is whether your analysis examines one point in time or multiple points.
+
+**Cross-sectional** analysis looks at a snapshot: all counties in 2020, all players in the 2022 season. It is good for describing the current state of things and identifying patterns across entities, but it cannot tell you about change over time.
+
+**Longitudinal** analysis tracks the same entities across time: Boulder County from 1990 to 2024, league-wide batting averages from 1900 to 2022. It can reveal trends, turning points, and the effects of interventions (a new policy, a rule change), but it requires careful handling of time-related confounds.
+
+Most of the datasets in this book support both types of analysis. The cannabis sales data can be analyzed cross-sectionally (which counties had the highest sales in 2023?) or longitudinally (how have Denver's sales changed since legalization?). The choice depends on the question, not the data.
+
+## Observational Data and the Limits of Causation
+
+Every dataset in this book is **observational** — the data was collected by recording what happened, not by experimentally manipulating conditions and measuring the effect. This is the norm in data analysis outside of controlled experiments, and it imposes a fundamental limitation: **observational data can show associations, but it cannot prove causation.**
+
+Consider a dataset that merges baseball batting statistics with player salaries. Suppose you find that higher-paid players tend to have better batting statistics. Can you conclude that paying players more causes them to hit better? No. Teams pay more for players who have already demonstrated high performance. The causal arrow likely runs from performance to salary, not the other way around. And both might be influenced by a third factor — age, position, market size — that you have not accounted for.
+
+This does not mean observational analysis is useless. It means you must be disciplined about the language you use. Say *"counties with higher population density tend to have higher crime rates"* rather than *"high population density causes higher crime rates."* The first is a description of a pattern in the data. The second is a causal claim that the data cannot support.
+
+### Common confounds in the course datasets
+
+| Apparent relationship | Possible confound |
+|-----------------------|-------------------|
+| Higher salary → better batting stats | Teams pay for past performance; age and experience drive both |
+| More cannabis sales → more crime | Both correlate with county population; urban counties have more of both |
+| Higher dependency ratio → lower income | Rural counties have both older populations and less economic diversity |
+| More deaths → larger county | Death *counts* scale with population; *rates* are the meaningful comparison |
+
+The last example deserves emphasis. Comparing raw counts across groups of different sizes is one of the most common analytical mistakes. Denver will always have more deaths, more crimes, and more cannabis sales than San Juan County — because Denver has 700,000 people and San Juan has 700. The meaningful comparison is the *rate*: deaths per 100,000 population, crimes per capita, sales per resident. Computing rates requires joining your outcome data to population data — which is why multi-table joins are more than a technical exercise. They are an analytical necessity.
+
+## Formulating Your Question
+
+Before writing any analytical code, answer these four questions in a Markdown cell:
+
+1. **What is the outcome I am measuring?** (Which column? What does a higher or lower value mean?)
+2. **What am I comparing?** (Groups? Time periods? Conditions?)
+3. **What is the unit of analysis?** (What does each row represent? Do I need to aggregate first?)
+4. **What can I conclude vs. what can I only speculate about?** (Association or causation? What confounds exist?)
+
+This takes two minutes and prevents hours of misguided analysis. Do this framing work before writing any analytical code throughout the rest of the book.
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## Your research question is too broad to answer
+**What it means:** You wrote something like "Is housing broken?" — there is no specific column you can point to as the outcome, and no clear group you are comparing.
+
+**How to fix it:** Rewrite using the "outcome across groups / time / conditions" template. Force yourself to name the specific column that represents the outcome and the specific filter that defines the groups. If you cannot, the question is not yet answerable with the data you have.
+:::
+
+::: {.callout-warning}
+## Your summary statistic does not mean what you think it means
+**What it means:** You computed a mean, median, or sum without accounting for the unit of analysis. Averaging batting averages across player-seasons, or summing population across age groups, gives a number that sounds meaningful but is not.
+
+**How to fix it:** Before any aggregation, write down what a single row represents. Decide whether you need to aggregate to a different unit first. If you are averaging rates, decide whether to weight by the underlying sample size.
+:::
+
+::: {.callout-warning}
+## You compared raw counts across unequal populations
+**What it means:** Denver has more of everything than San Juan County. Conclusions based on raw counts are really conclusions about population size.
+
+**How to fix it:** Convert to per-capita rates before comparing. "Deaths per 100,000 population" is almost always the right denominator for cross-county comparisons.
+:::
+
+::: {.callout-warning}
+## You slipped into causal language
+**What it means:** Your write-up says "X causes Y" when the data only shows that X and Y are correlated.
+
+**How to fix it:** Reread your conclusions and replace causal verbs (*causes*, *leads to*, *drives*) with correlational language (*is associated with*, *tends to co-occur with*). Name at least one plausible confound explicitly so the reader knows you considered it.
+:::
+
+## Key Takeaways
+
+- A good research question names a specific outcome, a specific comparison, and a specific unit of analysis.
+- The **unit of analysis** — what a single row represents — determines which aggregations are meaningful. Checking `.shape` is more than hygiene; it is analytical discipline.
+- Between-subjects vs. within-subjects and cross-sectional vs. longitudinal are two independent distinctions. Know which you are doing before you start.
+- Observational data supports **associations**, not causal claims. Use language that matches what your data can actually show.
+- Per-capita rates, not raw counts, make cross-group comparisons meaningful.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on research questions and study design
+
+- **"A Field Guide to Lies and Statistics" by Daniel Levitin** — an accessible introduction to common statistical fallacies in public reporting.
+- **"Causal Inference: The Mixtape" by Scott Cunningham** — [mixtape.scunning.com](https://mixtape.scunning.com/) is a free textbook on causal inference, written for people with modest math backgrounds.
+- **Data Skeptic podcast** — [dataskeptic.com](https://dataskeptic.com/) regularly discusses study design and the limits of data-driven conclusions.
+- **Investigative Reporters and Editors: Story ideas from data** — [ire.org](https://www.ire.org/) has story-driven examples of good research questions in data journalism.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Classify the comparison
+For each question below, identify whether it is a between-subjects or within-subjects comparison, and whether it is cross-sectional or longitudinal.
+
+a. Do National League teams hit more home runs than American League teams in 2022?
+b. Has Colorado's statewide dependency ratio increased from 2000 to 2020?
+c. Is there a correlation between county population and cannabis sales in 2023?
+d. Did batting averages decline after the introduction of the designated hitter rule?
+
+::: {.callout-note collapse="true"}
+## Solution
+a. Between-subjects (different teams), cross-sectional (one season). b. Within-subjects (same state), longitudinal (multiple years). c. Between-subjects (different counties), cross-sectional (one year). d. Within-subjects in a sense (same league), longitudinal (before/after a rule change) — though it is comparing different players across eras, making it partly between-subjects too.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Identify the confound
+A colleague shows you a scatter plot demonstrating that Colorado counties with more cannabis dispensaries also have more traffic accidents. They conclude that cannabis causes traffic accidents. Write a paragraph identifying at least two confounds and explaining why this conclusion is not supported by the data.
+
+::: {.callout-note collapse="true"}
+## Solution
+Both dispensary count and traffic accidents correlate with county population — larger counties have more of everything. They also correlate with urbanization, road density, and commuter traffic. Without controlling for population (converting to per-capita rates) and other covariates, the correlation between dispensaries and accidents may be entirely explained by the fact that both are proxies for county size. Observational data like this can show association but cannot establish causation.
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Formulate a research question
+Choose one of the course datasets and write a research question using the template from this chapter. Then answer the four framing questions (outcome, comparison, unit of analysis, limitations). Be specific enough that another student could run the analysis from your description alone.
+:::

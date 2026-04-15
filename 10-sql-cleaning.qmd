@@ -1,0 +1,426 @@
+# Cleaning Data with SQL {#sec-sql-cleaning}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Apply a five-stage Inspect → Clean → Design Schema → Load → Validate workflow to a messy dataset.
+- Write SQL diagnostic queries for missingness, duplicates, inconsistent categories, and invalid ranges.
+- Use [SQLite's built-in string functions](https://www.sqlite.org/lang_corefunc.html) (`TRIM`, `UPPER`, `LOWER`, `REPLACE`) and `CASE WHEN` expressions to clean columns.
+- Diagnose and repair **silent join failures** caused by inconsistent key formatting across agency sources.
+- Consolidate cleaned tables from multiple source databases into a single analysis database using [`DataFrame.to_sql`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html).
+
+## Why SQL for Cleaning
+
+Cleaning data in SQL follows the same logic you learned in pandas — identify missingness, duplicates, inconsistent categories, and invalid ranges — but uses a different set of tools. SQL excels at diagnostic queries: you can characterize problems across an entire table with a single statement, and the declarative syntax makes your logic explicit and auditable. This chapter applies a structured diagnostic framework to three real Colorado government datasets, loads them into a SQLite database, and demonstrates a critical lesson about silent join failures caused by inconsistent key formatting across sources.
+
+The silent join failure in this chapter is the clearest example in the book of a bug that does not look like a bug. A query runs, returns results, and those results are systematically wrong. Reading this chapter carefully will save you days of confusion in your future data work.
+
+## The Diagnostic Framework
+
+Every cleaning session in this chapter follows the same five stages:
+
+```
+Inspect → Clean → Design Schema → Load → Validate
+```
+
+Within the Inspect stage, we run four standard diagnostics, one per category of data quality issue:
+
+1. **Missingness** — which columns have nulls, and how many?
+2. **Duplicates** — are there repeated rows on the expected key columns?
+3. **Inconsistent categories** — do text columns have variant spellings, extra whitespace, or unexpected values?
+4. **Invalid ranges** — are numeric and date columns within plausible bounds?
+
+This is the same INSPECT → TRANSFORM → VALIDATE → DOCUMENT workflow from the pandas chapters, specialized for SQL.
+
+## Setup
+
+This chapter uses Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html) module, [pandas](https://pandas.pydata.org/docs/), and [numpy](https://numpy.org/doc/stable/).
+
+```{python}
+import sqlite3
+import pandas as pd
+import numpy as np
+
+pd.set_option('display.max_columns', 20)
+pd.set_option('display.max_colwidth', 55)
+
+conn = sqlite3.connect('colorado_public_health.db')
+cursor = conn.cursor()
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`. Restart your Jupyter kernel after installing. See @sec-setup.
+:::
+
+## Datasets
+
+This chapter works with three Colorado government datasets that will be joined together in @sec-sql-reshaping.
+
+| File | Source | Description |
+|------|--------|-------------|
+| `cdc_deaths.csv` | CDC WONDER | Colorado mortality counts by county, year, age group, and ICD-10 chapter |
+| `cbi_crime.csv` | Colorado Bureau of Investigation | Reported offenses by jurisdiction, date, and offense type |
+| `sya-county.csv` | State Demography Office | Single-year-of-age population estimates by county and year |
+
+## Part 1: CDC Mortality Data
+
+### Inspect
+
+Load the raw file in pandas and run each diagnostic.
+
+```{python}
+deaths_raw = pd.read_csv('cdc_deaths.csv')
+print('Shape:', deaths_raw.shape)
+deaths_raw.head()
+```
+
+#### Missingness
+
+```{python}
+print(deaths_raw.isna().sum())
+```
+
+#### Duplicates
+
+```{python}
+key_cols = ['County', 'Year', 'Age Group', 'ICD Chapter']
+print('Duplicates on key:', deaths_raw.duplicated(subset=key_cols).sum())
+```
+
+#### Inconsistent categories
+
+```{python}
+print(deaths_raw['County'].value_counts().head(10))
+```
+
+Pay attention to the format of county names. Does this dataset use `'Adams'`, `'Adams County'`, or `'Adams County, CO'`? This will matter critically when we join tables later.
+
+#### Invalid ranges
+
+```{python}
+print('Year range:', deaths_raw['Year'].min(), '–', deaths_raw['Year'].max())
+print('Deaths range:', deaths_raw['Deaths'].min(), '–', deaths_raw['Deaths'].max())
+```
+
+### Clean
+
+Apply cleaning operations in pandas based on what the diagnostics revealed. Strip whitespace from text columns, standardize county names, and handle any sentinel values (CDC WONDER uses "Suppressed" and "Unreliable" as data quality flags).
+
+```{python}
+deaths_clean = deaths_raw.copy()
+
+# Strip whitespace from all text columns
+for col in deaths_clean.select_dtypes(include='object').columns:
+    deaths_clean[col] = deaths_clean[col].str.strip()
+```
+
+### Design Schema
+
+```sql
+CREATE TABLE IF NOT EXISTS deaths (
+    county TEXT,
+    year INTEGER,
+    age_group TEXT,
+    icd_chapter TEXT,
+    deaths INTEGER
+);
+```
+
+### Load
+
+```{python}
+deaths_clean.to_csv('deaths_clean.csv', index=False)
+```
+
+### Validate
+
+After loading into SQLite, run diagnostic queries to confirm the import matches the pandas source:
+
+```{python}
+pd.read_sql_query("SELECT COUNT(*) AS n_rows FROM deaths;", conn)
+```
+
+```{python}
+pd.read_sql_query("""
+    SELECT county, COUNT(*) AS n
+    FROM deaths
+    GROUP BY county
+    ORDER BY n DESC
+    LIMIT 5;
+""", conn)
+```
+
+Cross-check the SQL count against the pandas count — they should match exactly.
+
+## Part 2: CBI Crime Data
+
+The same five-stage process applies. The crime data introduces additional challenges: jurisdiction names that do not match county names, nullable columns with complex patterns, and timestamp fields that require careful parsing.
+
+```{python}
+crime_raw = pd.read_csv('cbi_crime.csv')
+print('Shape:', crime_raw.shape)
+crime_raw.head()
+```
+
+Run all four diagnostics (missingness, duplicates, inconsistent categories, invalid ranges), clean the data, design a schema, load it, and validate the load.
+
+## Part 3: Population Estimates
+
+```{python}
+pop_raw = pd.read_csv('sya-county.csv', skiprows=1, dtype={'countyfips': str})
+pop_raw = pop_raw[pop_raw['datatype'] == 'Estimate'].copy()
+print('Shape:', pop_raw.shape)
+pop_raw.head()
+```
+
+The population data has its own quirks: a header row that needs to be skipped, a `datatype` column that mixes estimates and forecasts, and county names in yet another format.
+
+## Part 4: The Silent Join Failure
+
+This is the most important section of the chapter. After loading all three tables, we discover that county names are formatted differently in each source:
+
+| Table | Example county name |
+|-------|-------------------|
+| deaths | `Adams County, CO` |
+| crime | `Adams County` |
+| population | `Adams` |
+
+What happens when you try to join these tables on county name? Nothing matches. The join produces zero rows — silently, with no error message. This is a **silent join failure**, and it is one of the most dangerous problems in data work because it looks like the query succeeded (it ran without errors) but the result is empty or incomplete.
+
+### Demonstrating the failure
+
+```{python}
+pd.read_sql_query("""
+    SELECT d.county AS death_county, p.county AS pop_county, COUNT(*) AS n
+    FROM deaths d
+    JOIN population p ON d.county = p.county
+    LIMIT 5;
+""", conn)
+```
+
+If this returns zero rows, the county formats do not match.
+
+### Diagnosing the mismatch
+
+```{python}
+pd.read_sql_query("""
+    SELECT DISTINCT county FROM deaths ORDER BY county LIMIT 10;
+""", conn)
+```
+
+```{python}
+pd.read_sql_query("""
+    SELECT DISTINCT county FROM population ORDER BY county LIMIT 10;
+""", conn)
+```
+
+### Fixing the mismatch
+
+The fix is to standardize county names to a common format before loading, or to use SQL string functions to normalize them at query time. The `REPLACE()` and `TRIM()` functions in SQLite can help, but the cleanest approach is to fix the data in pandas before loading:
+
+```{python}
+# Standardize all county names to bare names: 'Adams'
+# From 'Adams County, CO' → remove ', CO' then remove ' County'
+# From 'Adams County' → remove ' County'
+# From 'Adams' → already correct
+```
+
+### The lesson
+
+County name mismatches across sources are not a quirk of these particular datasets — they are a universal pattern. Any time you join data from different sources on a text key, you must verify that the key values actually match before running the join. The diagnostic pattern is: list the distinct values from each table, compare them, and fix any mismatches before joining.
+
+## Public Interest Context: Erosion
+
+The three county name formats — `"Adams County, CO"`, `"Adams County"`, `"Adams"` — come from three Colorado government agencies that built their data systems independently, at different times, with no shared naming authority. No one decided to make them incompatible. The mismatch is the accumulated result of decades of decentralized infrastructure development: standards drift, staff turn over, systems migrate. Government databases accumulate inconsistencies the way old buildings accumulate code violations — one small deviation at a time, each rational in context, collectively a mess.
+
+The standardization work you just completed (removing `", CO"` and `" County"`) is the maintenance labor that keeps public records usable. The fix lives in your notebook; the underlying erosion persists in the source systems, waiting for the next analyst to rediscover it. What other erosion is baked into the datasets you work with, and how much of your cleaning code is really maintenance labor on infrastructure the public depends on?
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **erosion** introduced in [Chapter 4](04-public-interest.qmd). Cross-agency data inconsistencies are the visible face of infrastructure erosion, and SQL cleaning is the labor that makes public records usable despite that erosion.
+:::
+
+## SQL Functions for Cleaning
+
+Several SQL functions are useful for cleaning operations:
+
+| Function | Purpose | Example |
+|----------|---------|---------|
+| `TRIM(col)` | Remove leading/trailing whitespace | `SELECT TRIM(county) FROM deaths;` |
+| `UPPER(col)` | Convert to uppercase | `SELECT UPPER(county) FROM deaths;` |
+| `LOWER(col)` | Convert to lowercase | `SELECT LOWER(county) FROM deaths;` |
+| `REPLACE(col, old, new)` | Replace substring | `SELECT REPLACE(county, ' County', '') FROM deaths;` |
+| `CAST(col AS type)` | Change data type | `SELECT CAST(year AS INTEGER) FROM deaths;` |
+| `COALESCE(col, default)` | Replace NULL with default | `SELECT COALESCE(deaths, 0) FROM deaths;` |
+| `CASE WHEN` | Conditional logic | See below |
+
+### `CASE WHEN` for conditional cleaning
+
+```sql
+SELECT
+    county,
+    CASE
+        WHEN deaths IS NULL THEN 'Missing'
+        WHEN deaths = 0 THEN 'Zero'
+        WHEN deaths < 10 THEN 'Suppressed range'
+        ELSE 'Normal'
+    END AS death_status
+FROM deaths;
+```
+
+## Core Diagnostic Patterns
+
+These four query patterns apply to any table in any database:
+
+**Missingness**: `SELECT col, COUNT(*) - COUNT(col) AS n_null FROM table;`
+
+**Duplicates**: `SELECT key_cols, COUNT(*) AS n FROM table GROUP BY key_cols HAVING n > 1;`
+
+**Inconsistent categories**: `SELECT col, COUNT(*) FROM table GROUP BY col ORDER BY COUNT(*) DESC;`
+
+**Invalid ranges**: `SELECT MIN(col), MAX(col), AVG(col) FROM table;`
+
+## Saving the Cleaned Tables
+
+After validating each dataset, collect the cleaned, analysis-ready versions into a single SQLite database for use in @sec-sql-reshaping. That chapter expects one `deaths` table, one `crime` table, and one `population` table — all in `colorado_public_health.db`, with county names standardized to bare county names (e.g., `Adams`) and all rows validated.
+
+The cleanest approach is to read each table from its source database into a pandas DataFrame, apply the county-name standardization you diagnosed above, and write to the shared database using `to_sql`:
+
+```{python}
+import pandas as pd
+import sqlite3
+
+# Read cleaned tables from their source databases
+conn_deaths = sqlite3.connect('cdc_deaths.db')
+conn_crime = sqlite3.connect('cbi_crime.db')
+conn_pop = sqlite3.connect('population.db')
+
+deaths = pd.read_sql_query("SELECT * FROM deaths", conn_deaths)
+crime = pd.read_sql_query("SELECT * FROM crime", conn_crime)
+population = pd.read_sql_query("SELECT * FROM population", conn_pop)
+
+# Standardize county names to bare format (e.g., "Adams County, CO" -> "Adams")
+deaths['county'] = (deaths['county']
+    .str.replace(r',\s*CO$', '', regex=True)   # remove ", CO"
+    .str.replace(r'\s+County$', '', regex=True) # remove " County"
+    .str.strip()
+)
+
+crime['county'] = (crime['county']
+    .str.replace(r'\s+County$', '', regex=True)
+    .str.strip()
+)
+# population already uses bare county names
+
+# Write to shared database
+conn_ph = sqlite3.connect('colorado_public_health.db')
+deaths.to_sql('deaths', conn_ph, if_exists='replace', index=False)
+crime.to_sql('crime', conn_ph, if_exists='replace', index=False)
+population.to_sql('population', conn_ph, if_exists='replace', index=False)
+
+print("Tables written to colorado_public_health.db:")
+for tbl in ['deaths', 'crime', 'population']:
+    n = pd.read_sql_query(f"SELECT COUNT(*) AS n FROM {tbl}", conn_ph).iloc[0, 0]
+    print(f"  {tbl}: {n:,} rows")
+
+conn_deaths.close(); conn_crime.close(); conn_pop.close(); conn_ph.close()
+```
+
+::: {.callout-tip}
+## Why not write directly from SQL?
+SQLite does not have a built-in cross-database `INSERT INTO ... SELECT FROM` for different `.db` files. The pandas round-trip (read into DataFrame, standardize, write back) is the practical approach for consolidating multiple source databases into one analysis database.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## A join on a text key returns zero rows
+**What it means:** A silent join failure. Your keys look similar but are not identical — often `"Adams"` vs `"Adams County"` vs `"Adams County, CO"`.
+
+**How to fix it:** Run `SELECT DISTINCT county FROM <table> ORDER BY county` on each side of the join. Compare the results. Normalize in pandas (or with SQLite `TRIM`/`REPLACE`) before joining.
+:::
+
+::: {.callout-warning}
+## `TRIM` does not catch some whitespace
+**What it means:** Non-breaking spaces (Unicode `U+00A0`) and tab characters are whitespace to humans but not to SQLite's default `TRIM`. A column can still fail to match after `TRIM` if the whitespace is unusual.
+
+**How to fix it:** Check for unusual whitespace in pandas with `df['col'].str.contains(r'\s', regex=True)` and explicitly replace `\xa0` and other characters before exporting. In SQL, `REPLACE(col, char(160), ' ')` handles non-breaking spaces.
+:::
+
+::: {.callout-warning}
+## `CAST(x AS INTEGER)` returns 0 unexpectedly
+**What it means:** SQLite's `CAST` returns 0 for strings that cannot be parsed. A column with `$1,234` gets stored as text, and `CAST` silently produces zeros.
+
+**How to fix it:** Clean currency/comma characters before loading. In SQLite, chain `CAST(REPLACE(REPLACE(col, '$', ''), ',', '') AS INTEGER)` — but doing the cleanup in pandas first is clearer and easier to audit.
+:::
+
+::: {.callout-warning}
+## `NULL` behaves unexpectedly in conditions
+**What it means:** `NULL = NULL` is `NULL` (not `TRUE`), and `NULL = 'Adams'` is `NULL`. Any row with `NULL` in the compared column is silently excluded.
+
+**How to fix it:** Always use `IS NULL` and `IS NOT NULL` for null checks. Use `COALESCE(col, default)` when you need a default value.
+:::
+
+## Key Takeaways
+
+- Cleaning in SQL follows the same **Inspect → Clean → Validate → Document** rhythm as pandas; only the syntax changes.
+- The four diagnostic categories — missingness, duplicates, inconsistent categories, invalid ranges — are worth running on every new table.
+- **Silent join failures** are the most dangerous SQL bug class. Always run `SELECT DISTINCT` on join keys before joining.
+- SQLite's type system is permissive. Column names and types in your schema do not enforce what is actually stored — audit after every load.
+- When a technical fix (standardizing county names) encodes a governance problem (three agencies, no shared convention), document the fix in your Known Issues Log and the provenance in your Data Dictionary.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on SQL cleaning and SQLite internals
+
+- **SQLite: Core built-in functions** — [sqlite.org/lang_corefunc.html](https://www.sqlite.org/lang_corefunc.html) lists every built-in function (`TRIM`, `UPPER`, `COALESCE`, etc.).
+- **SQLite: Datatypes in SQLite** — [sqlite.org/datatype3.html](https://www.sqlite.org/datatype3.html) explains SQLite's flexible (and sometimes surprising) type system.
+- **SQLite: Expression reference** — [sqlite.org/lang_expr.html](https://www.sqlite.org/lang_expr.html) covers `CASE WHEN`, `IS NULL`, operators, and NULL semantics.
+- **pandas: `to_sql` API** — [pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_sql.html) is the reference for writing DataFrames into SQLite.
+- **CDC WONDER help** — [wonder.cdc.gov/wonder/help/main.html](https://wonder.cdc.gov/wonder/help/main.html) documents the suppression rules referenced throughout this chapter.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Missingness by year
+Write a SQL query that shows the number of NULL death counts per year in the deaths table. Which years have the most missing data?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT year,
+           COUNT(*) AS total_rows,
+           SUM(CASE WHEN deaths IS NULL THEN 1 ELSE 0 END) AS n_null
+    FROM deaths
+    GROUP BY year
+    ORDER BY year;
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: TRIM audit
+Write a query that identifies rows in the crime table where the jurisdiction column has leading or trailing whitespace (i.e., `jurisdiction <> TRIM(jurisdiction)`). How many rows are affected?
+
+::: {.callout-note collapse="true"}
+## Solution
+```{python}
+pd.read_sql_query("""
+    SELECT COUNT(*) AS whitespace_rows
+    FROM crime
+    WHERE jurisdiction <> TRIM(jurisdiction);
+""", conn)
+```
+:::
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Cross-table county audit
+Write queries that list the distinct county names from all three tables. Identify at least two counties whose names differ across sources. Propose a standardization strategy.
+:::

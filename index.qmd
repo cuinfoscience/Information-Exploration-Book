@@ -39,17 +39,19 @@ These four stages are not strictly sequential. Real analysis involves cycling ba
 
 ## How This Book Is Organized
 
-The book is divided into four parts. Parts II and III each apply the Load–Clean–Extend–Reshape framework with a different tool; Part I builds the conceptual and technical foundation; Part IV applies the results to analysis.
+The book is divided into five parts. Part I builds the conceptual and technical foundation. Parts II and III each apply the Load–Clean–Extend–Reshape framework with a different tabular tool. Part IV extends the toolkit to non-tabular data (spatial, network, text, time series, and web-structured formats). Part V applies the results to analysis.
 
-**Part I: Foundations** covers the paratechnical skills that most courses skip but that every analyst needs — navigating the terminal, organizing project files, writing documentation, managing Python environments, and reading error messages — as well as the conceptual and ethical vocabulary for working with public data. Two chapters introduce ideas rather than tools: one on formulating research questions before the technical work begins, and one on the dynamics that shape public datasets and the practices that make data work accountable. These short chapters are designed to be referenced throughout the rest of the book.
+**Part I: Foundations** covers the paratechnical skills that most courses skip but that every analyst needs — navigating the terminal, organizing project files, writing documentation, managing Python environments, and reading error messages — as well as the conceptual and ethical vocabulary for working with public data. Four chapters: workspace setup, documentation and errors, research-question framing, and public-interest data science. These short chapters are designed to be referenced throughout the rest of the book.
 
 **Part II: Python** introduces the [pandas](https://pandas.pydata.org/docs/) library for tabular data analysis. Across four chapters, you will learn to load CSV and Excel files with `read_csv` and `read_excel`, clean data using string methods, type coercion, and dictionary-based recoding, extend datasets with derived columns, `groupby` aggregation, and `pivot_table`, and reshape data using `melt`, `merge`, and `concat`. The datasets in this section include Colorado cannabis sales data, Boulder County voter registration records, Lahman Baseball statistics, and Colorado population estimates from the State Demography Office.
 
 **Part III: SQL** teaches you to perform the same operations using Structured Query Language and the [SQLite](https://www.sqlite.org/docs.html) database engine. You will set up a database from the command line, design schemas, load cleaned CSVs, write diagnostic queries, use `GROUP BY`, subqueries, and Common Table Expressions (CTEs), and join multiple tables while auditing join quality. The SQL chapters use Colorado public health datasets — CDC mortality data, Colorado Bureau of Investigation crime statistics, and population estimates — culminating in a multi-table join that produces an analysis-ready dataset.
 
-**Part IV: Analysis** applies the conceptual vocabulary from Part I to the clean, well-structured data you have built. You will characterize distributions and identify outliers through descriptive statistics, build a visual vocabulary for exploring patterns using [matplotlib](https://matplotlib.org/stable/) and [seaborn](https://seaborn.pydata.org/), and apply simple hypothesis tests from [scipy.stats](https://docs.scipy.org/doc/scipy/reference/stats.html) — t-tests, chi-square tests, and correlation coefficients — interpreting their results in plain language. Part IV uses the same datasets from earlier chapters, so that the analytical questions grow naturally from the data preparation work you have already done.
+**Part IV: Non-Tabular Data** extends the book's toolkit to data that does not arrive as rows and columns. Five chapters introduce spatial data with [GeoPandas](https://geopandas.org/), network data with [NetworkX](https://networkx.org/), unstructured text with [NLTK](https://www.nltk.org/), time series with [statsmodels](https://www.statsmodels.org/) and [Prophet](https://facebook.github.io/prophet/), and structured web data (JSON, XML, HTML) with [requests](https://requests.readthedocs.io/) and [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/).
 
-An **Appendix** describes each dataset used in the book, including its source, structure, key columns, and known quirks.
+**Part V: Analysis** applies the conceptual vocabulary from Part I to the clean, well-structured data you have built. You will characterize distributions and identify outliers through descriptive statistics, build a visual vocabulary for exploring patterns using [matplotlib](https://matplotlib.org/stable/) and [seaborn](https://seaborn.pydata.org/), and apply simple hypothesis tests from [scipy.stats](https://docs.scipy.org/doc/scipy/reference/stats.html) — t-tests, chi-square tests, and correlation coefficients — interpreting their results in plain language. Part V uses the same datasets from earlier chapters, so that the analytical questions grow naturally from the data preparation work you have already done.
+
+Two **Appendices** document the datasets used throughout the book (sources, structures, known quirks) and disclose the author's use of AI assistance during drafting.
 
 ## Recurring Themes
 
@@ -71,7 +73,7 @@ Terminal commands are shown in `bash` code blocks. On Windows, equivalent comman
 
 ## Accompanying Materials
 
-All datasets used in this book are available in the accompanying GitHub repository. Each chapter assumes you have downloaded the relevant data files to your working directory. Instructions for setting up your environment appear in @sec-environments.
+All datasets used in this book are available in the accompanying GitHub repository. Each chapter assumes you have downloaded the relevant data files to your working directory. Instructions for setting up your environment appear in @sec-setup.
 
 ## A Note on Difficulty
 

@@ -39,7 +39,7 @@ If any of `numpy`, `pandas`, or `matplotlib` is missing, install it with:
 conda install numpy pandas matplotlib
 ```
 
-Or with pip: `pip install numpy pandas matplotlib`. After installing, restart the kernel before re-running the import cell. See @sec-environments for how to check which Python environment your notebook is using.
+Or with pip: `pip install numpy pandas matplotlib`. After installing, restart the kernel before re-running the import cell. See @sec-setup for how to check which Python environment your notebook is using.
 :::
 
 ## Completing the Cannabis Load
@@ -420,16 +420,15 @@ Every cleaning session should produce two documentation artifacts. The **Known I
 
 These are not bureaucratic exercises. They are the only reliable way to remember your decisions when you return to the analysis later or when someone else needs to reproduce your work.
 
+## Public Interest Context: Openness
+
+Every cleaning decision is an analytical choice. Stripping `$` and `,` from a sales column is mechanical; deciding that `"OTH"` rows should be dropped, or that `NR` should map to `NaN`, or that two rows with the same `VOTER_ID` should be treated as duplicates, are not. They are judgments that shape the conclusions downstream — and they are invisible to anyone who only sees your final DataFrame.
+
+The Known Issues Log from @sec-documentation is the practice that makes these judgments visible. A cleaning run that leaves no record is a black box: later readers cannot evaluate whether the drops, recodings, and deduplications were reasonable. Treat your cleaning cells as if an auditor will review them tomorrow, and write down each decision as you make it. Which of the cleaning moves you performed above would you defend in writing, and which are you relying on being unnoticed?
+
 ::: {.callout-note}
-## Public Interest Context: Ownership
-
-The Data Dictionary is a provenance record. It documents where the data came from, who collected it, what transformations were applied, and what the columns mean. In a public interest context, this kind of ownership documentation matters for two reasons.
-
-First, it enables reproducibility. Someone else — a colleague, an instructor, a journalist — should be able to reconstruct your analysis from the same sources. If your Data Dictionary records that `party` was normalized using a specific mapping dictionary, and that mapping is in your notebook, the transformation is reproducible. If it is not documented, the cleaning is invisible and unverifiable.
-
-Second, it enables accountability. The voter registration data comes from a specific county clerk's office, exported on a specific date. The cleaning decisions you made — which party codes to consolidate, which rows to treat as duplicates, how to handle missing precincts — are your analytical choices, not facts in the data. Documenting them is how you distinguish your interpretation from the original record.
-
-See @sec-public-interest for the broader framework connecting ownership to public interest data practice.
+## Connection to @sec-public-interest
+This section connects to the concept of **openness** introduced in [Chapter 4](04-public-interest.qmd). Openness in public interest data work means making your cleaning decisions visible so that readers can evaluate them — the Known Issues Log is that practice in code.
 :::
 
 ## Common Issues in This Chapter

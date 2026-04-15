@@ -1,0 +1,320 @@
+# Structured Web Data {#sec-structured}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Parse **JSON** and **XML** documents into Python dictionaries and [pandas](https://pandas.pydata.org/docs/) DataFrames using the standard library and [`pd.json_normalize`](https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html).
+- Fetch web resources using [`requests`](https://requests.readthedocs.io/en/latest/) and parse HTML with [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/).
+- Query a public API, handle pagination, and turn the response into a tidy DataFrame.
+- Practice scraping ethics: `robots.txt`, rate limiting, caching, and terms of service.
+- Explain the **post-API age** and why structured-data skills matter more than they did a decade ago.
+
+## Why Structured Web Data Matters
+
+Data does not always arrive as a CSV. Government filings are packaged as XML. API responses come back as JSON. News articles embed data tables in HTML that never existed as a separate download. If you limit yourself to spreadsheet formats, you leave most of the web's data on the table.
+
+This chapter teaches you to work with data as it actually lives on the web. You'll parse JSON and XML, scrape HTML tables, and query APIs. The goal is resilience: whatever format a publisher chose, you can get it into a DataFrame and move on.
+
+If this chapter feels like a grab bag of small new skills, that's because it is. Each format — JSON, XML, HTML — has its own conventions, and the only way to internalize them is to parse a few real examples. The click comes once you've done the same thing three times with slightly different data.
+
+## The Post-API Age
+
+For a brief period — roughly 2006 to 2018 — platforms like Twitter, Facebook, Reddit, and YouTube published generous public APIs that let researchers, journalists, and developers query their data on reasonable terms. That era is largely over. Twitter/X's free tier is effectively dead. Reddit's 2023 API changes priced out most academic and civic users. Facebook's CrowdTangle was shut down. The **post-API age**, a term coined by communication scholar Deen Freelon in a 2018 paper, describes this shift: platforms that were once open are now gated, and the data that supports public understanding of those platforms is shrinking.
+
+What does this mean for you? Two things. First, the skills in this chapter — scraping HTML, parsing structured files, working with the APIs that remain free and public — are more important than ever. When one door closes, you need to know how to find another. Second, when you do scrape or query, document your methodology and preserve your data, because the same source may not be available tomorrow.
+
+The examples in this chapter use APIs that are reliably free and publicly accessible — the ones that are likely to still be here when you reread this chapter in a year:
+
+- **[FRED API](https://fred.stlouisfed.org/docs/api/fred/)** — Federal Reserve Economic Data.
+- **[Census Bureau API](https://www.census.gov/data/developers/data-sets.html)** — US demographic and economic data.
+- **[OpenAlex API](https://docs.openalex.org/)** — scholarly publication metadata.
+- **[Wikipedia / MediaWiki API](https://www.mediawiki.org/wiki/API:Main_page)** — Wikipedia content and metadata.
+- **[Open Library API](https://openlibrary.org/developers/api)** — book and author records.
+
+## Setup
+
+You'll use [requests](https://requests.readthedocs.io/en/latest/) for HTTP, [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) for HTML parsing, and Python's standard library [`json`](https://docs.python.org/3/library/json.html) and [`xml.etree.ElementTree`](https://docs.python.org/3/library/xml.etree.elementtree.html) modules for the other two formats.
+
+```{python}
+#| eval: false
+import requests
+from bs4 import BeautifulSoup
+import json
+import xml.etree.ElementTree as ET
+import pandas as pd
+```
+
+::: {.callout-tip collapse="true"}
+## If you get an `ImportError` or `ModuleNotFoundError`
+
+`requests` and `beautifulsoup4` are not part of the standard library. Run this in a new cell:
+
+`!pip install requests beautifulsoup4`
+
+Then restart your kernel (Kernel → Restart) and run the import cell again. If you're using Anaconda, try `conda install -c conda-forge requests beautifulsoup4` instead. `json` and `xml.etree.ElementTree` ship with Python; if those fail to import, your Python install is broken.
+:::
+
+## JSON
+
+**JSON** (JavaScript Object Notation) is the dominant data format for modern web APIs. It encodes two structures: **objects** (like Python dicts) and **arrays** (like Python lists), which can nest arbitrarily.
+
+### Parsing a JSON string
+
+```{python}
+#| eval: false
+raw = '''{
+  "title": "Information Exploration",
+  "authors": ["Brian Keegan"],
+  "year": 2026,
+  "chapters": [
+    {"num": 1, "name": "Setup"},
+    {"num": 17, "name": "Structured Web Data"}
+  ]
+}'''
+
+data = json.loads(raw)
+print(data['title'])
+print(data['chapters'][1]['name'])
+```
+
+`json.loads()` parses a string; `json.load()` parses an open file. Going the other direction is `json.dumps()` (to string) and `json.dump()` (to file).
+
+### From nested JSON to a flat DataFrame
+
+Real API responses are usually deeply nested. [`pd.json_normalize()`](https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html) flattens nesting into columns with dot-separated names.
+
+```{python}
+#| eval: false
+response = [
+  {'id': 1, 'title': 'A', 'author': {'name': 'Alice', 'org': 'ORG1'}},
+  {'id': 2, 'title': 'B', 'author': {'name': 'Bob', 'org': 'ORG2'}},
+]
+
+df = pd.json_normalize(response)
+print(df.columns.tolist())  # ['id', 'title', 'author.name', 'author.org']
+```
+
+If one of the nested fields is itself a list of records, pass `record_path` to `json_normalize` to pull each nested list item into its own row.
+
+## XML
+
+**XML** (eXtensible Markup Language) is older and more verbose than JSON but still common in government filings (SEC EDGAR, congressional records) and scientific data.
+
+```{python}
+#| eval: false
+raw = '''<?xml version="1.0"?>
+<catalog>
+  <book id="1">
+    <title>Information Exploration</title>
+    <year>2026</year>
+  </book>
+  <book id="2">
+    <title>Tidy Data</title>
+    <year>2014</year>
+  </book>
+</catalog>'''
+
+root = ET.fromstring(raw)
+for book in root.findall('book'):
+    print(book.get('id'), book.find('title').text, book.find('year').text)
+```
+
+Two key methods: `.find(tag)` returns the first child with a matching tag; `.findall(tag)` returns all of them. Attributes (`id="1"`) are accessed with `.get()`; text content is on the `.text` property.
+
+For complex XML documents — SEC filings, government records — consider [`lxml`](https://lxml.de/) or the [`xmltodict`](https://pypi.org/project/xmltodict/) library, which converts XML to nested dicts that `pd.json_normalize` can handle.
+
+## HTML and Web Scraping
+
+When a publisher offers neither an API nor a downloadable file, but does publish the data on a web page, scraping is the fallback.
+
+### Fetching a page
+
+```{python}
+#| eval: false
+headers = {'User-Agent': 'info3401-class-project (your-email@example.edu)'}
+response = requests.get('https://en.wikipedia.org/wiki/Colorado', headers=headers)
+response.raise_for_status()  # raise an exception if the request failed
+print(response.status_code)  # 200 means success
+```
+
+The `User-Agent` header identifies you to the server. Many sites block the default `python-requests/x.y` agent. Use a descriptive string that includes your contact information. `raise_for_status()` turns a failed request into a Python exception you can catch.
+
+### Parsing with Beautiful Soup
+
+```{python}
+#| eval: false
+soup = BeautifulSoup(response.text, 'html.parser')
+
+# All links on the page
+links = [a.get('href') for a in soup.find_all('a') if a.get('href')]
+print(f'Found {len(links)} links')
+
+# The first table on the page
+first_table = soup.find('table')
+```
+
+Beautiful Soup parses HTML into a tree you navigate with `.find()`, `.find_all()`, and CSS selectors via `.select()`. The selector syntax is the same one you'd use in a browser's developer tools (`'div.content table.infobox'`).
+
+### Extracting HTML tables
+
+When the page contains an actual `<table>` element, pandas has a shortcut:
+
+```{python}
+#| eval: false
+tables = pd.read_html('https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States')
+print(f'Found {len(tables)} tables')
+print(tables[0].head())
+```
+
+`pd.read_html()` returns a list of DataFrames — one per `<table>`. This one line replaces dozens of manual parsing lines, when the publisher was kind enough to use real `<table>` elements.
+
+### Scraping ethics
+
+- **Read `robots.txt`** — append `/robots.txt` to any site's root URL (e.g., `https://example.com/robots.txt`). It tells automated clients which paths the operator prefers you not to crawl.
+- **Rate limit** — pause between requests (`time.sleep(1)` between each). A burst of hundreds of requests per second from one IP can be indistinguishable from a denial-of-service attack.
+- **Cache aggressively** — save every response to disk during development so you aren't refetching the same page dozens of times while you debug.
+- **Read the terms of service** — some sites explicitly prohibit scraping. Others tolerate it for non-commercial use. Knowing the terms protects you.
+- **Identify yourself** — a descriptive `User-Agent` string is good etiquette and makes it easier for a confused webmaster to contact you before blocking your IP.
+
+::: {.callout-warning}
+## Scraping is brittle by design
+The HTML structure of a page can change at any time. A CSS selector that works today may return nothing tomorrow. Build scrapers defensively: log how many records you extracted, alert on suspiciously low counts, and always cache the raw HTML so you can reparse when the page changes.
+:::
+
+## Working with APIs
+
+APIs are the friendliest way to get structured data from a publisher, when they exist and are free. Here's a short example querying the OpenAlex scholarly metadata API — no authentication required.
+
+```{python}
+#| eval: false
+url = 'https://api.openalex.org/works'
+params = {
+    'search': 'public interest data science',
+    'per-page': 25,
+    'mailto': 'your-email@example.edu',  # polite pool, faster rate limits
+}
+
+r = requests.get(url, params=params)
+r.raise_for_status()
+payload = r.json()
+
+print(f"Total results: {payload['meta']['count']:,}")
+print(f"Returned on this page: {len(payload['results'])}")
+
+df = pd.json_normalize(payload['results'])
+print(df[['id', 'title', 'publication_year']].head())
+```
+
+A few patterns worth noticing: the query parameters are passed as a dict; the response is JSON parsed via `r.json()`; `pd.json_normalize` handles the nesting; and adding a `mailto` parameter puts you in OpenAlex's "polite pool" for higher rate limits.
+
+### Pagination
+
+Most APIs don't return all results in one response — they paginate. OpenAlex paginates via a `page` parameter or a `cursor`. Always read the API docs, then loop.
+
+```{python}
+#| eval: false
+import time
+
+all_results = []
+page = 1
+while True:
+    r = requests.get(url, params={**params, 'page': page})
+    r.raise_for_status()
+    batch = r.json()['results']
+    if not batch:
+        break
+    all_results.extend(batch)
+    page += 1
+    time.sleep(0.2)  # be polite
+    if page > 40:    # safety stop — don't run away
+        break
+
+print(f'Collected {len(all_results)} records')
+```
+
+The `if not batch: break` pattern stops when the API returns an empty page. The explicit `page > 40` safety stop prevents infinite loops during development.
+
+Take a moment to appreciate what you just did: you queried a scholarly database, handled pagination, and loaded thousands of records into a DataFrame without ever opening a web browser.
+
+## Public Interest Context: Access as Infrastructure
+
+APIs are infrastructure. When a public-interest organization depends on an API for accountability reporting, that API becomes a piece of civic infrastructure — and its terms of service, authentication requirements, and continued existence all become public concerns.
+
+The post-API age is best understood as **enclosure** plus **exemption**. **Enclosure** is the gating: what was freely queryable becomes paid, rate-limited, or authenticated-only. **Exemption** is the refusal: platforms that used to share data stop sharing, and what they know about their users becomes invisible to the public. The skills in this chapter — scraping, parsing, API-hopping between the free endpoints that remain — are responses to both pressures.
+
+Building redundant data pipelines, caching aggressively, and documenting every source is not paranoia. It is the reasonable response to a landscape where the data you rely on may not be accessible next year.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concepts of **enclosure** and **exemption** introduced in [Chapter 4](04-public-interest.qmd). APIs are how access is gated and platform data is made available (or not). Structured-data skills let public-interest work survive the shift from open APIs to closed ones.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `requests.exceptions.HTTPError: 403 Forbidden`
+**What it means:** The server rejected your request — often because of a default `User-Agent`, a missing authentication header, or a known rate-limit violation.
+
+**How to fix it:** Add a `User-Agent` header with your contact info. If the API requires authentication, confirm your key is set. If you've been hitting the site hard, wait several minutes before retrying.
+:::
+
+::: {.callout-warning}
+## `json.decoder.JSONDecodeError: Expecting value`
+**What it means:** The response body is not valid JSON — often HTML instead (an error page) or an empty string (a silent failure).
+
+**How to fix it:** Print `response.status_code` and `response.text[:500]` to see what the server actually returned. If the status is 200 but the body is HTML, you hit a login wall or a generic error page.
+:::
+
+::: {.callout-warning}
+## Beautiful Soup returns `None` when you expected a match
+**What it means:** Your CSS selector is wrong, or the structure of the page is different from what you expected.
+
+**How to fix it:** Open the page in a browser, open developer tools, and copy the exact selector. Check that the element exists in the raw HTML (`response.text`) — it may be injected later by JavaScript, which means you need a browser automation tool like [Playwright](https://playwright.dev/python/).
+:::
+
+::: {.callout-warning}
+## `pd.read_html()` returns the wrong table or none at all
+**What it means:** `pd.read_html` only sees real `<table>` elements. If the page uses a grid of `<div>` elements styled to look like a table, it won't work.
+
+**How to fix it:** Fall back on Beautiful Soup and iterate the rows manually. Or use `pd.read_html(io=response.text, match='Some unique string in the header')` to filter to the table you want when the page has many.
+:::
+
+::: {.callout-warning}
+## You hit an API rate limit and all subsequent requests fail
+**What it means:** The API responded with HTTP 429 (Too Many Requests) or started returning empty results. You need to back off.
+
+**How to fix it:** Add `time.sleep(1)` or more between requests. Check the API's documented rate limits and stay well under them. For APIs that expose a `Retry-After` header, honor it. Cache every response to disk so you don't refetch what you already have.
+:::
+
+## Key Takeaways
+
+- JSON and XML are the two dominant structured data formats. `json.loads` + `pd.json_normalize` and `xml.etree.ElementTree` handle most cases.
+- Beautiful Soup and `pd.read_html()` cover HTML scraping. Identify yourself with a real `User-Agent` and respect `robots.txt`.
+- APIs beat scraping when they exist — but the post-API age means they exist less often. Build resilience by knowing both.
+- Pagination, authentication, and rate limits are the three things that break first. Read the API docs, then build conservative defaults.
+- Public-interest data work is increasingly structured-data work. Treat every source as potentially transient and cache everything.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on structured web data
+
+- **requests docs** — [requests.readthedocs.io/en/latest/](https://requests.readthedocs.io/en/latest/) is the canonical reference.
+- **Beautiful Soup docs** — [crummy.com/software/BeautifulSoup/bs4/doc/](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) is friendly and complete.
+- **Real Python: Beautiful Soup web scraper tutorial** — [realpython.com/beautiful-soup-web-scraper-python/](https://realpython.com/beautiful-soup-web-scraper-python/).
+- **Playwright for Python** — [playwright.dev/python/](https://playwright.dev/python/) handles JavaScript-rendered pages that Beautiful Soup cannot see.
+- **Scrapy** — [scrapy.org/](https://scrapy.org/) is the industrial-strength framework for large, long-running scraping projects.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Query the OpenAlex API
+Use the OpenAlex API to search for works published in 2023 with the word "redlining" in the title. Retrieve the first 100 results, parse them into a DataFrame, and report the top 5 author-affiliated institutions by frequency. Remember to include a `mailto` parameter for the polite pool.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Scrape a list of US state capitals
+Use Beautiful Soup or `pd.read_html` to extract the list of US state capitals from Wikipedia's "List of capitals in the United States" page. Return a DataFrame with columns `state`, `capital`, and `population`. Handle the disambiguation case where multiple tables on the same page have similar structure. Document any rows that required manual cleanup in a short Known Issues Log entry.
+:::

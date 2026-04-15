@@ -37,7 +37,7 @@ cursor = conn.cursor()
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-setup.
 :::
 
 ::: {.callout-warning}
@@ -347,14 +347,15 @@ pd.read_sql_query("""
 
 ## Part 7: The Join-Quality Report
 
+## Public Interest Context: Ownership
+
+A SQL query that produces a summary is a reproducible analytical artifact. Given the same database, anyone can re-run your query and get the same result. The CTEs, joins, and aggregations you wrote above are not a one-time piece of code — they are a specification of *how* the summary was built, which means the next analyst can audit your method as easily as they can audit your numbers. That is what **ownership** means in practice: the provenance of the result is legible in the query itself.
+
+This matters in a public interest context because "the numbers say X" is often a contested claim. A journalist, a policy analyst, and a partisan think tank can all run similar-sounding queries against the same public database and reach different conclusions — because the joins, filters, and denominators they chose were different. The join-quality report from earlier in this chapter, plus the query itself, is how you make your choices auditable rather than asserted. Could you hand the query you just wrote to a skeptical reviewer and expect them to reproduce your result?
+
 ::: {.callout-note}
-## Public Interest Context: Oversight
-
-The join-quality report is more than a technical artifact. It is an audit trail — a structured record of what matched, what was dropped, and why. In a public interest context, this kind of documentation is what oversight looks like in practice.
-
-Consider what is at stake in this specific join. You are combining mortality data, crime data, and population data to compute per-capita rates for Colorado counties. If your join silently drops rural counties with missing crime records, your rates will only reflect urban counties — and any conclusions you draw about "Colorado counties" will actually only reflect a subset of them.
-
-The join-quality report forces you to document that dropout explicitly: how many counties are missing from each source, which years have complete data, and where NULLs were introduced. A reader of your analysis should be able to evaluate your joins — not only your conclusions. See @sec-public-interest for the broader framework.
+## Connection to @sec-public-interest
+This section connects to the concept of **ownership** introduced in [Chapter 4](04-public-interest.qmd). A SQL query records the exact analytical procedure that produced a summary — a form of ownership that makes public-interest claims reproducible and auditable.
 :::
 
 Every multi-table analysis should produce a brief report documenting the join. This is the SQL equivalent of the Known Issues Log from @sec-documentation. At minimum, it should cover:

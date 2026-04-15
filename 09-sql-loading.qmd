@@ -22,7 +22,7 @@ You already know the Load–Clean–Extend–Reshape rhythm from Part II. The go
 
 ## Terminal Orientation
 
-Before touching SQLite, you need three terminal commands. If you completed @sec-terminal, these are review.
+Before touching SQLite, you need three terminal commands. If you completed @sec-setup, these are review.
 
 | Command (Mac/Linux) | Command (Windows) | Purpose |
 |---|---|---|
@@ -36,7 +36,7 @@ Before touching SQLite, you need three terminal commands. If you completed @sec-
 sqlite3 --version
 ```
 
-If you see a version number (e.g., `3.43.2`), SQLite is installed and on your PATH. If you get `command not found`, see @sec-environments for installation instructions.
+If you see a version number (e.g., `3.43.2`), SQLite is installed and on your PATH. If you get `command not found`, see @sec-setup for installation instructions.
 
 ## The SQLite Shell
 
@@ -68,19 +68,22 @@ The SQL workflow in this chapter depends on the Python workflow from @sec-py-loa
 
 SQLite's `.import` command expects a clean, rectangular CSV with exactly one header row and no aggregate rows. The standard approach is to clean the file in pandas first — applying the same operations from @sec-py-cleaning — and export a clean CSV for SQLite to consume.
 
-::: {.callout-note}
 ## Public Interest Context: Enclosure by Interface
 
-The fact that you must clean the cannabis file in pandas before SQLite can import it is not a coincidence. Government datasets are typically published through web portals designed for human download — one file at a time, formatted for spreadsheet users. The data is technically open, but the publishing workflow is optimized for a different kind of user than you.
+SQL databases are how institutions store and gate-keep their data. A schema is not a neutral technical artifact: it encodes what the institution has decided counts as a record, what columns are worth collecting, and what categories are allowed. The fact that the cannabis file must be cleaned in pandas before SQLite can import it is not accidental — government datasets are typically published through web portals designed for human download, one file at a time, formatted for spreadsheet users. The publishing workflow is optimized for a different kind of user than you.
 
-This is a specific form of enclosure: access is possible, but it requires enough technical skill to navigate the formatting. The more agencies publish machine-readable APIs or consistently formatted CSV files with documented schemas, the more equitably public data can be used. See @sec-public-interest for the broader framework.
+Understanding schemas is understanding how organizations decide what to count. When an agency publishes data without a schema — or with a schema that does not match the published CSV — the friction is itself a form of enclosure. When you build your own schema (the `CREATE TABLE` above), you are naming what you consider the meaningful shape of the record. What's in the schema you'd write if you designed it from scratch, and what's missing from the one the agency actually publishes?
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **enclosure** introduced in [Chapter 4](04-public-interest.qmd). SQL schemas are how institutions structure and gate access to data; understanding them is part of understanding how public data is enclosed in practice.
 :::
 
 This chapter uses [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), and Python's built-in [`sqlite3`](https://docs.python.org/3/library/sqlite3.html) module.
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-`sqlite3` ships with Python's standard library — if you get `ModuleNotFoundError: No module named 'sqlite3'`, your Python install is unusual (this is very rare). For pandas or numpy, run `conda install pandas numpy` or `pip install pandas numpy` and restart the kernel. See @sec-environments.
+`sqlite3` ships with Python's standard library — if you get `ModuleNotFoundError: No module named 'sqlite3'`, your Python install is unusual (this is very rare). For pandas or numpy, run `conda install pandas numpy` or `pip install pandas numpy` and restart the kernel. See @sec-setup.
 :::
 
 ```{python}

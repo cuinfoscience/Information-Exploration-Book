@@ -30,7 +30,7 @@ pd.set_option('display.float_format', '{:.3f}'.format)
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-Install missing packages with `conda install pandas numpy` (or `pip install pandas numpy`) and restart the Jupyter kernel. See @sec-environments for how to verify your notebook's kernel matches the environment where you installed.
+Install missing packages with `conda install pandas numpy` (or `pip install pandas numpy`) and restart the Jupyter kernel. See @sec-setup for how to verify your notebook's kernel matches the environment where you installed.
 :::
 
 ## Datasets
@@ -346,6 +346,17 @@ batting['hr_share'] = batting['HR'] / batting['team_total_HR'].replace(0, float(
 ```
 
 Use `transform()` when you want to compute something like "what percentage of team home runs did each player contribute?" — a question that requires both the individual value and the group total on the same row.
+
+## Public Interest Context: Oversight
+
+Derived metrics are interpretive choices dressed up as arithmetic. A rate is a ratio — and the denominator you pick determines the story. "Deaths per 100,000 residents" and "deaths per 100,000 adults" and "deaths per 100,000 people with health insurance" can all point the same way or the opposite way on the same underlying data. A dependency ratio that excludes seniors under 65 who are still working looks different from one that doesn't. When you create a derived column, you are quietly asserting that this is the right way to compare groups, and your assertion travels downstream into every chart and conclusion.
+
+Grouped summaries have the same property. A `groupby` that silently drops rows with NaN in the group column, or a bin that accidentally truncates values outside its edges, is hidden data loss that still produces a confident-looking table. Oversight in extending data means auditing the arithmetic: re-deriving totals, comparing group sums to source sums, and explicitly naming the denominator you chose and why. When you hand someone a rate table, can they reconstruct the formula you used to build it?
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **oversight** introduced in [Chapter 4](04-public-interest.qmd). Every derived metric is an analytical decision; oversight requires that those decisions be explicit and auditable rather than buried in a one-line arithmetic expression.
+:::
 
 ## Common Issues in This Chapter
 

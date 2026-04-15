@@ -51,7 +51,7 @@ cursor = conn.cursor()
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`. Restart your Jupyter kernel after installing. See @sec-environments.
+`sqlite3` is part of the Python standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`. Restart your Jupyter kernel after installing. See @sec-setup.
 :::
 
 ## Datasets
@@ -231,14 +231,15 @@ The fix is to standardize county names to a common format before loading, or to 
 
 County name mismatches across sources are not a quirk of these particular datasets — they are a universal pattern. Any time you join data from different sources on a text key, you must verify that the key values actually match before running the join. The diagnostic pattern is: list the distinct values from each table, compare them, and fix any mismatches before joining.
 
-::: {.callout-note}
 ## Public Interest Context: Erosion
 
-The three county name formats — `"Adams County, CO"`, `"Adams County"`, `"Adams"` — come from three Colorado government agencies that built their data systems independently, at different times, with no shared naming authority. No one decided to make them incompatible. The mismatch is the accumulated result of decades of decentralized infrastructure development.
+The three county name formats — `"Adams County, CO"`, `"Adams County"`, `"Adams"` — come from three Colorado government agencies that built their data systems independently, at different times, with no shared naming authority. No one decided to make them incompatible. The mismatch is the accumulated result of decades of decentralized infrastructure development: standards drift, staff turn over, systems migrate. Government databases accumulate inconsistencies the way old buildings accumulate code violations — one small deviation at a time, each rational in context, collectively a mess.
 
-This is infrastructure erosion: not a sudden break, but a gradual divergence that only becomes visible when you try to connect the systems. The cost is borne by anyone who wants to analyze these datasets together — which is exactly the analysis you would want to perform if you were studying public health outcomes across Colorado counties.
+The standardization work you just completed (removing `", CO"` and `" County"`) is the maintenance labor that keeps public records usable. The fix lives in your notebook; the underlying erosion persists in the source systems, waiting for the next analyst to rediscover it. What other erosion is baked into the datasets you work with, and how much of your cleaning code is really maintenance labor on infrastructure the public depends on?
 
-The standardization work you completed (removing ", CO" and " County") is a technical fix for a governance problem. The fix lives in your notebook; the problem persists in the source systems. See @sec-public-interest for the broader framework.
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **erosion** introduced in [Chapter 4](04-public-interest.qmd). Cross-agency data inconsistencies are the visible face of infrastructure erosion, and SQL cleaning is the labor that makes public records usable despite that erosion.
 :::
 
 ## SQL Functions for Cleaning

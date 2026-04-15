@@ -37,7 +37,7 @@ sns.set_style('whitegrid')
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-Install missing packages with `conda install pandas numpy matplotlib seaborn scipy` (or `pip install pandas numpy matplotlib seaborn scipy`) and restart the Jupyter kernel. `scipy` is the most likely miss if you are coming from a minimal pandas environment. See @sec-environments.
+Install missing packages with `conda install pandas numpy matplotlib seaborn scipy` (or `pip install pandas numpy matplotlib seaborn scipy`) and restart the Jupyter kernel. `scipy` is the most likely miss if you are coming from a minimal pandas environment. See @sec-setup.
 :::
 
 ## Datasets
@@ -376,7 +376,8 @@ This pattern — what, result, statistics, interpretation — keeps your reporti
 - **scipy.stats tutorial** — [docs.scipy.org/doc/scipy/tutorial/stats.html](https://docs.scipy.org/doc/scipy/tutorial/stats.html) walks through distributions, tests, and descriptive statistics.
 - **"Statistical Thinking for the 21st Century" by Russell Poldrack** — free online at [statsthinking21.org](https://statsthinking21.org/). A modern introduction that emphasizes interpretation over mechanics.
 - **ASA Statement on p-values** — [amstat.org](https://www.amstat.org/asa/files/pdfs/P-ValueStatement.pdf) is the American Statistical Association's short, authoritative statement on what p-values mean and do not mean. Two pages; worth a careful read.
-- **statsmodels** — [statsmodels.org](https://www.statsmodels.org/) extends `scipy.stats` with regression, ANOVA, and time-series models. The natural next library after this chapter.
+- **statsmodels** — For regression, ANOVA, and generalized linear models beyond the tests covered here, see [statsmodels](https://www.statsmodels.org/). Its formula-based interface will feel familiar if you have used R or Stata.
+- **scikit-learn** — When your question shifts from inference (what explains my outcome?) to prediction (what outcome should I expect?), [scikit-learn](https://scikit-learn.org/) provides a consistent API for classical machine learning algorithms.
 :::
 
 ## Exercises

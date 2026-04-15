@@ -1,0 +1,255 @@
+# Setting Up Your Workspace {#sec-setup}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Open a terminal on macOS, Windows, and Linux, navigate the file system with `pwd`, `ls`/`dir`, and `cd`, and distinguish relative from absolute paths.
+- Organize a data project using `data/raw`, `data/clean`, `notebooks/`, and `output/` directories, with machine-friendly filenames and a short `README.md`.
+- Write portable relative paths in notebooks instead of brittle absolute paths.
+- Explain what a Python **environment** is, and use [conda](https://docs.conda.io/projects/conda/en/stable/commands/index.html) or [pip](https://pip.pypa.io/) to install and verify packages.
+- Diagnose `command not found`, `ModuleNotFoundError`, and environment-mismatch errors by reasoning about `PATH` and kernels.
+- Verify a working [SQLite](https://www.sqlite.org/cli.html) installation on macOS, Windows, and Linux.
+
+## Why Setup Matters
+
+A lot of beginning data-science frustration is not really about data science — it's about the surrounding machinery. Your file manager hides where your files really live. Your editor assumes a different Python than your terminal. Your notebook installs a package that your imports cannot find. This chapter teaches you the paratechnical skills that keep those problems from happening in the first place: how to find your way around the file system, how to lay out a project, and how to know which Python environment is actually running when you press shift+enter.
+
+You are learning a new interface to your own computer. Fluency comes with repetition. If the commands below feel unfamiliar, that's normal — every experienced analyst was here once, and the muscle memory arrives faster than you'd expect.
+
+::: {.callout-tip}
+## Want more detail?
+The [Paratechnical Computing Handbook](https://www.brianckeegan.com/ParatechnicalComputingHandbook/book/) covers terminal commands, environment management, and project setup in much greater depth. Bookmark it as a reference — you do not need to memorize everything here.
+:::
+
+## The Terminal
+
+The terminal is a text interface to your computer. Every graphical application — Jupyter Notebook, VS Code, your file manager — is a visual wrapper around operations that happen at the terminal. Learning it directly gives you access to the same operations without the graphical middleman, and it's how tools like [SQLite](https://www.sqlite.org/cli.html), [git](https://git-scm.com/docs), and package managers are actually designed to be used.
+
+### Opening a terminal
+
+- **macOS** — Terminal app (Applications → Utilities, or search with Spotlight).
+- **Windows** — Anaconda Prompt from the Start menu. This is a terminal preconfigured with Python access. PowerShell and Windows Terminal also work, but some commands differ.
+- **Linux** — your distribution's terminal emulator.
+
+When the terminal opens, you see a **prompt** — typically ending in `$` on Mac/Linux or `>` on Windows — followed by a cursor. Type a command, press Enter, and the terminal runs it and prints any output below.
+
+### The navigation triad: `pwd`, `ls`, `cd`
+
+Your terminal session is always "inside" one directory, called the **working directory**. Three commands cover almost all navigation:
+
+```bash
+pwd                  # "where am I?"  (Windows: cd with no arguments)
+ls                   # "what's here?"  (Windows: dir)
+cd Documents         # "go there"
+cd ..                # "go up one level"
+cd ~                 # "go to my home directory"  (Windows: cd %USERPROFILE%)
+```
+
+Build reflex memory for these three. Everything else builds on them.
+
+### Absolute vs. relative paths
+
+A **relative path** starts from your current directory (`cd Documents/projects`). An **absolute path** starts from the root of the file system (`/Users/you/Documents/projects` on Mac, or `C:\Users\you\Documents\projects` on Windows). Absolute paths work from anywhere; relative paths move when you do.
+
+### Creating and viewing files
+
+```bash
+mkdir my_project                  # make a directory
+mkdir -p my_project/data/raw      # make nested directories in one step
+cp original.csv backup.csv        # copy a file
+mv old.csv new.csv                # move or rename
+head -5 my_data.csv               # first 5 lines of a text file
+```
+
+On Windows, the equivalents are `copy`, `move`, and `Get-Content my_data.csv -Head 5` in PowerShell.
+
+### The `PATH` and `command not found`
+
+When you type `python` or `sqlite3`, your terminal searches a list of directories called the **PATH**. If the program is not in any of those directories, you get a `command not found` error — even if it is installed somewhere on your computer. The fix is usually either to install the program through a package manager that updates `PATH` for you, or to add its directory manually.
+
+::: {.callout-warning}
+## The most common Windows mistake
+After installing a new tool or editing `PATH`, open a **new** terminal window. The old window will not see the change.
+:::
+
+## Organizing a Project
+
+A well-organized project is one you can return to after six months and understand immediately. Good structure costs almost nothing to set up and saves enormous time later.
+
+### A minimal project structure
+
+```
+my_project/
+├── data/
+│   ├── raw/           # Original, untouched data files
+│   └── clean/         # Cleaned versions ready for analysis
+├── notebooks/         # Jupyter notebooks (analysis work)
+├── output/            # Tables, figures, exported results
+└── README.md          # What this project is about
+```
+
+The key principle is the separation between `raw/` and `clean/`. **Raw data files are sacred** — never modify them directly. Your notebooks read from `raw/`, transform, and write results to `clean/` or `output/`. If something goes wrong, you can always start over from the original files.
+
+### Naming conventions
+
+Use lowercase letters, numbers, hyphens, and underscores. Avoid spaces, special characters, and accented letters — they cause escaping headaches in the terminal. Include ISO dates (`YYYY-MM-DD`) when versioning matters, so files sort chronologically. Be specific: `colorado-cannabis-sales-by-county-2014-2024.csv` tells you exactly what's inside without opening the file.
+
+### The `README.md`
+
+Every project should have a `README.md` in its root directory, answering three questions: what is this project about, what data does it use, and how do you run it?
+
+```markdown
+# Cannabis Sales Analysis
+
+Analysis of Colorado cannabis sales by county (2014–2024) for INFO 3401.
+
+## Data
+
+- `data/raw/colorado_cannabis_sales_by_county.csv`: Colorado Department of
+  Revenue. Downloaded 2026-02-10.
+
+## Notebooks
+
+- `notebooks/01-loading.ipynb`: Load and inspect raw data.
+- `notebooks/02-cleaning.ipynb`: Clean columns, fix types, remove totals.
+```
+
+Writing this file takes five minutes and makes your project immediately legible to anyone — including a future version of yourself.
+
+### Relative paths in notebooks
+
+When your notebook lives in `my_project/notebooks/` and your data lives in `my_project/data/raw/`, use a relative path that goes up and back down:
+
+```python
+df = pd.read_csv('../data/raw/cannabis_sales.csv')
+```
+
+The `..` means "go up one directory." This path works on any computer with the same project structure. Avoid absolute paths like `/Users/you/Documents/my_project/data/raw/cannabis_sales.csv` — they break the moment anyone else tries to run your notebook.
+
+### `.gitignore` and version control
+
+As your projects grow, you'll benefit from **[git](https://git-scm.com/doc)**, which tracks every change to every file. Git is beyond the scope of this book, but if you use it, add a `.gitignore` file listing files you do not want tracked — large raw data files, credentials, and temporary outputs are typical exclusions. [GitHub's Git Handbook](https://docs.github.com/en/get-started/using-git) is the friendliest starting point.
+
+## Python Environments
+
+A Python **environment** is a specific Python interpreter plus a set of installed packages. When you installed Python — probably through [Anaconda](https://docs.anaconda.com/) — you installed an interpreter along with hundreds of packages (pandas, NumPy, matplotlib, Jupyter, and others) into a specific directory. That collection is your environment.
+
+Understanding environments matters because most "it worked yesterday" problems are really environment problems: a package that's installed in one environment but missing from the one your notebook is actually using.
+
+### conda: the primary package manager
+
+Anaconda ships with `conda`, which handles installing, updating, and removing packages.
+
+```bash
+conda --version           # check conda is installed
+conda list                # show installed packages
+conda install pandas      # install a package
+conda update pandas       # update a package
+```
+
+When you install Anaconda, it creates a default environment called `base`. That is the environment that activates when you open Anaconda Prompt. For the purposes of this book, the base environment is enough. Your prompt usually shows the active environment in parentheses: `(base) $`.
+
+### pip: the fallback
+
+Python ships with a second package manager, `pip`, which installs packages from the [Python Package Index](https://pypi.org/). Prefer `conda install` when a package is available through conda; fall back on `pip install` for packages conda does not carry. Mixing the two in one environment can occasionally cause conflicts, so install everything you can with conda first.
+
+```bash
+pip install some-package
+```
+
+A `requirements.txt` file lists the packages a project depends on, one per line. If a project includes one, you can recreate its environment with `pip install -r requirements.txt`.
+
+### Jupyter kernels: the hidden bug source
+
+When a Jupyter notebook runs, it uses a **kernel** — a specific Python environment. If you have multiple environments, each can register its own kernel. A common confusion is having a package installed in one environment but running the notebook with a different environment's kernel. To check which Python your notebook is actually using, run this in a code cell:
+
+```python
+import sys
+print(sys.executable)
+```
+
+The output path should point to the Python interpreter inside the environment you expect.
+
+### SQLite
+
+SQLite is used in Part III of this book. On macOS and Linux it's usually preinstalled — check with `sqlite3 --version`. On Windows, install it through conda with `conda install -c anaconda sqlite`, or download binaries from [sqlite.org/download.html](https://www.sqlite.org/download.html) and add the folder to your `PATH`.
+
+::: {.callout-tip}
+## Want more detail?
+For platform-specific install troubleshooting, `PATH` editing, and working with more advanced environment managers like [`mamba`](https://mamba.readthedocs.io/) or `venv`, the [Paratechnical Computing Handbook](https://www.brianckeegan.com/ParatechnicalComputingHandbook/book/) goes deeper than this chapter can.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `command not found` or `'cd' is not recognized`
+**What it means:** The shell cannot find the program you typed. You may be using a Windows-only command on Mac (or vice versa), the program may not be installed, or it may be installed but not on your `PATH`.
+
+**How to fix it:** Confirm the command is correct for your OS (`ls` on Mac/Linux, `dir` on Windows Command Prompt). If the program is new, close and reopen your terminal. Re-read the installer's output for any `PATH` lines it asked you to add.
+:::
+
+::: {.callout-warning}
+## `FileNotFoundError` in a notebook that used to work
+**What it means:** Your notebook's working directory changed, or the file moved. The relative path no longer resolves.
+
+**How to fix it:** Run `import os; print(os.getcwd())` in the notebook. Confirm the notebook is running from where you expect. Either move the notebook back to `notebooks/` or update the relative path.
+:::
+
+::: {.callout-warning}
+## `conda: command not found` or `'conda' is not recognized`
+**What it means:** Your terminal cannot find the `conda` executable. On Windows, you're probably in Command Prompt or PowerShell instead of Anaconda Prompt. On macOS/Linux, conda is not on your `PATH`.
+
+**How to fix it:** On Windows, open **Anaconda Prompt** from the Start menu. On macOS/Linux, run `conda init` and restart your terminal. See the [conda docs](https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html) if that does not fix it.
+:::
+
+::: {.callout-warning}
+## `ModuleNotFoundError: No module named 'pandas'`
+**What it means:** The package is not installed in the environment your notebook is using — which may not be the environment where you installed it.
+
+**How to fix it:** Run `import sys; print(sys.executable)` in a notebook cell. Then in your terminal, confirm that path matches the environment where you installed pandas. If they differ, install pandas in the notebook's environment, or switch the notebook's kernel.
+:::
+
+::: {.callout-warning}
+## A package installed but still fails to import
+**What it means:** The Jupyter kernel started before the install finished, so it still points at the old environment state.
+
+**How to fix it:** Restart the Jupyter kernel (Kernel → Restart) and rerun the imports. This is one of the most common "ghost" errors and is almost always solved by a kernel restart.
+:::
+
+## Key Takeaways
+
+- The terminal is a text interface to the same operations your graphical tools perform. `pwd`, `ls`, and `cd` are the navigation triad.
+- Separate `raw/` from `clean/` data and never modify raw files in place. A five-minute `README.md` makes your project legible to a future reader.
+- Use relative paths (`../data/raw/file.csv`) so your notebook runs on any computer with the same structure.
+- A Python environment is a specific interpreter plus installed packages. `sys.executable` tells you definitively which Python your notebook is running.
+- Most `ModuleNotFoundError` and `command not found` issues are environment or `PATH` problems, not broken code. A fresh terminal or a kernel restart fixes most of them.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on setup and environments
+
+- **Paratechnical Computing Handbook** — [brianckeegan.com/ParatechnicalComputingHandbook/book/](https://www.brianckeegan.com/ParatechnicalComputingHandbook/book/) is the companion reference to this chapter with deeper coverage of each topic.
+- **The Missing Semester of Your CS Education (MIT)** — [missing.csail.mit.edu](https://missing.csail.mit.edu/) is an excellent free course on the terminal and developer tooling.
+- **Conda user guide** — [docs.conda.io/projects/conda/en/stable/user-guide/](https://docs.conda.io/projects/conda/en/stable/user-guide/) is the definitive reference.
+- **Cookiecutter Data Science** — [cookiecutter-data-science.drivendata.org/](https://cookiecutter-data-science.drivendata.org/) is a widely used project template that scales up from the structure in this chapter.
+- **GitHub's Git Handbook** — [docs.github.com/get-started/using-git](https://docs.github.com/en/get-started/using-git) is the friendliest gateway to version control.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Set up a course project
+Open a terminal and create a project directory for this course using the structure described above. Add a `README.md` describing the project. Download one of the course datasets into `data/raw/`. Create a notebook in `notebooks/` that loads the dataset using a relative path and prints its shape.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Environment audit
+Open a terminal and run `conda list`. Verify that `pandas`, `numpy`, `matplotlib`, and `jupyter` are installed. Open a Jupyter notebook and run `import sys; print(sys.executable)` along with `import pandas; print(pandas.__version__)`. Confirm the notebook's Python matches the environment you audited.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Verify SQLite
+Run `sqlite3 --version` in your terminal. If it reports a version, you're set. If not, install it via `conda install -c anaconda sqlite` or follow the platform-specific instructions above. Verify with `sqlite3 test.db ".tables"` and confirm `test.db` appears in your directory.
+:::

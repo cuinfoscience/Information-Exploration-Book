@@ -16,7 +16,7 @@ Every analysis begins with loading data — getting information from a file on d
 
 Loading data is where most silent errors originate. A column that looks numeric but was loaded as text, a header row mistakenly treated as data, a delimiter that splits values in the wrong places — these problems are invisible unless you actively look for them. The discipline of inspecting data immediately after loading is one of the most valuable habits you will develop in this course.
 
-This chapter builds on the project-organization and terminal skills from @sec-projects and @sec-terminal. If a `pd.read_csv` call fails with `FileNotFoundError`, review those chapters — the fix is almost always a path or working-directory issue.
+This chapter builds on the terminal and project-organization skills from @sec-setup. If a `pd.read_csv` call fails with `FileNotFoundError`, review that chapter — the fix is almost always a path or working-directory issue.
 
 ## Setup
 
@@ -43,7 +43,7 @@ Or, if you are not using conda:
 pip install pandas numpy matplotlib
 ```
 
-After installing, **restart the Jupyter kernel** (Kernel → Restart) and rerun the import cell. If the error persists, the notebook's kernel is probably pointing at a different environment than the one you installed into — see @sec-environments for how to check `sys.executable` and align the two. Full reference: @sec-errors.
+After installing, **restart the Jupyter kernel** (Kernel → Restart) and rerun the import cell. If the error persists, the notebook's kernel is probably pointing at a different environment than the one you installed into — see @sec-setup for how to check `sys.executable` and align the two. Full reference: @sec-documentation.
 :::
 
 ## How to Read pandas Documentation {#sec-reading-docs}
@@ -77,7 +77,7 @@ The Colorado Department of Revenue publishes monthly cannabis sales by county. T
 
 ::: {.callout-tip}
 ## Before you run `pd.read_csv`: where is the file?
-`pd.read_csv('colorado_cannabis_sales_by_county.csv')` looks for the file **in your notebook's current working directory**. If you get a `FileNotFoundError`, the file is not there — the file name is mistyped, the file lives in a subdirectory (`data/raw/colorado_cannabis_sales_by_county.csv`), or your notebook is running in a different folder than you expected. Run `import os; print(os.getcwd())` to confirm where you are. See @sec-errors for a deeper walkthrough of `FileNotFoundError`.
+`pd.read_csv('colorado_cannabis_sales_by_county.csv')` looks for the file **in your notebook's current working directory**. If you get a `FileNotFoundError`, the file is not there — the file name is mistyped, the file lives in a subdirectory (`data/raw/colorado_cannabis_sales_by_county.csv`), or your notebook is running in a different folder than you expected. Run `import os; print(os.getcwd())` to confirm where you are. See @sec-documentation for a deeper walkthrough of `FileNotFoundError`.
 :::
 
 ```{python}
@@ -102,14 +102,15 @@ Something is wrong. The real column headers appear to be on row 2, not row 0. Th
 
 This is a common pattern with government data — the files are formatted for human reading, not for machine ingestion. Your job is to tell pandas how to read the file correctly.
 
-::: {.callout-note}
 ## Public Interest Context: Enclosure by Design
 
-The cannabis sales file is technically public — it is published by a Colorado state agency and freely downloadable. But its formatting serves a different audience than you. The two-row title block, the eight-row footnote section, and the currency-formatted numbers are there because the file was designed for humans reading it in Excel, not for analysts loading it into pandas.
+The cannabis sales file is technically public — it is published by a Colorado state agency and freely downloadable. But its formatting serves a different audience than you. The two-row title block, the eight-row footnote section, and the currency-formatted numbers are there because the file was designed for humans reading it in Excel, not for analysts loading it into pandas. The `NR` values in the sales columns are a separate form of enclosure: the Colorado Department of Revenue suppresses sales figures for counties with fewer than three active licensees, so the counties with the least cannabis activity — often smaller, rural counties — are also the ones with the least data.
 
-This pattern — public data formatted for display, not for analysis — is common in government publishing. It is a form of enclosure: the data exists, but accessing it programmatically requires significant additional work. That work is unevenly distributed; people with fewer technical resources find it harder to use the same public data.
+The work you do with `header=`, `skipfooter=`, and `na_values=` is not just a technical step. It is the labor of making nominally "open" data actually usable — labor that is unevenly distributed across the people who nominally have access. When you encounter a file like this, it is worth asking: who can realistically use this dataset as published, and who cannot?
 
-The `NR` values in the sales columns are a different form of enclosure. The Colorado Department of Revenue suppresses sales figures for counties with fewer than three active licensees, citing privacy protection for those businesses. The policy is legitimate, but the result is that the counties with the least cannabis activity — often smaller, rural counties — are also the ones with the least data. See @sec-public-interest for the broader framework.
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **enclosure** introduced in [Chapter 4](04-public-interest.qmd). Public data formatted for Excel rather than pandas is a form of enclosure by interface — access is technically possible, but practically gated by who has the tooling and skill to clean it.
 :::
 
 ## The Post-Load Checklist
@@ -267,7 +268,7 @@ pivot_df.loc['Las Animas'].plot(title='Las Animas County Retail Cannabis Sales b
 ## `FileNotFoundError: [Errno 2] No such file or directory`
 **What it means:** Pandas looked for the file at the path you gave and did not find it.
 
-**How to fix it:** Run `import os; print(os.getcwd())` to see where your notebook is looking. Confirm the file name spelling and extension. Use a relative path like `'../data/raw/filename.csv'` if the file lives in a sibling directory. See @sec-errors.
+**How to fix it:** Run `import os; print(os.getcwd())` to see where your notebook is looking. Confirm the file name spelling and extension. Use a relative path like `'../data/raw/filename.csv'` if the file lives in a sibling directory. See @sec-documentation.
 :::
 
 ::: {.callout-warning}
@@ -296,7 +297,7 @@ pivot_df.loc['Las Animas'].plot(title='Las Animas County Retail Cannabis Sales b
 - `pd.read_csv` and `pd.read_excel` have dozens of parameters; you rarely need all of them, but knowing `header`, `skipfooter`, `na_values`, `sep`, `dtype`, and `encoding` will cover most real-world files.
 - Run the **post-load checklist** on every new dataset: shape, headers, types, missingness, distributions, duplicates, plausibility, head/tail/sample.
 - Load → inspect → adjust → reload. This iterative pattern is how experienced analysts work with messy files.
-- Loading errors are the easiest class of errors to fix because the diagnostic message is usually precise. When in doubt, read the error, check the docs, and consult @sec-errors.
+- Loading errors are the easiest class of errors to fix because the diagnostic message is usually precise. When in doubt, read the error, check the docs, and consult @sec-documentation.
 - Documentation is a reference, not a tutorial. Get comfortable with `help()`, `?`, and the online API page — they will save you hours over the course.
 
 ## Further Reading

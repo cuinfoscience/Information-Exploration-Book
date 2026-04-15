@@ -30,7 +30,7 @@ pd.set_option('display.float_format', '{:.3f}'.format)
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-Install missing packages with `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+Install missing packages with `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-setup.
 :::
 
 ## Datasets
@@ -312,6 +312,17 @@ team_stats.columns = ['_'.join(col) for col in team_stats.columns]
 team_stats = team_stats.reset_index()
 team_stats.head()
 ```
+
+## Public Interest Context: Ownership
+
+Reshaping decides what granularity survives. When you `melt` a wide table into long format, or aggregate a daily series into a monthly one, or merge two tables and drop their non-overlapping rows, you are choosing what questions can be asked of the result. A county-year dataset cannot answer a county-month question later; an analysis rolled up to age bands cannot be rerun at single-year-of-age without going back to the source. These are **ownership** decisions: what you keep is what downstream analysts can study, and what you collapse is gone unless you preserved the raw data.
+
+The Data Dictionary from @sec-documentation is the practice that keeps ownership legible. Document which columns are derived, which are joined in from which source, and what grain the final table lives at. A reviewer six months from now should be able to reconstruct your reshaping choices from that dictionary — and know, without rerunning your code, whether the table in front of them can answer their new question or needs to be rebuilt from the source.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **ownership** introduced in [Chapter 4](04-public-interest.qmd). Reshaping collapses some information to expose other information; the Data Dictionary records those choices so that later analysts know what is and is not answerable from the reshaped table.
+:::
 
 ## Common Issues in This Chapter
 

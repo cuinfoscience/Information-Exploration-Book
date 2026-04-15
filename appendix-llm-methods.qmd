@@ -1,0 +1,14 @@
+# Appendix B: AI Use Disclosure {#sec-ai-disclosure .unnumbered}
+
+This book was drafted, revised, and edited with the assistance of large language models (LLMs) — including Claude (Anthropic) and, at various stages, ChatGPT (OpenAI) and GitHub Copilot. The author has used these tools for:
+
+- **Drafting** — producing first passes of chapter sections based on outlines, research questions, and examples the author specified.
+- **Editing and revision** — tightening prose, catching inconsistencies in voice or terminology, and suggesting clearer phrasings.
+- **Code review and suggestions** — checking syntax, proposing alternative implementations, and reviewing example code for correctness.
+- **Cross-reference and structural checking** — auditing section anchors and internal references as chapters were reorganized.
+
+The author retains full responsibility for the content of this book. Every factual claim, analytical argument, code example, and pedagogical decision has been reviewed by the author before publication. AI-generated draft text has been edited to match the book's voice, verified against primary sources (library documentation, peer-reviewed literature, and official data-source documentation), and tested against the datasets and libraries the book teaches.
+
+The author has chosen to disclose AI use explicitly because transparency about authorship is part of the book's broader commitment to openness in analytical work. The same standards the book asks students to apply to their own data and methods — documenting decisions, making sources visible, and being forthright about limitations — apply to how this book itself was produced.
+
+Students, instructors, and readers who have questions about specific passages, code examples, or editorial choices are welcome to contact the author directly.

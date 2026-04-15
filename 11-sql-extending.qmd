@@ -34,7 +34,7 @@ pd.set_option('display.float_format', '{:.2f}'.format)
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-`sqlite3` is part of Python's standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-environments.
+`sqlite3` is part of Python's standard library. For `pandas` or `numpy`: `conda install pandas numpy` or `pip install pandas numpy`, then restart the Jupyter kernel. See @sec-setup.
 :::
 
 ```{python}
@@ -505,6 +505,17 @@ SELECT ... FROM step2;
 ```
 
 CTEs are evaluated once, named for clarity, and discarded after the query completes. Use them whenever a query needs more than one level of aggregation or filtering.
+
+## Public Interest Context: Oversight
+
+The pattern you just learned — write a diagnostic query, aggregate by a meaningful grouping, inspect the result, follow up with a CTE that combines several intermediate queries — is the fundamental move of investigative journalism and algorithmic auditing. When a reporter at [The Marshall Project](https://www.themarshallproject.org/) quantifies death-in-custody patterns across jurisdictions, or a civic technologist at [Muckrock](https://www.muckrock.com/) analyzes FOIA response times across agencies, or an academic audit team quantifies disparate outcomes across institutions, the underlying query looks a lot like the ones in this chapter: group by some institutional unit, aggregate a quality measure, filter with `HAVING` to surface the outliers, and write it up.
+
+SQL's value here is oversight in the literal sense: declarative queries leave a trail that someone else can re-run. The CTE you wrote to compute era statistics is, for a later auditor, a reproducible claim. The same cannot be said of a spreadsheet formula that was overwritten or a custom Python loop that depends on a bespoke environment. When you write a SQL query that answers an accountability question, you are also writing infrastructure that others can reuse to ask it again next year.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **oversight** introduced in [Chapter 4](04-public-interest.qmd). SQL aggregation and CTEs are the grammar of reproducible audit questions — the queries that journalists and researchers use to hold institutions accountable.
+:::
 
 ## Common Issues in This Chapter
 

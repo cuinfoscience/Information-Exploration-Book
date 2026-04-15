@@ -37,7 +37,7 @@ sns.set_context('notebook', font_scale=1.1)
 
 ::: {.callout-warning collapse="true"}
 ## If you get an `ImportError`
-Install missing packages with `conda install pandas numpy matplotlib seaborn` (or `pip install pandas numpy matplotlib seaborn`) and restart the Jupyter kernel. `seaborn` depends on `matplotlib`, so if one is missing, the other likely is too. See @sec-environments.
+Install missing packages with `conda install pandas numpy matplotlib seaborn` (or `pip install pandas numpy matplotlib seaborn`) and restart the Jupyter kernel. `seaborn` depends on `matplotlib`, so if one is missing, the other likely is too. See @sec-setup.
 :::
 
 ## Datasets

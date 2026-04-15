@@ -1,0 +1,347 @@
+# Modeling Exploration {#sec-modeling}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Fit a **simple linear regression** and a **multiple linear regression** using [statsmodels](https://www.statsmodels.org/) with the formula interface.
+- Interpret a regression table: coefficients, standard errors, p-values, confidence intervals, and R².
+- Apply **log transformations** and **polynomial terms** to handle skewed variables and curved relationships.
+- Encode **categorical variables** into a regression using the `C(...)` formula syntax and explain what a reference category is.
+- Evaluate a model with R², adjusted R², residual diagnostics, and multicollinearity checks.
+- Use a fitted model to produce **predictions** with appropriate intervals, and recognize when extrapolation is unsafe.
+
+## Why Modeling Exploration
+
+The previous exploration chapters showed you how to compare two variables at a time — two groups via a t-test, three or more via ANOVA, two numeric variables via correlation. **Modeling exploration** extends those comparisons to the case you actually face in real analysis: many variables moving together, with effects that depend on which other variables you control for. A linear model lets you say "holding at-bats and year constant, each 0.100 increase in OPS is associated with about a 25% increase in salary" — a claim that requires the model, because no pairwise comparison can support it.
+
+This chapter uses linear regression as the core tool. You'll fit a single-predictor model, add more predictors, transform skewed variables, handle categorical predictors, check the assumptions the model makes, and use the model to predict new values. The dataset carries through from the previous chapters: [Lahman](https://sabr.org/lahman-database/) batting statistics merged with salaries.
+
+If regression feels like a big conceptual leap, that's expected. The first fit you run and interpret will settle more intuition than any amount of reading. Work through the examples in a notebook; come back to this chapter as a reference.
+
+## Setup
+
+You'll use [pandas](https://pandas.pydata.org/docs/), [numpy](https://numpy.org/doc/stable/), [matplotlib](https://matplotlib.org/stable/), and [statsmodels](https://www.statsmodels.org/). The [`smf.ols`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.ols.html) formula interface — the one with `y ~ x + z` — is the easiest starting point because it handles categorical variables and readable coefficient names automatically.
+
+```{python}
+#| eval: false
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+```
+
+::: {.callout-warning collapse="true"}
+## If you get an `ImportError`
+Install missing packages with `conda install pandas numpy matplotlib statsmodels` (or `pip install ...`), then restart your Jupyter kernel. See @sec-setup.
+:::
+
+```{python}
+#| eval: false
+# Lahman batting + salaries (same pipeline as earlier Part V chapters)
+batting = pd.read_csv('Batting.csv')
+batting['BA'] = batting['H'] / batting['AB'].replace(0, float('nan'))
+batting['TB'] = batting['H'] + 2*batting['2B'] + 3*batting['3B'] + 4*batting['HR']
+batting['SLG'] = batting['TB'] / batting['AB'].replace(0, float('nan'))
+batting['HBP'] = batting['HBP'].fillna(0)
+batting['SF'] = batting['SF'].fillna(0)
+batting['OBP'] = (
+    (batting['H'] + batting['BB'] + batting['HBP'])
+    / (batting['AB'] + batting['BB'] + batting['HBP'] + batting['SF']).replace(0, float('nan'))
+)
+batting['OPS'] = batting['OBP'] + batting['SLG']
+qualified = batting[batting['AB'] >= 100].copy()
+
+salaries = pd.read_csv('Salaries.csv')
+bat_sal = pd.merge(
+    qualified, salaries[['playerID', 'yearID', 'salary']],
+    on=['playerID', 'yearID'], how='inner'
+).dropna(subset=['OPS', 'salary'])
+print('Shape:', bat_sal.shape)
+```
+
+## Simple Linear Regression
+
+A **simple linear regression** fits a straight line through a cloud of points: `y = β₀ + β₁ x + ε`. The coefficient `β₁` is the slope — the average change in `y` for a one-unit change in `x`. The intercept `β₀` is the model's prediction when `x = 0`. The error term `ε` captures everything the line cannot explain.
+
+Fit one with [`smf.ols`](https://www.statsmodels.org/stable/generated/statsmodels.formula.api.ols.html) (Ordinary Least Squares):
+
+```{python}
+#| eval: false
+model = smf.ols('salary ~ OPS', data=bat_sal).fit()
+print(model.summary())
+```
+
+The result is a dense table. Read it in this order:
+
+1. **Coefficients table.** `OPS` has a coefficient, a standard error, a `t` statistic, a `P>|t|` (the p-value), and a 95% confidence interval. The coefficient is the slope.
+2. **R-squared.** The fraction of variance in `salary` explained by the line. R² of 0.05 means the model captures 5% of the variation — small but possibly meaningful depending on the domain.
+3. **F-statistic and its p-value.** Tests whether the overall model explains more than nothing. For simple regression this matches the single predictor's p-value.
+
+Every regression output follows this shape. Once you can read it once, you can read it forever.
+
+## Interpreting Coefficients and Significance
+
+A coefficient has four things worth naming explicitly.
+
+**Sign.** Positive means `y` tends to rise as `x` rises. Negative means the opposite. Check the sign against your prior — if the direction surprises you, investigate before writing anything up.
+
+**Magnitude.** The size of the coefficient, in the *units of the variables you fit*. If `salary` is in dollars and `OPS` runs from about 0.5 to 1.2, a coefficient of 12,000,000 means "each full unit of OPS is associated with about $12 million of salary" — which reads better as "each 0.100 of OPS is associated with about $1.2 million."
+
+**Significance.** The p-value tests whether the coefficient is distinguishable from zero. A small p-value (conventionally < 0.05) means the slope is unlikely to be purely noise. A large p-value does not mean "no effect" — it means "no evidence of an effect given this sample."
+
+**Confidence interval.** The `[0.025 0.975]` columns give a 95% confidence interval for the coefficient. Always report it alongside the point estimate. A point estimate of 12,000,000 with an interval of [8,000,000, 16,000,000] tells a very different story than the same estimate with an interval of [-2,000,000, 26,000,000].
+
+::: {.callout-warning}
+## Causal language
+A regression coefficient measures **association**, not causation. "Each 0.100 of OPS is associated with an additional $1.2 million in salary" is a defensible claim. "Hitting better causes higher pay" is not — the causal arrow may run the other way (teams pay for expected future performance), and many confounds (age, position, team market size) are not in the model. The language discipline from @sec-research-questions applies directly.
+:::
+
+## Multiple Linear Regression
+
+Most interesting questions have more than one predictor. **Multiple linear regression** extends the line to a plane (or hyperplane): `y = β₀ + β₁ x₁ + β₂ x₂ + … + ε`. Each coefficient has the same interpretation as before, with one critical addition: it is the effect of that predictor **holding the others constant**.
+
+```{python}
+#| eval: false
+model_multi = smf.ols('salary ~ OPS + AB + yearID', data=bat_sal).fit()
+print(model_multi.summary())
+```
+
+`OPS`'s coefficient now answers "given two players with the same at-bats in the same year, what's the salary difference associated with a one-unit OPS difference?" That's a much more useful question than the simple-regression answer, which conflates OPS with everything correlated with OPS.
+
+Adding `yearID` also controls for salary inflation over time — a roughly linear trend. Without it, the OPS coefficient would absorb the fact that both salaries and home runs drifted up over the decades covered.
+
+## Transformations
+
+Real variables rarely satisfy linear regression's assumptions out of the box. Two transformations fix the majority of problems you'll meet.
+
+### Log transforms for skewed variables
+
+Salaries are right-skewed: most players earn modestly, a few earn stratospherically. Regressing untransformed salary gives disproportionate leverage to the highest earners. Taking the log compresses the tail:
+
+```{python}
+#| eval: false
+bat_sal['log_salary'] = np.log(bat_sal['salary'])
+
+model_log = smf.ols('log_salary ~ OPS + AB + yearID', data=bat_sal).fit()
+print(model_log.summary())
+```
+
+The interpretation changes. When the dependent variable is logged, a coefficient of `β` on a predictor means "a one-unit change in the predictor is associated with roughly a 100 × β % change in the outcome." A coefficient of 2.5 on OPS in the log-salary model means "each full unit of OPS is associated with about a 250% increase in salary" — or, more realistically, "each 0.100 of OPS is associated with about a 25% increase."
+
+You can also log a predictor (useful when the predictor is skewed) or log both sides (an elasticity: % change in y per % change in x).
+
+### Polynomial terms for curved relationships
+
+When the relationship between `x` and `y` curves rather than runs straight, a linear term alone won't capture it. Add a squared term:
+
+```{python}
+#| eval: false
+model_poly = smf.ols('log_salary ~ OPS + I(OPS**2) + AB + yearID', data=bat_sal).fit()
+print(model_poly.summary())
+```
+
+`I(OPS**2)` tells the formula parser to treat `OPS**2` as arithmetic, not as a formula operator. If the squared term is significant with the opposite sign of the linear term, the relationship is concave (rises, then levels off or falls).
+
+**Interaction terms** let two predictors jointly modify the outcome. `OPS:AB` says "the effect of OPS depends on at-bats"; `OPS*AB` is shorthand for "include both main effects and the interaction." Use interactions sparingly — they're easy to over-fit and hard to interpret.
+
+Take a moment to appreciate what you just did: you've extended a straight line to a curve, and expressed it in one line of formula.
+
+## Categorical Variables
+
+Not every predictor is numeric. Team, position, league, and decade are categorical. statsmodels handles this automatically — wrap the column in `C(...)` in the formula:
+
+```{python}
+#| eval: false
+bat_sal['decade'] = (bat_sal['yearID'] // 10) * 10
+
+model_cat = smf.ols(
+    'log_salary ~ OPS + AB + C(decade)',
+    data=bat_sal
+).fit()
+print(model_cat.summary())
+```
+
+`C(decade)` creates a **dummy variable** for each decade except one. The omitted decade is the **reference category**, and every other coefficient reads as "the average log-salary difference between this decade and the reference decade, holding OPS and AB constant."
+
+By default statsmodels picks the first level alphabetically or numerically as the reference. Override it with the `Treatment` contrast when the default doesn't make sense:
+
+```{python}
+#| eval: false
+model_cat2 = smf.ols(
+    "log_salary ~ OPS + AB + C(decade, Treatment(reference=2010))",
+    data=bat_sal
+).fit()
+```
+
+Now every decade coefficient is the difference from the 2010s. Choose a reference category your readers will find intuitive — "compared to the 2010s" is almost always easier to read than "compared to the 1990s."
+
+## Model Evaluation
+
+A regression that looks good in the summary table can still be wrong. Three checks catch most problems.
+
+### R² and adjusted R²
+
+**R²** is the fraction of variance explained. Adding more predictors always raises R², even if those predictors are noise. **Adjusted R²** penalizes the count of predictors, so it only rises when the new predictor actually helps. Report adjusted R² when comparing models with different numbers of predictors.
+
+### Residual diagnostics
+
+Linear regression assumes the errors are roughly normal, have constant variance, and are independent. Check by plotting the residuals against the fitted values:
+
+```{python}
+#| eval: false
+fitted = model_log.fittedvalues
+resid = model_log.resid
+
+fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+
+axes[0].scatter(fitted, resid, alpha=0.3, s=15)
+axes[0].axhline(0, color='red', linestyle='--')
+axes[0].set_xlabel('Fitted log-salary')
+axes[0].set_ylabel('Residual')
+axes[0].set_title('Residuals vs. Fitted')
+
+sm.qqplot(resid, line='45', fit=True, ax=axes[1])
+axes[1].set_title('Q-Q plot')
+
+plt.tight_layout()
+plt.show()
+```
+
+A clean residuals-vs-fitted plot shows a flat band of points around zero. A funnel shape (variance grows with the prediction) violates the constant-variance assumption and usually means you need a log transform. A curved band means you're missing a nonlinear term.
+
+A clean Q-Q plot shows the points close to the diagonal. Heavy tails (points pulling away at the extremes) are common in real data but worth noting.
+
+### Multicollinearity
+
+When two predictors move together, the regression cannot cleanly separate their effects — their standard errors balloon and signs flip unpredictably. The **variance inflation factor (VIF)** quantifies this:
+
+```{python}
+#| eval: false
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+X = sm.add_constant(bat_sal[['OPS', 'AB', 'yearID']])
+vifs = pd.DataFrame({
+    'variable': X.columns,
+    'VIF': [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+})
+print(vifs)
+```
+
+A common rule of thumb: VIF above 5 is concerning; above 10 is a problem. Fix by dropping one of the correlated predictors or combining them into a single derived variable.
+
+## Prediction and Forecasting
+
+Once a model is fit, `predict()` generates predictions for new data. The new data must have columns with the same names as the predictors in the formula.
+
+```{python}
+#| eval: false
+new_data = pd.DataFrame({
+    'OPS': [0.700, 0.800, 0.900],
+    'AB':  [500, 500, 500],
+    'yearID': [2015, 2015, 2015],
+})
+
+predictions = model_log.get_prediction(new_data)
+summary = predictions.summary_frame(alpha=0.05)  # 95% intervals
+print(summary)
+```
+
+`summary_frame` returns several columns. Two matter most:
+
+- `mean_ci_lower` / `mean_ci_upper` — confidence interval for the **mean** log-salary at these predictor values. Narrow.
+- `obs_ci_lower` / `obs_ci_upper` — prediction interval for a **single new observation**. Wider, because it adds the irreducible noise in any individual case.
+
+To get dollar predictions instead of log-dollar predictions, exponentiate: `np.exp(summary['mean'])`. Confidence bands exponentiate asymmetrically — that's fine, just remember the band is symmetric on the log scale, not the dollar scale.
+
+::: {.callout-warning}
+## Extrapolation is a trap
+A regression is only reliable within the range of the data you fit it on. Predicting salary for an OPS of 1.5 — higher than any player in the training data — is extrapolation. The model will happily hand you a number, but you have no evidence the linear relationship continues out there. Before trusting a forecast, verify that the predictor values fall inside the training-data range.
+:::
+
+## Public Interest Context: Oversight as Claim-Making
+
+A regression coefficient is an explicit claim. "For every 0.100 increase in OPS, controlling for at-bats and year, log-salary rises by 2.5" is a falsifiable statement: someone else can run the same model on the same data and confirm or refute it. That explicitness is what makes regression a tool of oversight. When a journalist reports that racial disparities in mortgage approvals persist after controlling for income and credit score, the public can evaluate — and contest — the specific model, the specific controls, and the specific data.
+
+The flip side is that small choices about transformation, controls, reference category, and sample filter can meaningfully change coefficients. A regression is only as transparent as the analyst's documentation of those choices. When you publish a regression result, publish the model specification, the sample definition, and the code. Would a reader be able to reproduce your coefficient table from what you shared?
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to the concept of **oversight** introduced in [Chapter 4](04-public-interest.qmd). A fitted regression is a specific, auditable claim about how variables relate; oversight requires that the specification be as public as the coefficient.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## `PatsyError: Error evaluating factor`
+**What it means:** Your formula references a column that is not in the DataFrame, or the column has the wrong type (e.g., strings where a number is expected).
+
+**How to fix it:** Print `df.columns.tolist()` and confirm every name in the formula is present. Cast columns to numeric or categorical before fitting. Column names with spaces or special characters may need `Q('weird name')` in the formula.
+:::
+
+::: {.callout-warning}
+## All your coefficients have huge standard errors and the p-values are near 1
+**What it means:** Two or more predictors are highly collinear. The model cannot separate their effects.
+
+**How to fix it:** Compute VIFs, drop the worst offender, and refit. If two predictors are measuring the same construct (OBP and OPS, for example), pick one.
+:::
+
+::: {.callout-warning}
+## Residual plot shows a funnel shape
+**What it means:** Heteroscedasticity — the variance of the errors changes with the fitted value. The assumption of constant variance is violated, so the standard errors and p-values are untrustworthy.
+
+**How to fix it:** Log-transform the dependent variable. If that does not help, use heteroscedasticity-robust standard errors: `model.fit(cov_type='HC3')`.
+:::
+
+::: {.callout-warning}
+## You added a squared term and R² barely moved
+**What it means:** The relationship is close to linear, so the polynomial term is not earning its keep. Adding noise terms can raise R² very slightly even when they're not useful.
+
+**How to fix it:** Check the p-value on the squared term and adjusted R². If adjusted R² rises and the term is significant, keep it; otherwise drop it.
+:::
+
+::: {.callout-warning}
+## `Prediction` returns values wildly different from the training data
+**What it means:** You are extrapolating — predicting for predictor values outside the range of the training set. Extrapolations are unreliable.
+
+**How to fix it:** Check that the new data's predictor values fall inside the training-data range. If you must extrapolate, flag the predictions explicitly as out-of-sample and widen your uncertainty.
+:::
+
+## Key Takeaways
+
+- Linear regression turns correlation into a quantitative description: slope, standard error, confidence interval, prediction.
+- In multiple regression, each coefficient is the effect of that predictor **holding the others constant**. That's usually the claim worth reporting.
+- **Log-transform skewed outcomes and predictors.** Add polynomial or interaction terms when relationships curve.
+- **Check R², residual plots, and VIFs.** A model that looks good in the summary table can still be wrong; the diagnostics catch most problems.
+- Predictions require new data with the same columns as the formula. Use prediction intervals, not just confidence intervals, for single-case forecasts. Never extrapolate beyond your training range.
+- A regression is an auditable public claim. Publish the specification with the result.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on linear models
+
+- **statsmodels user guide** — [statsmodels.org/stable/user-guide.html](https://www.statsmodels.org/stable/user-guide.html) documents every model and the formula syntax.
+- **statsmodels: Linear regression** — [statsmodels.org/stable/regression.html](https://www.statsmodels.org/stable/regression.html).
+- **"An Introduction to Statistical Learning" (ISLR)** — free online at [statlearning.com](https://www.statlearning.com/). The linear-regression chapter is the best single treatment for working analysts.
+- **"Regression and Other Stories" by Gelman, Hill, and Vehtari** — online at [avehtari.github.io/ROS-Examples/](https://avehtari.github.io/ROS-Examples/). Modern, practical, and opinionated.
+- **scikit-learn** — [scikit-learn.org](https://scikit-learn.org/) is the right next step when your question shifts from inference to prediction (cross-validation, regularization, non-linear models).
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Fit and interpret a multiple regression
+Fit a model predicting `log_salary` from `OPS`, `AB`, and `C(decade)` using the 1990s as the reference decade. Report the OPS coefficient with its 95% confidence interval in dollar terms for a 0.100 increase in OPS. Which decade's coefficient is the largest, and what does that tell you about salary growth?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Diagnose and fix a model
+Fit `salary ~ OPS + AB + yearID` on untransformed salary. Produce the residuals-vs-fitted plot and the Q-Q plot. Describe any assumption violations you see. Refit with `log_salary` as the outcome; did the diagnostics improve?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Predict out-of-sample
+Take your best model from Exercise 1. Generate predicted `log_salary` (and the corresponding dollar predictions with prediction intervals) for a hypothetical player with OPS = 0.850 and AB = 550 in each of the decades your model covers. Compare the intervals — are they wider in some decades than others? Why might that be?
+:::

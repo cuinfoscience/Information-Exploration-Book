@@ -1,4 +1,4 @@
-# Descriptive and Qualitative Exploration {#sec-descriptive}
+# Descriptive Exploration {#sec-descriptive}
 
 ## Learning Objectives
 
@@ -252,7 +252,7 @@ corr_matrix = batting_metrics.corr().round(2)
 print(corr_matrix)
 ```
 
-We will visualize this matrix as a heatmap in @sec-visualization and test individual correlations formally in @sec-hypothesis-testing.
+We will visualize this matrix as a heatmap in @sec-visualization and test individual correlations formally in @sec-comparative.
 
 ## The Descriptive Summary Template
 

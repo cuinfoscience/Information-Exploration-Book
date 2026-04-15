@@ -1,0 +1,178 @@
+# Qualitative Exploration {#sec-qualitative}
+
+## Learning Objectives
+
+By the end of this chapter, you will be able to:
+
+- Read a dataset as a **trace** — the residue of particular people, systems, and procedures, not a neutral record of the world.
+- Apply a short **digital ethnography** to a public dataset: finding the forms, interfaces, staff roles, and policies that produced the rows.
+- Identify the **political economy** of a dataset: who paid for the collection, whose interests the categories serve, and who bears the cost of being counted or miscounted.
+- Explain what **sociomateriality** means in practice and give concrete examples of how software, devices, and categories jointly shape what gets recorded.
+- Integrate qualitative findings with quantitative analysis, strengthening both.
+
+## Why Qualitative Exploration
+
+You've spent the last several chapters becoming good at counting. You can describe a distribution, find outliers, and cross-tabulate categories. What those skills cannot do, on their own, is explain *why the distribution has the shape it does*. Why does one county have orders of magnitude more dispensaries per capita than its neighbor — is that a market fact, or a licensing-office staffing artifact? Why do some cause-of-death codes spike in a particular year — new disease, or a coding-guidance update? Why does a voter registration file suddenly grow by 12% — new residents, or a change in how the state purges inactive records?
+
+Those are **qualitative questions**. The answer is not in the rows; it is in the social and technical context that produced the rows. This chapter introduces a set of methods for recovering that context — **trace** methods, **digital ethnographic** methods, and a vocabulary from **political economy** and **sociomateriality**. Together they give you a way to read a dataset as evidence about the institution that produced it, not just about the world that institution claims to describe.
+
+If this feels very different from loading a CSV, that's because it is. Qualitative methods are interpretive, take time, and produce short text memos rather than DataFrames. They are also what separates an analyst who knows what their numbers mean from one who only knows how to compute them.
+
+## Data as Trace
+
+Every dataset is the **leftover** of particular activity. A cannabis sales spreadsheet is the residue of: a dispensary's point-of-sale system logging transactions; a franchise operator rolling up daily reports to monthly totals; a state Department of Revenue analyst collecting submissions across licensees; an IT contractor's monthly export script. A row in that spreadsheet is not "sales" — it is a particular numeric value that survived that whole chain of people and systems.
+
+Reading data as trace means asking: **what activity left this residue, and where did each step happen?**
+
+Concretely, for any dataset you work with, you can sketch the trace chain:
+
+1. **Act of observation** — what happened in the world that somebody cared to record? (A sale. An arrest. A hospital admission.)
+2. **Primary inscription** — who wrote it down first, on what device or form? (A cashier scanned a bar code. A patrol officer filled out a CAD report in the squad car.)
+3. **Aggregation** — who compiled those inscriptions into a record? (The dispensary's nightly close-out. The department's monthly crime report.)
+4. **Transmission** — how did the record reach the publishing agency? (An email attachment. An automated state-portal upload.)
+5. **Publication** — who formatted the record for public release, and what did they add or remove? (A records officer. A data-dot-gov pipeline.)
+
+Each step has actors, tools, and discretion. The more steps you can name for a dataset, the better your analysis will be — because each step is a potential source of bias, lag, or omission you can now ask about explicitly.
+
+## Digital Ethnography
+
+Traditional ethnography involves extended observation of people in situ — a classic example is Clifford Geertz sitting in Balinese villages for months taking notes. **Digital ethnography** adapts those methods for technologically mediated settings: you observe how people work with interfaces, what happens when a form is filled in wrong, how automated systems mis-match human categories, and what "the data" looks like from inside the organization that produced it.
+
+For public interest analysis, a *light* digital ethnography often suffices. You do not need to shadow a records clerk for a month. A few targeted inquiries usually surface the most important context.
+
+### Methods you can realistically use
+
+- **Read the agency's public documentation.** Data dictionaries, publishing cadences, release notes, and schema-change announcements are often quietly posted on agency sites. A schema that added a `race_ethnicity` column in 2019 reframes any pre-2019 analysis.
+- **Read staff-facing manuals and training materials.** These sometimes appear in FOIA releases, on archived training portals, or on state procurement sites. They tell you what front-line staff are *told* to record, which is rarely identical to what the public data documents.
+- **Collect screenshots of interfaces.** If you can find the data-entry screens a front-line clerk uses — sometimes linked from vendor demo videos, sometimes via FOIA — you learn which fields are required, which are optional, which auto-complete, and which silently truncate.
+- **Read meeting minutes and board packets.** Municipal IT committees, state data governance boards, and vendor contract renewals leave public paper trails. A contract-renewal packet will often describe exactly what the agency's data system can and cannot do.
+- **Trace the vendor.** Most government data comes out of commercial software — Tyler Technologies, Motorola, CentralSquare, Epic. Once you know the vendor, you can read their marketing and documentation, which often reveals capabilities and defaults the agency does not advertise.
+- **Interview producers and users.** A thirty-minute conversation with a records clerk, a line reporter who uses the dataset regularly, or a retired analyst can save weeks of guesswork. Treat the interview as reporting: take notes, confirm details, and ask what the dataset *doesn't* record.
+
+You've already seen some of the raw materials in @sec-textual. Text-processing techniques — searching, extracting, summarizing — are how you work through manuals and minutes at scale once you have them.
+
+### Walking a dataset back
+
+A useful habit is to pick one suspicious row in a dataset and "walk it back" through the trace chain. For a single reported-crime row, can you find: the offense category's formal definition, the jurisdiction's reporting form, the vendor system the form is entered into, the aggregation rule that rolled it up to the state, and the publication cadence? You probably can't find *all* of these — but the gaps are themselves findings, and each one becomes a question you can ask in a FOIA request or an interview.
+
+## The Political Economy of Data Generation
+
+Every dataset exists because somebody paid for it to exist. Agencies collect data because they are required to, or because a grant funds it, or because a senior official wants a dashboard. Private firms publish data because it drives sales, or because regulators compel disclosure, or because doing so undermines a competitor. Academic datasets exist because a PI had grant money and a research agenda. **No dataset is a neutral record of the world; every dataset is a byproduct of particular institutional interests.**
+
+The political-economy questions worth asking for any dataset include:
+
+- **Who funded the collection?** Is the funding stable, or does it sunset next year? A dataset that depends on a single grant may disappear when the grant ends.
+- **Whose work is the data an output of?** The employee or contractor who does the data-entry labor is usually the least powerful actor in the chain and has the least discretion over what gets recorded.
+- **Who benefits from the categories as currently defined?** A category that groups together subgroups that a policy treats very differently is a category that hides an unequal effect. A category that splits a group into subcategories that trigger different services is a category that shapes who gets what.
+- **Who bears the cost of the record existing?** Being in a dataset is not always neutral — arrest records, immigration records, and credit records follow people around. Data generation has distributional consequences even when the dataset itself looks technical.
+- **Who is missing, and what does the absence do?** Counts that exclude unhoused residents, uninsured patients, people without phones, or people who avoid official contact misrepresent the population in ways that compound over time (see @sec-public-interest on exemption).
+
+These are not rhetorical questions. Answering them changes what your quantitative analysis is *about*. A chart of "Colorado crime rates by county" is really a chart of "reported offenses as captured by the reporting jurisdictions that submitted to the CBI that year" — which is a much narrower claim, and much more defensible.
+
+## Sociomateriality
+
+The term **sociomateriality** — drawn from organization studies, and best developed by Wanda Orlikowski and colleagues — names a simple but powerful idea: *data is the joint product of technical artifacts and social practices, and neither on its own explains what the data looks like.*
+
+Consider four concrete examples:
+
+- **A traffic camera** generates a vehicle-count row only when the detection algorithm classifies a passing shape as a vehicle. Cyclists, e-scooters, and some motorcycles frequently fall below the classification threshold. The resulting "vehicle count" is a joint product of a camera's optical properties, the manufacturer's default algorithm, and the city's choice to stick with defaults.
+- **A hospital billing code** (ICD-10) is applied by a coder reading a clinician's note. Different coders will apply different codes to the same note. The resulting "diagnosis frequency" is a joint product of the clinician's vocabulary, the coder's training, the hospital's compliance culture, and the payer's billing-code preferences.
+- **A police CAD system** records an incident only after a dispatcher classifies it as one of a set of predefined call types. The same call ("suspicious person") can be entered as *trespassing*, *loitering*, *welfare check*, or *no action required*, depending on the dispatcher's read. The resulting "call type distribution" is a joint product of state-mandated categories, vendor software defaults, and dispatcher discretion under time pressure.
+- **A census survey** converts a respondent's self-description into a pre-coded race/ethnicity bucket. Whether "Guatemalan" is a fill-in or a checkbox, whether "Some other race" is available, and whether Arab/Middle Eastern/North African has its own line all depend on instrument design choices made years before collection.
+
+In each case, the dataset looks purely technical but is actually produced by a tight loop of software, device, policy, and human discretion. Sociomateriality gives you a vocabulary for naming that. When you notice a surprising pattern in a dataset, the sociomaterial question is: *which part of this pattern lives in the world, and which part lives in the instrument?*
+
+## Integrating Qualitative and Quantitative Work
+
+Qualitative exploration is not a substitute for quantitative analysis — it is a complement. The combination is stronger than either alone.
+
+A useful workflow:
+
+1. **Start with a quantitative anomaly.** A spike, a gap, an outlier, a strange distribution.
+2. **Form a qualitative hypothesis.** "This spike appeared right after the state mandated a new reporting form."
+3. **Test the hypothesis with trace and ethnographic methods.** Read the state's release notes. FOIA the training memo. Interview a records officer.
+4. **Revise the quantitative analysis based on what you learned.** Drop the pre-change years, or add a dummy variable for the change, or split the analysis into two eras.
+5. **Document everything in the Known Issues Log.** The qualitative finding is now part of your analytical provenance, not a footnote.
+
+Good analysis lives in that loop. A purely quantitative chart hides the institutional story that explains it; a purely qualitative account lacks the scale to characterize a pattern. Interleaving the two is how accountability journalism, program evaluation, and rigorous policy analysis actually get done.
+
+## Public Interest Context: Making the Invisible Accountable
+
+Qualitative exploration is what makes public interest data work *accountable*, because it connects the abstract rate in your chart to the specific people and systems that generated it. A rate is an inert number. A rate plus a trace chain plus a sociomaterial account is a falsifiable claim about an institution. That claim can be confirmed, challenged, revised, and — importantly — used.
+
+The datasets in this book describe health, crime, housing, labor, and commerce in Colorado. Each one is the residue of a specific agency's work. When you map that work carefully, you can tell which conclusions the data supports and which it only appears to support. When you skip the mapping, you inherit the agency's blind spots silently.
+
+::: {.callout-note}
+## Connection to @sec-public-interest
+This section connects to all three pressures — **enclosure**, **erosion**, and **exemption** — from [Chapter 4](04-public-interest.qmd). Trace and ethnographic methods are how you make enclosed data practices visible, document erosion in aging systems, and characterize what has been exempted from collection.
+:::
+
+## Common Issues in This Chapter
+
+::: {.callout-warning}
+## You cannot find the documentation you need
+**What it means:** Many agencies publish data without comprehensive documentation, and much of what exists is internal. You will run into dead ends.
+
+**How to fix it:** Use a targeted FOIA or open-records request. State sunshine laws usually cover internal data dictionaries, training memos, and vendor contracts. Organizations like [Muckrock](https://www.muckrock.com/) have templates. Build documentation gaps into your Known Issues Log rather than hiding them.
+:::
+
+::: {.callout-warning}
+## Your interview contact does not want to go on the record
+**What it means:** Staff at public agencies often face real professional risk for speaking to outside analysts. That is not paranoia; it is organizational reality.
+
+**How to fix it:** Offer background-only conversations. Never quote a staff source by name without explicit, repeated permission. For sensitive sources, establish signal/WhatsApp channels and avoid work email. Treat the ethics of data-producer interviews as seriously as you would any other reporting ethics.
+:::
+
+::: {.callout-warning}
+## Qualitative findings do not fit in the quantitative narrative
+**What it means:** You learned something in interviews that complicates or contradicts your numbers. Your first instinct is to leave it out.
+
+**How to fix it:** Write it in. The audience that trusts your charts most is the audience most willing to follow you into nuance. A limitations paragraph that names the qualitative finding — "reporting practices changed in 2019 in a way that likely inflates the apparent increase" — is more credible than a chart that pretends the shift did not happen.
+:::
+
+::: {.callout-warning}
+## You are not sure whether a finding is generalizable
+**What it means:** Qualitative methods produce rich but local accounts. One records clerk's experience may not generalize to every clerk in the state.
+
+**How to fix it:** Say so. Qualitative findings should be reported as "a practice I observed at X site" rather than "how Colorado counties operate." When possible, triangulate by talking to two or three people in similar roles at different sites.
+:::
+
+## Key Takeaways
+
+- Data is **trace** — the residue of particular activity by particular people using particular tools. The shape of the data is shaped by all of it.
+- **Digital ethnography** — reading documentation, observing interfaces, interviewing producers and users — is how you recover the context that quantitative analysis needs.
+- Every dataset has a **political economy**: who pays, who benefits, who bears the cost of being counted or miscounted. No dataset is neutral.
+- **Sociomateriality** names the joint role of software, devices, and human practice. When a pattern surprises you, ask which part lives in the world and which lives in the instrument.
+- Integrate qualitative and quantitative work deliberately. The loop — anomaly → hypothesis → context → revision → documentation — is how rigorous analysis actually gets done.
+
+## Further Reading
+
+::: {.callout-tip collapse="true"}
+## 📚 Going deeper on qualitative and ethnographic methods for data
+
+- **"Sorting Things Out" by Bowker and Star** (MIT Press, 1999) — the foundational treatment of how classification systems shape the world and hide their work. Every data analyst should read at least the introduction.
+- **"'Raw Data' Is an Oxymoron" edited by Lisa Gitelman** — a short essay collection that does for "data" what Bowker and Star did for classification. Start with the introduction.
+- **"Data Feminism" by D'Ignazio and Klein** — free online at [data-feminism.mitpress.mit.edu](https://data-feminism.mitpress.mit.edu/). Reads the political economy of data through a feminist lens.
+- **"Pollution Is Colonialism" by Max Liboiron** — a sharp argument that methods are never neutral, with concrete examples from environmental science.
+- **"Virtual Ethnography" by Christine Hine** — a practical guide to ethnographic methods for networked and digital settings.
+- **Nick Seaver, "Algorithms as Culture"** — a short paper at [journals.sagepub.com/doi/10.1177/2053951717738104](https://journals.sagepub.com/doi/10.1177/2053951717738104) that demonstrates algorithmic ethnography in practice.
+- **Jackson, "Rethinking Repair"** — a short paper introducing "broken-world thinking," which reframes infrastructure as perpetually maintained rather than neutrally present.
+- **FOIA / open-records guides** — [Muckrock](https://www.muckrock.com/) publishes state-by-state request templates; the [Reporters Committee for Freedom of the Press](https://www.rcfp.org/open-government-guide/) has the most comprehensive state law summaries.
+:::
+
+## Exercises
+
+::: {.callout-note collapse="true"}
+## Exercise 1: Walk a dataset back
+Pick one dataset you've worked with in this course. Write a short memo (300–500 words) that reconstructs the trace chain: the act of observation, the primary inscription, the aggregation steps, the transmission to the publishing agency, and the publication format. Where are the gaps in your account? What would you need to FOIA or ask in an interview to close them?
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 2: Document a sociomaterial feature
+Identify one feature of a course dataset that looks technical but is actually shaped by a joint social-and-technical choice — a category boundary, a missing-value code, an aggregation rule, a submission cadence. Write a short paragraph explaining what the feature is, who made the choice, and what the feature would look like if the choice had been different. Add the result to the Known Issues Log of any notebook that uses the dataset.
+:::
+
+::: {.callout-note collapse="true"}
+## Exercise 3: Political-economy audit
+For one public dataset of your choice (not necessarily a course dataset), answer the five political-economy questions from the chapter in writing: who funds the collection, whose work it is an output of, who benefits from the categories as defined, who bears the cost of the record existing, and who is missing. Aim for one paragraph per question, grounded in specific sources. Cite at least three sources that are not the agency's own data page.
+:::

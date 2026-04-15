@@ -40,6 +40,7 @@ book:
         - 18-descriptive.qmd
         - 19-visualization.qmd
         - 20-hypothesis-testing.qmd
+        - 21-linear-models.qmd
   appendices:
     - appendix-datasets.qmd
     - appendix-llm-methods.qmd

@@ -20,7 +20,7 @@ as first-class topics alongside the analytical techniques.
 | **II: Python** | 4 | Loading, cleaning, extending, and reshaping data with pandas |
 | **III: SQL** | 4 | Loading, cleaning, extending, and reshaping data with SQLite |
 | **IV: Non-Tabular Data** | 5 | Spatial (geopandas), network (networkx), text (nltk), time series (statsmodels/prophet), structured web data (requests + BeautifulSoup) |
-| **V: Analysis** | 3 | Descriptive statistics, visualization, hypothesis testing |
+| **V: Analysis** | 4 | Descriptive statistics, visualization, hypothesis testing, linear models |
 | **Appendices** | 2 | Dataset documentation; AI use disclosure |
 
 ## Repository Structure
@@ -49,6 +49,7 @@ Information-Exploration-Book/
 ├── 18-descriptive.qmd             # V: Analysis
 ├── 19-visualization.qmd
 ├── 20-hypothesis-testing.qmd
+├── 21-linear-models.qmd
 ├── appendix-datasets.qmd          # Appendix A
 ├── appendix-llm-methods.qmd       # Appendix B
 ├── book/                          # Rendered HTML output

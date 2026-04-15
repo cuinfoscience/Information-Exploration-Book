@@ -1,4 +1,4 @@
-# Linear Models {#sec-linear-models}
+# Modeling Exploration {#sec-modeling}
 
 ## Learning Objectives
 
@@ -9,13 +9,13 @@ By the end of this chapter, you will be able to:
 - Apply **log transformations** and **polynomial terms** to handle skewed variables and curved relationships.
 - Encode **categorical variables** into a regression using the `C(...)` formula syntax and explain what a reference category is.
 - Evaluate a model with R², adjusted R², residual diagnostics, and multicollinearity checks.
-- Use a fitted model to produce **predictions** and **forecasts** with appropriate intervals, and recognize when extrapolation is unsafe.
+- Use a fitted model to produce **predictions** with appropriate intervals, and recognize when extrapolation is unsafe.
 
-## Why Linear Models
+## Why Modeling Exploration
 
-Descriptive statistics tell you what your data looks like. Hypothesis testing tells you whether a difference or correlation is likely to be real. Linear models go one step further: they give you a **quantitative description** of how one variable depends on others — a slope, a standard error, a predicted value. Instead of "salary and OPS are correlated (r = 0.34)," a linear model lets you say "each additional 0.100 of OPS is associated with about $1.8 million in salary, holding at-bats constant."
+The previous exploration chapters showed you how to compare two variables at a time — two groups via a t-test, three or more via ANOVA, two numeric variables via correlation. **Modeling exploration** extends those comparisons to the case you actually face in real analysis: many variables moving together, with effects that depend on which other variables you control for. A linear model lets you say "holding at-bats and year constant, each 0.100 increase in OPS is associated with about a 25% increase in salary" — a claim that requires the model, because no pairwise comparison can support it.
 
-This chapter extends the correlation work from @sec-hypothesis-testing into regression. You'll fit a single-predictor model, add more predictors, check the assumptions the model makes, and use the model to predict new values. The same dataset carries through: [Lahman](https://sabr.org/lahman-database/) batting statistics merged with salaries.
+This chapter uses linear regression as the core tool. You'll fit a single-predictor model, add more predictors, transform skewed variables, handle categorical predictors, check the assumptions the model makes, and use the model to predict new values. The dataset carries through from the previous chapters: [Lahman](https://sabr.org/lahman-database/) batting statistics merged with salaries.
 
 If regression feels like a big conceptual leap, that's expected. The first fit you run and interpret will settle more intuition than any amount of reading. Work through the examples in a notebook; come back to this chapter as a reference.
 

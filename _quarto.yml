@@ -38,9 +38,10 @@ book:
     - part: "Analysis"
       chapters:
         - 18-descriptive.qmd
-        - 19-visualization.qmd
-        - 20-hypothesis-testing.qmd
-        - 21-linear-models.qmd
+        - 19-qualitative.qmd
+        - 20-comparative.qmd
+        - 21-visualization.qmd
+        - 22-modeling.qmd
   appendices:
     - appendix-datasets.qmd
     - appendix-llm-methods.qmd

@@ -1,4 +1,4 @@
-# Hypothesis Testing and Comparisons {#sec-hypothesis-testing}
+# Comparative Exploration {#sec-comparative}
 
 ## Learning Objectives
 
@@ -6,16 +6,17 @@ By the end of this chapter, you will be able to:
 
 - Frame a comparison as a **null hypothesis** vs. an **alternative hypothesis** and explain what a p-value does (and does not) mean.
 - Run an independent and paired [t-test](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html) using [`scipy.stats`](https://docs.scipy.org/doc/scipy/reference/stats.html), and compute **Cohen's d** as an effect-size measure.
+- Run a one-way [ANOVA](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.f_oneway.html) to compare means across three or more groups, interpret the F-statistic, and compute **eta-squared** as an effect size.
 - Run a [chi-square test](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2_contingency.html) of independence on categorical variables, and compute **Cramér's V**.
 - Compute [Pearson](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.pearsonr.html) and [Spearman](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html) correlation coefficients and interpret the difference between them.
 - Report statistical results with four elements: what you tested, the result, the test statistic + p-value, and the effect size + interpretation.
 - Recognize when statistical significance does and does not imply practical significance.
 
-## Why Hypothesis Testing
+## Why Comparative Exploration
 
-Descriptive statistics and visualizations tell you what your data looks like. [Hypothesis testing](https://docs.scipy.org/doc/scipy/reference/tutorial/stats.html) tells you whether the patterns you see are likely to be meaningful or whether they could have arisen by chance. This chapter introduces a small set of statistical tests — enough to make principled statements about group differences and variable relationships — and focuses on interpreting results in plain language rather than on statistical theory.
+Descriptive and qualitative exploration tell you what your data looks like and what it means in context. **Comparative exploration** answers the next question: when you compare two groups, three groups, or two variables, is the difference you see real, or could it have arisen by chance? This chapter introduces a small set of statistical comparisons — t-tests for two groups, ANOVA for three or more groups, chi-square for categorical contingency, and correlation for pairs of numeric variables — that cover the vast majority of the comparisons an analyst makes with tabular data.
 
-The framework is deliberately simple. You will learn to ask three questions: *Is there a difference between these groups? How strong is the relationship between these variables? Could what I'm seeing be due to random variation?* The tools that answer these questions — t-tests, chi-square tests, and correlation coefficients — cover a large proportion of the exploratory comparisons you will encounter with tabular data.
+The framework is deliberately simple. Each test answers a version of the same question: *is the pattern I see distinguishable from random variation?* You'll read each result the same way: name the test, report the statistic and p-value, compute an effect size, and interpret the magnitude in plain language. Once you can read one test's output, you can read them all.
 
 If you have never worked with p-values before, they can feel counterintuitive at first — the interpretation flips in a way most introductions gloss over. Re-read the interpretation paragraphs slowly, and come back to them after running a few tests yourself. The intuition settles with practice.
 
@@ -188,6 +189,62 @@ print(f'p-value: {p_value:.6f}')
 
 Here is what you can conclude: if the p-value is very small, retail sales are systematically different from medical sales across county-months. The direction and magnitude of the difference tell you which is larger and by how much. This is a within-subjects comparison — the same counties are measured on both variables — so many county-level confounds (population, geography) are controlled for.
 
+## Comparing Three or More Groups: One-Way ANOVA
+
+A t-test compares two groups. When you have three or more groups and you want to ask whether *any* of them differ from the others, use a **one-way ANOVA** (Analysis of Variance). The test produces an **F-statistic** — the ratio of between-group variance to within-group variance. A large F (and correspondingly small p-value) means the group means are farther apart than you would expect under the null hypothesis that every group was drawn from the same distribution.
+
+### Example: Batting average across decades
+
+Did mean batting average differ across the 1980s, 1990s, 2000s, and 2010s?
+
+```{python}
+groups = {}
+for decade in [1980, 1990, 2000, 2010]:
+    groups[decade] = qualified[qualified['decade'] == decade]['BA'].dropna()
+    print(f"{decade}s: n={len(groups[decade])}, mean={groups[decade].mean():.4f}")
+
+f_stat, p_value = stats.f_oneway(*groups.values())
+print(f'\nF-statistic: {f_stat:.2f}')
+print(f'p-value: {p_value:.6f}')
+```
+
+Here is what you can conclude: a small p-value means **at least one** decade's mean batting average differs from the others. ANOVA does not tell you which. For that, you need a **post-hoc test** — conventionally Tukey's HSD (Honestly Significant Difference), which compares every pair while controlling the family-wise error rate.
+
+```{python}
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+decade_ba = qualified[qualified['decade'].isin([1980, 1990, 2000, 2010])].dropna(subset=['BA'])
+tukey = pairwise_tukeyhsd(
+    endog=decade_ba['BA'],
+    groups=decade_ba['decade'].astype(int),
+    alpha=0.05,
+)
+print(tukey.summary())
+```
+
+The Tukey output lists every pair with an adjusted p-value and whether the difference is significant at the specified alpha. This is the table to report alongside the ANOVA.
+
+### Effect size: eta-squared
+
+The F-statistic itself depends heavily on sample size, so for effect size you use **eta-squared (η²)** — the fraction of total variance explained by group membership. Interpretively, it's the ANOVA analog of R² in regression.
+
+```{python}
+# Manual eta-squared from the ANOVA decomposition
+grand_mean = decade_ba['BA'].mean()
+ss_total = ((decade_ba['BA'] - grand_mean) ** 2).sum()
+ss_between = sum(
+    len(g) * (g.mean() - grand_mean) ** 2 for g in groups.values()
+)
+eta_sq = ss_between / ss_total
+print(f"η² = {eta_sq:.3f}")
+```
+
+Conventional interpretation: η² ≈ 0.01 is small, 0.06 is medium, 0.14 is large. In large samples, even tiny η² can produce a significant F — report η² explicitly and interpret its magnitude.
+
+### Assumptions and robustness
+
+ANOVA assumes roughly normal distributions within each group and roughly equal variances across groups. Both are often violated in real data. If the group sizes are reasonably balanced, the test is fairly robust. If variances differ substantially, use Welch's ANOVA (`stats.alexandergovern` or, more commonly, `scipy.stats.f_oneway` with data that has been checked via Levene's test first). For small samples with non-normal data, use the non-parametric **Kruskal–Wallis** test (`stats.kruskal`) as a robust alternative.
+
 ## Comparing Categorical Variables: The Chi-Square Test
 
 The chi-square test of independence asks: *Are two categorical variables associated, or are they independent?* Use it when both your variables are categorical.
@@ -314,6 +371,7 @@ Look for the cells with the strongest colors. Correlations between derived metri
 |----------|------|-------|
 | Is the mean different between two independent groups? | Independent t-test (`stats.ttest_ind`) | One numeric + one binary categorical |
 | Is there a systematic difference between two paired measurements? | Paired t-test (`stats.ttest_rel`) | Two numeric columns from the same entity |
+| Is the mean different across three or more groups? | One-way ANOVA (`stats.f_oneway`), followed by Tukey HSD for pairwise comparisons | One numeric + one categorical with 3+ levels |
 | Are two categorical variables associated? | Chi-square test (`stats.chi2_contingency`) | Two categorical variables (contingency table) |
 | How strong is the linear relationship between two variables? | Pearson correlation (`stats.pearsonr`) | Two numeric variables |
 | How strong is the monotonic (but possibly non-linear) relationship? | Spearman correlation (`stats.spearmanr`) | Two numeric variables |
